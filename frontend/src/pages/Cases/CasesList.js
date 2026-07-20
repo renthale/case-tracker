@@ -1,0 +1,230 @@
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { useLanguage } from '../../context/LanguageContext';
+import api from '../../services/api';
+import { FiPlus, FiSearch, FiFilter, FiEye, FiEdit, FiTrash2 } from 'react-icons/fi';
+import { format } from 'date-fns';
+import { ar } from 'date-fns/locale';
+import toast from 'react-hot-toast';
+
+const CasesList = () => {
+  const { t } = useLanguage();
+  const [cases, setCases] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [filters, setFilters] = useState({
+    search: '',
+    status: '',
+    type: '',
+    priority: ''
+  });
+  const [pagination, setPagination] = useState({
+    page: 1,
+    pages: 1,
+    total: 0
+  });
+
+  useEffect(() => {
+    fetchCases();
+  }, [filters, pagination.page]);
+
+  const fetchCases = async () => {
+    try {
+      const params = {
+        ...filters,
+        page: pagination.page,
+        limit: 10
+      };
+      
+      const response = await api.get('/cases', { params });
+      setCases(response.data.cases);
+      setPagination(response.data.pagination);
+    } catch (error) {
+      toast.error(t.errorFetchingCases);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFilterChange = (e) => {
+    setFilters({ ...filters, [e.target.name]: e.target.value });
+    setPagination({ ...pagination, page: 1 });
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm(t.confirmDelete)) {
+      try {
+        await api.delete(`/cases/${id}`);
+        toast.success(t.caseDeleted);
+        fetchCases();
+      } catch (error) {
+        toast.error(t.errorDeletingCase);
+      }
+    }
+  };
+
+  const getStatusBadge = (status) => {
+    const statusClasses = {
+      active: 'badge-active',
+      pending: 'badge-pending',
+      closed: 'badge-closed',
+      won: 'badge-won',
+      lost: 'badge-lost'
+    };
+    return <span className={`badge ${statusClasses[status]}`}>{t[status]}</span>;
+  };
+
+  if (loading) {
+    return <div className="loading">{t.loading}</div>;
+  }
+
+  return (
+    <div className="cases-list">
+      <div className="card-header">
+        <h2 className="card-title">{t.allCases} ({pagination.total})</h2>
+        <Link to="/cases/new" className="btn btn-primary">
+          <FiPlus /> {t.addCase}
+        </Link>
+      </div>
+
+      <div className="search-filter">
+        <div className="search-input" style={{ position: 'relative' }}>
+          <input
+            type="text"
+            name="search"
+            className="form-control"
+            placeholder={t.searchCases}
+            value={filters.search}
+            onChange={handleFilterChange}
+            style={{ paddingRight: '2.5rem' }}
+          />
+          <FiSearch style={{ position: 'absolute', right: '0.8rem', top: '50%', transform: 'translateY(-50%)', color: '#999' }} />
+        </div>
+        
+        <select
+          name="status"
+          className="form-control"
+          value={filters.status}
+          onChange={handleFilterChange}
+        >
+          <option value="">{t.allStatuses}</option>
+          <option value="active">{t.active}</option>
+          <option value="pending">{t.pending}</option>
+          <option value="closed">{t.closed}</option>
+          <option value="won">{t.won}</option>
+          <option value="lost">{t.lost}</option>
+          <option value="settled">{t.settled}</option>
+          <option value="appeal">{t.appeal}</option>
+        </select>
+        
+        <select
+          name="type"
+          className="form-control"
+          value={filters.type}
+          onChange={handleFilterChange}
+        >
+          <option value="">{t.allTypes}</option>
+          <option value="civil">{t.civil}</option>
+          <option value="criminal">{t.criminal}</option>
+          <option value="commercial">{t.commercial}</option>
+          <option value="administrative">{t.administrative}</option>
+          <option value="family">{t.family}</option>
+          <option value="labor">{t.labor}</option>
+          <option value="other">{t.other}</option>
+        </select>
+        
+        <select
+          name="priority"
+          className="form-control"
+          value={filters.priority}
+          onChange={handleFilterChange}
+        >
+          <option value="">{t.allPriorities}</option>
+          <option value="low">{t.low}</option>
+          <option value="medium">{t.medium}</option>
+          <option value="high">{t.high}</option>
+          <option value="urgent">{t.urgent}</option>
+        </select>
+      </div>
+
+      <div className="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>{t.caseNumber}</th>
+              <th>{t.caseTitle}</th>
+              <th>{t.caseType}</th>
+              <th>{t.caseStatus}</th>
+              <th>{t.casePriority}</th>
+              <th>{t.clientName}</th>
+              <th>{t.nextHearing}</th>
+              <th>{t.actions}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {cases.length > 0 ? (
+              cases.map((caseItem) => (
+                <tr key={caseItem.id}>
+                  <td>{caseItem.caseNumber}</td>
+                  <td>{caseItem.title}</td>
+                  <td>{t[caseItem.type]}</td>
+                  <td>{getStatusBadge(caseItem.status)}</td>
+                  <td>{t[caseItem.priority]}</td>
+                  <td>{caseItem.clientName}</td>
+                  <td>
+                    {caseItem.nextHearingDate 
+                      ? format(new Date(caseItem.nextHearingDate), 'dd/MM/yyyy', { locale: ar })
+                      : '-'
+                    }
+                  </td>
+                  <td>
+                    <div className="actions">
+                      <Link to={`/cases/${caseItem.id}`} className="btn btn-secondary" title={t.view}>
+                        <FiEye />
+                      </Link>
+                      <Link to={`/cases/${caseItem.id}/edit`} className="btn btn-secondary" title={t.edit}>
+                        <FiEdit />
+                      </Link>
+                      <button 
+                        className="btn btn-danger" 
+                        title={t.delete}
+                        onClick={() => handleDelete(caseItem.id)}
+                      >
+                        <FiTrash2 />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="8" className="no-data">{t.noCasesFound}</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {pagination.pages > 1 && (
+        <div className="pagination">
+          <button 
+            className="btn btn-secondary"
+            disabled={pagination.page === 1}
+            onClick={() => setPagination({ ...pagination, page: pagination.page - 1 })}
+          >
+            {t.previous}
+          </button>
+          <span>{t.page} {pagination.page} {t.of} {pagination.pages}</span>
+          <button 
+            className="btn btn-secondary"
+            disabled={pagination.page === pagination.pages}
+            onClick={() => setPagination({ ...pagination, page: pagination.page + 1 })}
+          >
+            {t.next}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default CasesList;
