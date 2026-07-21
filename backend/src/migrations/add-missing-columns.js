@@ -8,8 +8,10 @@ const migrations = [
   `ALTER TABLE "Cases" ADD COLUMN IF NOT EXISTS "lastEditedBy" INTEGER;`,
   `ALTER TABLE "Cases" ADD COLUMN IF NOT EXISTS "lastEditedAt" TIMESTAMP;`,
 
-  // Client model - passportNumber
+  // Client model - passportNumber + dateOfBirth + firstCooperationDate
   `ALTER TABLE "Clients" ADD COLUMN IF NOT EXISTS "passportNumber" VARCHAR(30);`,
+  `ALTER TABLE "Clients" ADD COLUMN IF NOT EXISTS "dateOfBirth" DATE;`,
+  `ALTER TABLE "Clients" ADD COLUMN IF NOT EXISTS "firstCooperationDate" DATE;`,
 
   // Transaction model - fix old ENUM 'type' column to VARCHAR
   `DO $$ BEGIN
@@ -20,7 +22,7 @@ const migrations = [
   `DO $$ BEGIN
     ALTER TABLE "Transactions" ALTER COLUMN "status" TYPE VARCHAR(30);
   EXCEPTION WHEN undefined_column THEN NULL;
-  END $$;`,,
+  END $$;`,
 
   // Transaction model - new government transaction fields
   `ALTER TABLE "Transactions" ADD COLUMN IF NOT EXISTS "title" VARCHAR(200);`,

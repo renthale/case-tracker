@@ -32,6 +32,12 @@ const Client = sequelize.define('Client', {
   nationality: {
     type: DataTypes.STRING(50)
   },
+  dateOfBirth: {
+    type: DataTypes.DATEONLY
+  },
+  firstCooperationDate: {
+    type: DataTypes.DATEONLY
+  },
   notes: {
     type: DataTypes.TEXT
   },

@@ -204,6 +204,7 @@ export const ar = {
   passportNumber: 'رقم جواز السفر',
   nationality: 'الجنسية',
   dateOfBirth: 'تاريخ الميلاد',
+  firstCooperationDate: 'تاريخ أول تعاون',
   registrationDate: 'تاريخ التسجيل',
   casesCount: 'عدد القضايا',
 
@@ -503,6 +504,7 @@ export const en = {
   passportNumber: 'Passport Number',
   nationality: 'Nationality',
   dateOfBirth: 'Date of Birth',
+  firstCooperationDate: 'First Cooperation Date',
   registrationDate: 'Registration Date',
   casesCount: 'Cases Count',
 

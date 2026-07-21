@@ -1,4 +1,4 @@
-const { Client, Case, Invoice } = require('../models');
+const { Client, Case, Invoice, Payment } = require('../models');
 const { Op } = require('sequelize');
 
 exports.createClient = async (req, res) => {
@@ -67,7 +67,14 @@ exports.getClientById = async (req, res) => {
     const client = await Client.findByPk(req.params.id, {
       include: [
         { model: Case, as: 'cases', attributes: ['id', 'caseNumber', 'title', 'status', 'type'] },
-        { model: Invoice, as: 'invoices', attributes: ['id', 'invoiceNumber', 'totalAmount', 'paidAmount', 'status', 'dueDate'] }
+        { 
+          model: Invoice, 
+          as: 'invoices', 
+          attributes: ['id', 'invoiceNumber', 'totalAmount', 'paidAmount', 'status', 'dueDate'],
+          include: [
+            { model: Payment, as: 'payments', attributes: ['id', 'amount', 'paymentDate', 'paymentMethod', 'referenceNumber'] }
+          ]
+        }
       ]
     });
 

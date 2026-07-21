@@ -19,6 +19,7 @@ const ClientForm = () => {
     address: '',
     nationality: '',
     dateOfBirth: '',
+    firstCooperationDate: '',
     notes: ''
   });
 
@@ -43,6 +44,7 @@ const ClientForm = () => {
         address: client.address || '',
         nationality: client.nationality || '',
         dateOfBirth: client.dateOfBirth?.split('T')[0] || '',
+        firstCooperationDate: client.firstCooperationDate?.split('T')[0] || '',
         notes: client.notes || ''
       });
     } catch (error) {
@@ -149,6 +151,17 @@ const ClientForm = () => {
                 name="dateOfBirth"
                 className="form-control"
                 value={formData.dateOfBirth}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className="form-group">
+              <label>{t.firstCooperationDate || 'تاريخ أول تعاون'}</label>
+              <input
+                type="date"
+                name="firstCooperationDate"
+                className="form-control"
+                value={formData.firstCooperationDate}
                 onChange={handleChange}
               />
             </div>
