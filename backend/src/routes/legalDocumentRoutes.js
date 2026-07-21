@@ -8,7 +8,7 @@ router.use(auth);
 
 router.get('/', legalDocumentController.getDocuments);
 
-router.post('/', authorize('admin', 'partner', 'lawyer', 'legal_consultant', 'trainee_lawyer'), [
+router.post('/', authorize('admin', 'partner', 'lawyer', 'legal_consultant', 'trainee_lawyer', 'court_agent', 'legal_secretary'), [
   body('caseId').isInt().withMessage('معرف القضية مطلوب'),
   body('title').trim().notEmpty().withMessage('عنوان المستند مطلوب'),
   body('type').isIn(['contract', 'petition', 'judgment', 'evidence', 'correspondence', 'memo', 'other']).withMessage('نوع المستند غير صالح')
@@ -16,14 +16,14 @@ router.post('/', authorize('admin', 'partner', 'lawyer', 'legal_consultant', 'tr
 
 router.get('/:id', legalDocumentController.getDocumentById);
 
-router.put('/:id', authorize('admin', 'partner', 'lawyer', 'legal_consultant', 'trainee_lawyer'), [
+router.put('/:id', authorize('admin', 'partner', 'lawyer', 'legal_consultant', 'trainee_lawyer', 'court_agent', 'legal_secretary'), [
   body('title').optional().trim().notEmpty(),
   body('type').optional().isIn(['contract', 'petition', 'judgment', 'evidence', 'correspondence', 'memo', 'other'])
 ], legalDocumentController.updateDocument);
 
 router.delete('/:id', authorize('admin', 'partner'), legalDocumentController.deleteDocument);
 
-router.patch('/:id/status', authorize('admin', 'partner', 'legal_consultant'), [
+router.patch('/:id/status', authorize('admin', 'partner', 'legal_consultant', 'court_agent', 'legal_secretary'), [
   body('status').isIn(['draft', 'under_review', 'approved', 'archived']).withMessage('حالة غير صالحة')
 ], legalDocumentController.changeStatus);
 
