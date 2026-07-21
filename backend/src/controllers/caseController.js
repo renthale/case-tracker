@@ -3,8 +3,15 @@ const { Op } = require('sequelize');
 
 exports.createCase = async (req, res) => {
   try {
+    let caseNumber = req.body.caseNumber;
+    if (!caseNumber) {
+      const count = await Case.count();
+      caseNumber = `CASE-${String(count + 1).padStart(4, '0')}`;
+    }
+
     const caseData = {
       ...req.body,
+      caseNumber,
       assignedLawyerId: req.user.id
     };
 
@@ -21,6 +28,14 @@ exports.createCase = async (req, res) => {
 
     res.status(201).json({ message: 'تم إنشاء القضية بنجاح', case: caseRecord });
   } catch (error) {
+    console.error('Create case error:', error);
+    if (error.name === 'SequelizeValidationError') {
+      const messages = error.errors.map(e => e.message).join(', ');
+      return res.status(400).json({ error: 'خطأ في البيانات', details: messages });
+    }
+    if (error.name === 'SequelizeUniqueConstraintError') {
+      return res.status(400).json({ error: 'رقم القضية مستخدم مسبقاً', details: 'يجب استخدام رقم قضية مختلف' });
+    }
     res.status(500).json({ error: 'خطأ في إنشاء القضية', details: error.message });
   }
 };

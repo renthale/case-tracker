@@ -9,7 +9,7 @@ const Case = sequelize.define('Case', {
   },
   caseNumber: {
     type: DataTypes.STRING(50),
-    allowNull: false,
+    allowNull: true,
     unique: true
   },
   title: {

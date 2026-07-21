@@ -92,7 +92,7 @@ const CaseForm = () => {
       }
       navigate('/cases');
     } catch (error) {
-      toast.error(error.response?.data?.error || t.errorSavingCase);
+      toast.error(error.response?.data?.details || error.response?.data?.error || t.errorSavingCase);
     } finally {
       setLoading(false);
     }
