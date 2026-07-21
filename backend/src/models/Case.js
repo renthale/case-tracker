@@ -122,7 +122,7 @@ const Case = sequelize.define('Case', {
     type: DataTypes.DATEONLY
   },
   filingType: {
-    type: DataTypes.ENUM('new', 'appeal', 'cassation'),
+    type: DataTypes.STRING(20),
     defaultValue: 'new'
   },
   lastEditedBy: {
