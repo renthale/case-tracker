@@ -1,4 +1,4 @@
-const { Case, Session, User, Notification } = require('../models');
+const { Case, Session, User, Notification, Client, Invoice, LegalDocument } = require('../models');
 const { Op } = require('sequelize');
 
 exports.createCase = async (req, res) => {
@@ -14,6 +14,13 @@ exports.createCase = async (req, res) => {
       caseNumber,
       assignedLawyerId: req.user.id
     };
+
+    if (req.body.clientId) {
+      const client = await Client.findByPk(req.body.clientId);
+      if (!client) {
+        return res.status(404).json({ error: 'العميل غير موجود' });
+      }
+    }
 
     const caseRecord = await Case.create(caseData);
 
@@ -42,18 +49,19 @@ exports.createCase = async (req, res) => {
 
 exports.getCases = async (req, res) => {
   try {
-    const { 
-      status, type, priority, search, 
+    const {
+      status, type, priority, search, clientId,
       page = 1, limit = 10,
       sortBy = 'createdAt', sortOrder = 'DESC'
     } = req.query;
 
     const where = {};
-    
+
     if (status) where.status = status;
     if (type) where.type = type;
     if (priority) where.priority = priority;
-    
+    if (clientId) where.clientId = clientId;
+
     if (search) {
       where[Op.or] = [
         { title: { [Op.iLike]: `%${search}%` } },
@@ -64,11 +72,12 @@ exports.getCases = async (req, res) => {
     }
 
     const offset = (page - 1) * limit;
-    
+
     const { count, rows: cases } = await Case.findAndCountAll({
       where,
       include: [
-        { model: User, as: 'assignedLawyer', attributes: ['id', 'fullName'] }
+        { model: User, as: 'assignedLawyer', attributes: ['id', 'fullName'] },
+        { model: Client, as: 'client', attributes: ['id', 'name', 'phone'] }
       ],
       order: [[sortBy, sortOrder]],
       limit: parseInt(limit),
@@ -93,7 +102,10 @@ exports.getCaseById = async (req, res) => {
     const caseRecord = await Case.findByPk(req.params.id, {
       include: [
         { model: User, as: 'assignedLawyer', attributes: ['id', 'fullName', 'email'] },
+        { model: Client, as: 'client' },
         { model: Session, as: 'sessions', order: [['date', 'DESC']] },
+        { model: Invoice, as: 'invoices', attributes: ['id', 'invoiceNumber', 'totalAmount', 'paidAmount', 'status', 'dueDate'] },
+        { model: LegalDocument, as: 'legalDocuments', attributes: ['id', 'title', 'type', 'status', 'createdAt'] },
         { model: Notification, as: 'notifications', order: [['createdAt', 'DESC']], limit: 10 }
       ]
     });
@@ -104,7 +116,7 @@ exports.getCaseById = async (req, res) => {
 
     res.json({ case: caseRecord });
   } catch (error) {
-    res.status(500).json({ error: 'خطأ في جلب القضية' });
+    res.status(500).json({ error: 'خطأ في جلب القضية', details: error.message });
   }
 };
 
@@ -116,10 +128,18 @@ exports.updateCase = async (req, res) => {
       return res.status(404).json({ error: 'القضية غير موجودة' });
     }
 
+    const isAssignedLawyer = caseRecord.assignedLawyerId === req.user.id;
+    const isSecondaryLawyer = caseRecord.secondaryLawyerId === req.user.id;
+    const isAdminOrPartner = ['admin', 'partner'].includes(req.user.role);
+
+    if (!isAssignedLawyer && !isSecondaryLawyer && !isAdminOrPartner) {
+      return res.status(403).json({ error: 'ليس لديك صلاحية لتحديث هذه القضية' });
+    }
+
     const oldStatus = caseRecord.status;
     await caseRecord.update(req.body);
 
-    if (oldStatus !== req.body.status) {
+    if (req.body.status && oldStatus !== req.body.status) {
       await Notification.create({
         userId: req.user.id,
         caseId: caseRecord.id,
@@ -132,7 +152,7 @@ exports.updateCase = async (req, res) => {
 
     res.json({ message: 'تم تحديث القضية بنجاح', case: caseRecord });
   } catch (error) {
-    res.status(500).json({ error: 'خطأ في تحديث القضية' });
+    res.status(500).json({ error: 'خطأ في تحديث القضية', details: error.message });
   }
 };
 
@@ -144,11 +164,9 @@ exports.deleteCase = async (req, res) => {
       return res.status(404).json({ error: 'القضية غير موجودة' });
     }
 
-    await caseRecord.destroy();
-
-    res.json({ message: 'تم حذف القضية بنجاح' });
+    return res.status(403).json({ error: 'لا يمكن حذف تفاصيل القضية الأساسية - يمكنك التعديل فقط' });
   } catch (error) {
-    res.status(500).json({ error: 'خطأ في حذف القضية' });
+    res.status(500).json({ error: 'خطأ في حذف القضية', details: error.message });
   }
 };
 
@@ -181,6 +199,9 @@ exports.getCaseStats = async (req, res) => {
       limit: 5
     });
 
+    const totalInvoicePending = await Invoice.sum('totalAmount', { where: { status: 'pending' } }) || 0;
+    const totalInvoicePaid = await Invoice.sum('paidAmount', { where: { status: 'paid' } }) || 0;
+
     res.json({
       stats: {
         total: totalCases,
@@ -192,7 +213,11 @@ exports.getCaseStats = async (req, res) => {
       },
       casesByType,
       casesByPriority,
-      upcomingSessions
+      upcomingSessions,
+      invoiceStats: {
+        totalPending: parseFloat(totalInvoicePending),
+        totalPaid: parseFloat(totalInvoicePaid)
+      }
     });
   } catch (error) {
     res.status(500).json({ error: 'خطأ في جلب الإحصائيات' });

@@ -1,6 +1,14 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
+const canManageCases = ['admin', 'partner', 'lawyer'];
+const canViewAllCases = ['admin', 'partner'];
+const canManageInvoices = ['admin', 'partner', 'legal_secretary'];
+const canManageDocuments = ['admin', 'partner', 'lawyer', 'legal_consultant', 'trainee_lawyer'];
+const canViewCourtSessions = ['admin', 'partner', 'lawyer', 'court_agent', 'trainee_lawyer'];
+const canManageTransactions = ['admin', 'partner', 'transactions_agent'];
+const canManageUsers = ['admin', 'partner'];
+
 const auth = async (req, res, next) => {
   try {
     const token = req.header('Authorization')?.replace('Bearer ', '');
@@ -33,4 +41,14 @@ const authorize = (...roles) => {
   };
 };
 
-module.exports = { auth, authorize };
+module.exports = {
+  auth,
+  authorize,
+  canManageCases,
+  canViewAllCases,
+  canManageInvoices,
+  canManageDocuments,
+  canViewCourtSessions,
+  canManageTransactions,
+  canManageUsers
+};

@@ -4,14 +4,22 @@ const { Op } = require('sequelize');
 exports.createSession = async (req, res) => {
   try {
     const { caseId } = req.params;
-    
+
     const caseRecord = await Case.findByPk(caseId);
     if (!caseRecord) {
       return res.status(404).json({ error: 'القضية غير موجودة' });
     }
 
+    const isAssignedLawyer = caseRecord.assignedLawyerId === req.user.id;
+    const isCourtAgent = req.user.role === 'court_agent';
+    const isAdminOrPartner = ['admin', 'partner'].includes(req.user.role);
+
+    if (!isAssignedLawyer && !isCourtAgent && !isAdminOrPartner) {
+      return res.status(403).json({ error: 'ليس لديك صلاحية لإنشاء جلسة لهذه القضية' });
+    }
+
     const sessionCount = await Session.count({ where: { caseId } });
-    
+
     const session = await Session.create({
       ...req.body,
       caseId,
@@ -46,7 +54,7 @@ exports.getSessions = async (req, res) => {
     const where = {};
     if (caseId) where.caseId = caseId;
     if (status) where.status = status;
-    
+
     if (upcoming === 'true') {
       where.date = { [Op.gte]: new Date() };
       where.status = 'scheduled';
@@ -99,12 +107,20 @@ exports.updateSession = async (req, res) => {
       return res.status(404).json({ error: 'الجلسة غير موجودة' });
     }
 
+    const caseRecord = await Case.findByPk(session.caseId);
+
+    const isAssignedLawyer = caseRecord && caseRecord.assignedLawyerId === req.user.id;
+    const isCourtAgent = req.user.role === 'court_agent';
+    const isAdminOrPartner = ['admin', 'partner'].includes(req.user.role);
+
+    if (!isAssignedLawyer && !isCourtAgent && !isAdminOrPartner) {
+      return res.status(403).json({ error: 'ليس لديك صلاحية لتحديث هذه الجلسة' });
+    }
+
     const oldStatus = session.status;
     await session.update(req.body);
 
     if (oldStatus !== req.body.status) {
-      const caseRecord = await Case.findByPk(session.caseId);
-      
       await Notification.create({
         userId: req.user.id,
         caseId: session.caseId,
