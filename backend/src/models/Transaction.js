@@ -7,6 +7,15 @@ const Transaction = sequelize.define('Transaction', {
     primaryKey: true,
     autoIncrement: true
   },
+  // Legacy fields (keep for DB compatibility)
+  type: {
+    type: DataTypes.STRING(50),
+    defaultValue: 'government_transaction'
+  },
+  amount: {
+    type: DataTypes.DECIMAL(10, 3),
+    defaultValue: 0
+  },
   caseId: {
     type: DataTypes.INTEGER,
     references: { model: 'Cases', key: 'id' }
