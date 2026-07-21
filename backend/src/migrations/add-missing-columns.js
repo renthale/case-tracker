@@ -34,6 +34,14 @@ const migrations = [
 
   // Session model - sessionType
   `ALTER TABLE "Sessions" ADD COLUMN IF NOT EXISTS "sessionType" VARCHAR(30) DEFAULT 'mainSession';`,
+
+  // Case model - fee breakdown + registration + payment status
+  `ALTER TABLE "Cases" ADD COLUMN IF NOT EXISTS "registrationNumber" VARCHAR(50);`,
+  `ALTER TABLE "Cases" ADD COLUMN IF NOT EXISTS "consultationFees" DECIMAL(10,3) DEFAULT 0;`,
+  `ALTER TABLE "Cases" ADD COLUMN IF NOT EXISTS "litigationFees" DECIMAL(10,3) DEFAULT 0;`,
+  `ALTER TABLE "Cases" ADD COLUMN IF NOT EXISTS "sessionFees" DECIMAL(10,3) DEFAULT 0;`,
+  `ALTER TABLE "Cases" ADD COLUMN IF NOT EXISTS "otherFees" DECIMAL(10,3) DEFAULT 0;`,
+  `ALTER TABLE "Cases" ADD COLUMN IF NOT EXISTS "paymentStatus" VARCHAR(20) DEFAULT 'unpaid';`,
 ];
 
 const runMigrations = async () => {

@@ -44,6 +44,9 @@ const Case = sequelize.define('Case', {
   department: {
     type: DataTypes.STRING(100)
   },
+  registrationNumber: {
+    type: DataTypes.STRING(50)
+  },
   judge: {
     type: DataTypes.STRING(100)
   },
@@ -89,6 +92,26 @@ const Case = sequelize.define('Case', {
   caseFees: {
     type: DataTypes.DECIMAL(10, 3),
     defaultValue: 0
+  },
+  consultationFees: {
+    type: DataTypes.DECIMAL(10, 3),
+    defaultValue: 0
+  },
+  litigationFees: {
+    type: DataTypes.DECIMAL(10, 3),
+    defaultValue: 0
+  },
+  sessionFees: {
+    type: DataTypes.DECIMAL(10, 3),
+    defaultValue: 0
+  },
+  otherFees: {
+    type: DataTypes.DECIMAL(10, 3),
+    defaultValue: 0
+  },
+  paymentStatus: {
+    type: DataTypes.STRING(20),
+    defaultValue: 'unpaid'
   },
   notes: {
     type: DataTypes.TEXT

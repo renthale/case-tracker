@@ -5,8 +5,9 @@ exports.createCase = async (req, res) => {
   try {
     let caseNumber = req.body.caseNumber;
     if (!caseNumber) {
+      const year = new Date().getFullYear();
       const count = await Case.count();
-      caseNumber = `CASE-${String(count + 1).padStart(4, '0')}`;
+      caseNumber = `${year}-25-${String(count + 1).padStart(4, '0')}`;
     }
 
     const caseData = {
