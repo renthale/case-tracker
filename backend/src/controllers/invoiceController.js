@@ -254,7 +254,7 @@ exports.getFeeReport = async (req, res) => {
         [sequelize.fn('SUM', sequelize.col('litigationFees')), 'litigationTotal'],
         [sequelize.fn('SUM', sequelize.col('sessionFees')), 'sessionTotal'],
         [sequelize.fn('SUM', sequelize.col('otherFees')), 'otherTotal'],
-        [sequelize.fn('SUM', sequelize.col('"Case"."consultationFees" + "Case"."litigationFees" + "Case"."sessionFees" + "Case"."otherFees"')), 'grandTotal']
+        [sequelize.literal('SUM("Case"."consultationFees" + "Case"."litigationFees" + "Case"."sessionFees" + "Case"."otherFees")'), 'grandTotal']
       ],
       include: [{ model: User, as: 'assignedLawyer', attributes: ['id', 'fullName'] }],
       group: ['assignedLawyerId', 'assignedLawyer.id', 'assignedLawyer.fullName']
