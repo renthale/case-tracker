@@ -19,6 +19,7 @@ const migrations = [
   `ALTER TABLE "Transactions" ADD COLUMN IF NOT EXISTS "expectedDate" DATE;`,
   `ALTER TABLE "Transactions" ADD COLUMN IF NOT EXISTS "completionDate" DATE;`,
   `ALTER TABLE "Transactions" ADD COLUMN IF NOT EXISTS "createdBy" INTEGER;`,
+  `ALTER TABLE "Transactions" ADD COLUMN IF NOT EXISTS "notes" TEXT;`,
 
   // Session model - sessionType
   `ALTER TABLE "Sessions" ADD COLUMN IF NOT EXISTS "sessionType" VARCHAR(30) DEFAULT 'mainSession';`,
