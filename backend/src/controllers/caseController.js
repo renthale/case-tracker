@@ -71,6 +71,18 @@ exports.getCases = async (req, res) => {
       ];
     }
 
+    // Role-based filtering
+    const userRole = req.user.role;
+    const userId = req.user.id;
+
+    if (userRole === 'lawyer' || userRole === 'trainee_lawyer') {
+      // Lawyers only see their own cases
+      where[Op.or] = [
+        { assignedLawyerId: userId },
+        { secondaryLawyerId: userId }
+      ];
+    }
+
     const offset = (page - 1) * limit;
 
     const { count, rows: cases } = await Case.findAndCountAll({
@@ -137,6 +149,8 @@ exports.updateCase = async (req, res) => {
     }
 
     const oldStatus = caseRecord.status;
+    req.body.lastEditedBy = req.user.id;
+    req.body.lastEditedAt = new Date();
     await caseRecord.update(req.body);
 
     if (req.body.status && oldStatus !== req.body.status) {

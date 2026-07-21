@@ -7,24 +7,6 @@ const Transaction = sequelize.define('Transaction', {
     primaryKey: true,
     autoIncrement: true
   },
-  type: {
-    type: DataTypes.ENUM('income', 'expense'),
-    allowNull: false
-  },
-  amount: {
-    type: DataTypes.DECIMAL(10, 3),
-    allowNull: false
-  },
-  status: {
-    type: DataTypes.ENUM('pending', 'completed', 'cancelled'),
-    defaultValue: 'pending'
-  },
-  description: {
-    type: DataTypes.TEXT
-  },
-  category: {
-    type: DataTypes.STRING(100)
-  },
   caseId: {
     type: DataTypes.INTEGER,
     references: { model: 'Cases', key: 'id' }
@@ -33,9 +15,34 @@ const Transaction = sequelize.define('Transaction', {
     type: DataTypes.INTEGER,
     references: { model: 'Clients', key: 'id' }
   },
-  invoiceId: {
-    type: DataTypes.INTEGER,
-    references: { model: 'Invoices', key: 'id' }
+  title: {
+    type: DataTypes.STRING(200),
+    allowNull: false
+  },
+  governmentEntity: {
+    type: DataTypes.STRING(200),
+    allowNull: false
+  },
+  entityType: {
+    type: DataTypes.ENUM('ministry_of_justice', 'awqaf', 'general_sec', 'kuwait_municipality', 'paci', 'embassy', 'court', 'other'),
+    defaultValue: 'other'
+  },
+  status: {
+    type: DataTypes.ENUM('submitted', 'processing', 'completed', 'rejected', 'pending'),
+    defaultValue: 'submitted'
+  },
+  submissionDate: {
+    type: DataTypes.DATEONLY,
+    defaultValue: DataTypes.NOW
+  },
+  expectedDate: {
+    type: DataTypes.DATEONLY
+  },
+  completionDate: {
+    type: DataTypes.DATEONLY
+  },
+  notes: {
+    type: DataTypes.TEXT
   },
   createdBy: {
     type: DataTypes.INTEGER,

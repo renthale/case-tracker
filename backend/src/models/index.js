@@ -12,6 +12,9 @@ const Transaction = require('./Transaction');
 Case.belongsTo(User, { as: 'assignedLawyer', foreignKey: 'assignedLawyerId' });
 User.hasMany(Case, { as: 'cases', foreignKey: 'assignedLawyerId' });
 
+// Case belongs to User (last editor)
+Case.belongsTo(User, { as: 'lastEditor', foreignKey: 'lastEditedBy' });
+
 // Case belongs to Client
 Case.belongsTo(Client, { as: 'client', foreignKey: 'clientId' });
 Client.hasMany(Case, { as: 'cases', foreignKey: 'clientId' });

@@ -11,15 +11,15 @@ router.get('/stats', transactionController.getTransactionStats);
 router.get('/', transactionController.getTransactions);
 
 router.post('/', [
-  body('type').isIn(['income', 'expense']).withMessage('نوع المعاملة مطلوب'),
-  body('amount').isFloat({ min: 0.001 }).withMessage('المبلغ مطلوب')
+  body('title').trim().notEmpty().withMessage('عنوان المعاملة مطلوب'),
+  body('governmentEntity').trim().notEmpty().withMessage('الجهة الحكومية مطلوبة')
 ], transactionController.createTransaction);
 
 router.get('/:id', transactionController.getTransactionById);
 
 router.put('/:id', [
-  body('type').optional().isIn(['income', 'expense']),
-  body('amount').optional().isFloat({ min: 0 })
+  body('title').optional().trim().notEmpty(),
+  body('governmentEntity').optional().trim().notEmpty()
 ], transactionController.updateTransaction);
 
 router.delete('/:id', transactionController.deleteTransaction);

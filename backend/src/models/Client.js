@@ -15,6 +15,10 @@ const Client = sequelize.define('Client', {
     type: DataTypes.STRING(20),
     unique: true
   },
+  passportNumber: {
+    type: DataTypes.STRING(30),
+    unique: true
+  },
   phone: {
     type: DataTypes.STRING(20)
   },

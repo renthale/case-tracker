@@ -114,6 +114,23 @@ const Case = sequelize.define('Case', {
   tags: {
     type: DataTypes.ARRAY(DataTypes.STRING),
     defaultValue: []
+  },
+  assignmentDate: {
+    type: DataTypes.DATEONLY
+  },
+  assignmentEndDate: {
+    type: DataTypes.DATEONLY
+  },
+  filingType: {
+    type: DataTypes.ENUM('new', 'appeal', 'cassation'),
+    defaultValue: 'new'
+  },
+  lastEditedBy: {
+    type: DataTypes.INTEGER,
+    references: { model: 'Users', key: 'id' }
+  },
+  lastEditedAt: {
+    type: DataTypes.DATE
   }
 }, {
   timestamps: true

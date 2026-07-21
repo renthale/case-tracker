@@ -1,4 +1,4 @@
-const { Transaction, Case, Client, Invoice, User } = require('../models');
+const { Transaction, Case, Client, User } = require('../models');
 const { Op } = require('sequelize');
 const sequelize = require('../config/database');
 
@@ -8,7 +8,6 @@ exports.createTransaction = async (req, res) => {
       ...req.body,
       createdBy: req.user.id
     });
-
     res.status(201).json({ message: 'تم إنشاء المعاملة بنجاح', transaction });
   } catch (error) {
     console.error('Create transaction error:', error);
@@ -23,28 +22,30 @@ exports.createTransaction = async (req, res) => {
 exports.getTransactions = async (req, res) => {
   try {
     const {
-      status, type, caseId, clientId, category,
-      dateFrom, dateTo,
+      status, entityType, caseId, clientId,
+      dateFrom, dateTo, search,
       page = 1, limit = 10,
       sortBy = 'createdAt', sortOrder = 'DESC'
     } = req.query;
 
     const where = {};
-
     if (status) where.status = status;
-    if (type) where.type = type;
+    if (entityType) where.entityType = entityType;
     if (caseId) where.caseId = caseId;
     if (clientId) where.clientId = clientId;
-    if (category) where.category = category;
-
     if (dateFrom || dateTo) {
       where.createdAt = {};
       if (dateFrom) where.createdAt[Op.gte] = new Date(dateFrom);
       if (dateTo) where.createdAt[Op.lte] = new Date(dateTo);
     }
+    if (search) {
+      where[Op.or] = [
+        { title: { [Op.iLike]: `%${search}%` } },
+        { governmentEntity: { [Op.iLike]: `%${search}%` } }
+      ];
+    }
 
     const offset = (page - 1) * limit;
-
     const { count, rows: transactions } = await Transaction.findAndCountAll({
       where,
       include: [
@@ -59,11 +60,7 @@ exports.getTransactions = async (req, res) => {
 
     res.json({
       transactions,
-      pagination: {
-        total: count,
-        page: parseInt(page),
-        pages: Math.ceil(count / limit)
-      }
+      pagination: { total: count, page: parseInt(page), pages: Math.ceil(count / limit) }
     });
   } catch (error) {
     res.status(500).json({ error: 'خطأ في جلب المعاملات', details: error.message });
@@ -76,15 +73,10 @@ exports.getTransactionById = async (req, res) => {
       include: [
         { model: Case, as: 'case', attributes: ['id', 'caseNumber', 'title'] },
         { model: Client, as: 'client', attributes: ['id', 'name', 'phone'] },
-        { model: Invoice, as: 'invoice', attributes: ['id', 'invoiceNumber', 'totalAmount'] },
         { model: User, as: 'creator', attributes: ['id', 'fullName'] }
       ]
     });
-
-    if (!transaction) {
-      return res.status(404).json({ error: 'المعاملة غير موجودة' });
-    }
-
+    if (!transaction) return res.status(404).json({ error: 'المعاملة غير موجودة' });
     res.json({ transaction });
   } catch (error) {
     res.status(500).json({ error: 'خطأ في جلب المعاملة', details: error.message });
@@ -94,11 +86,7 @@ exports.getTransactionById = async (req, res) => {
 exports.updateTransaction = async (req, res) => {
   try {
     const transaction = await Transaction.findByPk(req.params.id);
-
-    if (!transaction) {
-      return res.status(404).json({ error: 'المعاملة غير موجودة' });
-    }
-
+    if (!transaction) return res.status(404).json({ error: 'المعاملة غير موجودة' });
     await transaction.update(req.body);
     res.json({ message: 'تم تحديث المعاملة بنجاح', transaction });
   } catch (error) {
@@ -109,11 +97,7 @@ exports.updateTransaction = async (req, res) => {
 exports.deleteTransaction = async (req, res) => {
   try {
     const transaction = await Transaction.findByPk(req.params.id);
-
-    if (!transaction) {
-      return res.status(404).json({ error: 'المعاملة غير موجودة' });
-    }
-
+    if (!transaction) return res.status(404).json({ error: 'المعاملة غير موجودة' });
     await transaction.destroy();
     res.json({ message: 'تم حذف المعاملة بنجاح' });
   } catch (error) {
@@ -124,16 +108,14 @@ exports.deleteTransaction = async (req, res) => {
 exports.getTransactionStats = async (req, res) => {
   try {
     const countByStatus = await Transaction.findAll({
-      attributes: ['status', [sequelize.fn('COUNT', sequelize.col('id')), 'count'], [sequelize.fn('SUM', sequelize.col('amount')), 'total']],
+      attributes: ['status', [sequelize.fn('COUNT', sequelize.col('id')), 'count']],
       group: ['status']
     });
-
-    const countByType = await Transaction.findAll({
-      attributes: ['type', [sequelize.fn('COUNT', sequelize.col('id')), 'count'], [sequelize.fn('SUM', sequelize.col('amount')), 'total']],
-      group: ['type']
+    const countByEntity = await Transaction.findAll({
+      attributes: ['entityType', [sequelize.fn('COUNT', sequelize.col('id')), 'count']],
+      group: ['entityType']
     });
-
-    res.json({ countByStatus, countByType });
+    res.json({ countByStatus, countByEntity });
   } catch (error) {
     res.status(500).json({ error: 'خطأ في جلب إحصائيات المعاملات', details: error.message });
   }

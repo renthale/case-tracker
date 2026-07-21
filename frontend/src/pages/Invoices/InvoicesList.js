@@ -128,10 +128,10 @@ const InvoicesList = () => {
           onChange={handleFilterChange}
         >
           <option value="">جميع الأنواع</option>
-          <option value="consultation">استشارة</option>
-          <option value="litigation">تقاضي</option>
-          <option value="session">جلسة</option>
-          <option value="documents">مستندات</option>
+          <option value="consultation">رسوم استشارة</option>
+          <option value="case_fees">رسوم ترافع</option>
+          <option value="court_fees">رسوم جلسة</option>
+          <option value="document_fees">رسوم مستندات</option>
           <option value="other">أخرى</option>
         </select>
 
