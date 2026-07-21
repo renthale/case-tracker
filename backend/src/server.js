@@ -4,6 +4,7 @@ const cors = require('cors');
 const path = require('path');
 const sequelize = require('./config/database');
 const errorHandler = require('./middleware/errorHandler');
+const runMigrations = require('./migrations/add-missing-columns');
 
 const authRoutes = require('./routes/authRoutes');
 const caseRoutes = require('./routes/caseRoutes');
@@ -59,8 +60,17 @@ const startServer = async () => {
     await sequelize.authenticate();
     console.log('✅ Database connected successfully');
 
-    await sequelize.sync({ alter: true });
-    console.log('✅ Database synced');
+    try {
+      await sequelize.sync({ alter: true });
+      console.log('✅ Database synced (alter)');
+    } catch (alterError) {
+      console.warn('⚠️ Alter sync failed, trying basic sync:', alterError.message);
+      await sequelize.sync();
+      console.log('✅ Database synced (basic)');
+    }
+
+    await runMigrations();
+    console.log('✅ Migrations completed');
 
     app.listen(PORT, () => {
       console.log(`🚀 Server running on port ${PORT}`);
