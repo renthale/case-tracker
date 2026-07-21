@@ -1,5 +1,6 @@
-const { Session, Case, Notification } = require('../models');
+const { Session, Case, Notification, User } = require('../models');
 const { Op } = require('sequelize');
+const { fn, col } = require('sequelize');
 
 exports.createSession = async (req, res) => {
   try {
@@ -169,5 +170,103 @@ exports.getUpcomingSessions = async (req, res) => {
     res.json({ sessions });
   } catch (error) {
     res.status(500).json({ error: 'خطأ في جلب الجلسات القادمة' });
+  }
+};
+
+exports.uploadDocument = async (req, res) => {
+  try {
+    const session = await Session.findByPk(req.params.id);
+    if (!session) {
+      return res.status(404).json({ error: 'الجلسة غير موجودة' });
+    }
+
+    const { name, type, data } = req.body;
+    if (!name || !data) {
+      return res.status(400).json({ error: 'اسم المستند والبيانات مطلوبان' });
+    }
+
+    const existingDocs = session.documents || [];
+    const newDoc = {
+      name,
+      type: type || 'image',
+      data,
+      uploadedAt: new Date().toISOString(),
+      uploadedBy: req.user.id
+    };
+
+    await session.update({ documents: [...existingDocs, newDoc] });
+
+    res.json({ message: 'تم رفع المستند بنجاح', documents: session.documents });
+  } catch (error) {
+    res.status(500).json({ error: 'خطأ في رفع المستند', details: error.message });
+  }
+};
+
+exports.deleteDocument = async (req, res) => {
+  try {
+    const session = await Session.findByPk(req.params.id);
+    if (!session) {
+      return res.status(404).json({ error: 'الجلسة غير موجودة' });
+    }
+
+    const docIndex = parseInt(req.params.docIndex);
+    const existingDocs = session.documents || [];
+    if (docIndex < 0 || docIndex >= existingDocs.length) {
+      return res.status(404).json({ error: 'المستند غير موجود' });
+    }
+
+    existingDocs.splice(docIndex, 1);
+    await session.update({ documents: existingDocs });
+
+    res.json({ message: 'تم حذف المستند بنجاح', documents: session.documents });
+  } catch (error) {
+    res.status(500).json({ error: 'خطأ في حذف المستند', details: error.message });
+  }
+};
+
+exports.getDailyReport = async (req, res) => {
+  try {
+    const { date } = req.query;
+    const reportDate = date || new Date().toISOString().split('T')[0];
+
+    const sessions = await Session.findAll({
+      where: {
+        date: {
+          [Op.and]: [
+            { [Op.gte]: `${reportDate}T00:00:00` },
+            { [Op.lte]: `${reportDate}T23:59:59` }
+          ]
+        }
+      },
+      include: [{ model: Case, attributes: ['id', 'title', 'caseNumber', 'court'] }],
+      order: [['time', 'ASC']]
+    });
+
+    const total = sessions.length;
+    const completed = sessions.filter(s => s.status === 'completed').length;
+    const postponed = sessions.filter(s => s.status === 'postponed').length;
+    const scheduled = sessions.filter(s => s.status === 'scheduled').length;
+    const cancelled = sessions.filter(s => s.status === 'cancelled').length;
+
+    res.json({
+      date: reportDate,
+      summary: { total, completed, postponed, scheduled, cancelled },
+      sessions: sessions.map(s => ({
+        id: s.id,
+        caseTitle: s.Case?.title,
+        caseNumber: s.Case?.caseNumber,
+        court: s.Case?.court,
+        sessionNumber: s.sessionNumber,
+        time: s.time,
+        location: s.location,
+        status: s.status,
+        outcome: s.outcome,
+        postponedTo: s.postponedTo,
+        documentsCount: (s.documents || []).length,
+        notes: s.notes
+      }))
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'خطأ في إنشاء التقرير', details: error.message });
   }
 };

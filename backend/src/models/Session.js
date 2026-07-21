@@ -37,6 +37,9 @@ const Session = sequelize.define('Session', {
     type: DataTypes.ENUM('scheduled', 'completed', 'postponed', 'cancelled'),
     defaultValue: 'scheduled'
   },
+  postponedTo: {
+    type: DataTypes.DATEONLY
+  },
   outcome: {
     type: DataTypes.TEXT
   },

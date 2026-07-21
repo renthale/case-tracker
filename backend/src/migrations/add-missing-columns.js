@@ -48,7 +48,10 @@ const migrations = [
   // LegalDocument model - review and approval dates
   `ALTER TABLE "LegalDocuments" ADD COLUMN IF NOT EXISTS "reviewDate" DATE;`,
   `ALTER TABLE "LegalDocuments" ADD COLUMN IF NOT EXISTS "approvedBy" INTEGER;`,
-  `ALTER TABLE "LegalDocuments" ADD COLUMN IF NOT EXISTS "approvalDate" DATE;`,,
+  `ALTER TABLE "LegalDocuments" ADD COLUMN IF NOT EXISTS "approvalDate" DATE;`,
+
+  // Session model - postponedTo for court agent
+  `ALTER TABLE "Sessions" ADD COLUMN IF NOT EXISTS "postponedTo" DATE;`,
 ];
 
 const runMigrations = async () => {
