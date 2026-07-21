@@ -1,4 +1,4 @@
-const { Invoice, Payment, Client, Case } = require('../models');
+const { Invoice, Payment, Client, Case, User } = require('../models');
 const { Op } = require('sequelize');
 const sequelize = require('../config/database');
 
@@ -163,5 +163,145 @@ exports.getInvoiceStats = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ error: 'خطأ في جلب إحصائيات الفواتير', details: error.message });
+  }
+};
+
+exports.checkOverdueInvoices = async (req, res) => {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    
+    const overdueInvoices = await Invoice.findAll({
+      where: {
+        status: 'pending',
+        dueDate: { [require('sequelize').Op.lt]: today }
+      },
+      include: [
+        { model: Client, as: 'client', attributes: ['id', 'name', 'phone', 'email'] },
+        { model: Case, as: 'case', attributes: ['id', 'caseNumber', 'title'] }
+      ]
+    });
+
+    for (const invoice of overdueInvoices) {
+      await invoice.update({ status: 'overdue' });
+      
+      const { Notification } = require('../models');
+      await Notification.create({
+        userId: req.user.id,
+        caseId: invoice.caseId,
+        type: 'payment_reminder',
+        title: 'تذكير بالدفع المتأخر',
+        message: `الفاتورة رقم ${invoice.invoiceNumber} متأخرة — المبلغ: ${invoice.totalAmount} د.ك — الموكل: ${invoice.client?.name || 'غير محدد'}`,
+        priority: 'high'
+      });
+    }
+
+    const threeDaysLater = new Date();
+    threeDaysLater.setDate(threeDaysLater.getDate() + 3);
+    const upcomingDate = threeDaysLater.toISOString().split('T')[0];
+
+    const upcomingInvoices = await Invoice.findAll({
+      where: {
+        status: 'pending',
+        dueDate: {
+          [require('sequelize').Op.gte]: today,
+          [require('sequelize').Op.lte]: upcomingDate
+        }
+      },
+      include: [
+        { model: Client, as: 'client', attributes: ['id', 'name'] },
+        { model: Case, as: 'case', attributes: ['id', 'caseNumber'] }
+      ]
+    });
+
+    for (const invoice of upcomingInvoices) {
+      const { Notification } = require('../models');
+      await Notification.create({
+        userId: req.user.id,
+        caseId: invoice.caseId,
+        type: 'payment_reminder',
+        title: 'تذكير — الفاتورة تستحق قريباً',
+        message: `الفاتورة رقم ${invoice.invoiceNumber} تستحق خلال 3 أيام — المبلغ: ${invoice.totalAmount} د.ك`,
+        priority: 'medium'
+      });
+    }
+
+    res.json({
+      message: 'تم فحص الفواتير المتأخرة',
+      overdue: overdueInvoices.length,
+      upcoming: upcomingInvoices.length
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'خطأ في فحص الفواتير', details: error.message });
+  }
+};
+
+exports.getFeeReport = async (req, res) => {
+  try {
+    const { lawyerId, caseId, dateFrom, dateTo } = req.query;
+    
+    const where = {};
+    if (caseId) where.caseId = caseId;
+    if (dateFrom || dateTo) {
+      where.issuedDate = {};
+      if (dateFrom) where.issuedDate[require('sequelize').Op.gte] = dateFrom;
+      if (dateTo) where.issuedDate[require('sequelize').Op.lte] = dateTo;
+    }
+
+    const feesByLawyer = await Case.findAll({
+      attributes: [
+        'assignedLawyerId',
+        [sequelize.fn('SUM', sequelize.col('consultationFees')), 'consultationTotal'],
+        [sequelize.fn('SUM', sequelize.col('litigationFees')), 'litigationTotal'],
+        [sequelize.fn('SUM', sequelize.col('sessionFees')), 'sessionTotal'],
+        [sequelize.fn('SUM', sequelize.col('otherFees')), 'otherTotal'],
+        [sequelize.fn('SUM', sequelize.col('"Case"."consultationFees" + "Case"."litigationFees" + "Case"."sessionFees" + "Case"."otherFees"')), 'grandTotal']
+      ],
+      include: [{ model: User, as: 'assignedLawyer', attributes: ['id', 'fullName'] }],
+      group: ['assignedLawyerId', 'assignedLawyer.id', 'assignedLawyer.fullName']
+    });
+
+    const feesByCase = await Case.findAll({
+      attributes: ['id', 'caseNumber', 'title', 'consultationFees', 'litigationFees', 'sessionFees', 'otherFees', 'paymentStatus'],
+      where: { assignedLawyerId: lawyerId || undefined, id: caseId || undefined },
+      include: [
+        { model: User, as: 'assignedLawyer', attributes: ['id', 'fullName'] },
+        { model: Client, as: 'client', attributes: ['id', 'name'] }
+      ],
+      order: [['createdAt', 'DESC']],
+      limit: 50
+    });
+
+    const feesByMonth = await Case.findAll({
+      attributes: [
+        [sequelize.fn('TO_CHAR', sequelize.col('"Case"."createdAt"'), 'YYYY-MM'), 'month'],
+        [sequelize.fn('SUM', sequelize.col('consultationFees')), 'consultationTotal'],
+        [sequelize.fn('SUM', sequelize.col('litigationFees')), 'litigationTotal'],
+        [sequelize.fn('SUM', sequelize.col('sessionFees')), 'sessionTotal'],
+        [sequelize.fn('SUM', sequelize.col('otherFees')), 'otherTotal'],
+        [sequelize.fn('COUNT', sequelize.col('"Case"."id"')), 'caseCount']
+      ],
+      group: [sequelize.fn('TO_CHAR', sequelize.col('"Case"."createdAt"'), 'YYYY-MM')],
+      order: [[sequelize.fn('TO_CHAR', sequelize.col('"Case"."createdAt"'), 'YYYY-MM'), 'DESC']],
+      limit: 12
+    });
+
+    const invoiceReport = await Invoice.findAll({
+      attributes: [
+        'status',
+        [sequelize.fn('SUM', sequelize.col('totalAmount')), 'total'],
+        [sequelize.fn('SUM', sequelize.col('paidAmount')), 'paid'],
+        [sequelize.fn('COUNT', sequelize.col('id')), 'count']
+      ],
+      group: ['status']
+    });
+
+    res.json({
+      feesByLawyer,
+      feesByCase,
+      feesByMonth,
+      invoiceReport
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'خطأ في تقرير الأتعاب', details: error.message });
   }
 };

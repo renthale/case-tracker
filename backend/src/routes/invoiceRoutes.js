@@ -7,6 +7,8 @@ const { auth, authorize } = require('../middleware/auth');
 router.use(auth);
 
 router.get('/stats', invoiceController.getInvoiceStats);
+router.get('/overdue', invoiceController.checkOverdueInvoices);
+router.get('/fees-report', invoiceController.getFeeReport);
 
 router.get('/', invoiceController.getInvoices);
 

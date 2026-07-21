@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import api from '../../services/api';
-import { FiPrinter, FiBarChart2, FiDollarSign, FiUsers, FiCalendar, FiBriefcase } from 'react-icons/fi';
+import toast from 'react-hot-toast';
+import { FiPrinter, FiBarChart2, FiDollarSign, FiUsers, FiCalendar, FiBriefcase, FiAlertTriangle } from 'react-icons/fi';
 
 const reportTabs = [
   { key: 'overview', icon: FiBarChart2, labelAr: 'نظرة عامة', labelEn: 'Overview' },
@@ -17,6 +18,8 @@ const Reports = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [dateRange, setDateRange] = useState({ from: '', to: '' });
   const [loading, setLoading] = useState(true);
+  const [checkingOverdue, setCheckingOverdue] = useState(false);
+  const [feeReport, setFeeReport] = useState(null);
   const [data, setData] = useState({
     cases: [], sessions: [], invoices: [], clients: [], users: []
   });
@@ -38,6 +41,12 @@ const Reports = () => {
         invoices: invoicesRes.data.invoices || [],
         clients: clientsRes.data.clients || [],
       });
+      try {
+        const feeRes = await api.get('/invoices/fees-report');
+        setFeeReport(feeRes.data);
+      } catch (error) {
+        console.error('Fee report error:', error);
+      }
     } catch (error) {
       console.error('Error:', error);
     } finally {
@@ -151,36 +160,102 @@ const Reports = () => {
     </div>
   );
 
-  const renderFinancial = () => (
-    <div className="report-section">
-      <div className="stats-grid">
-        <div className="stat-card" style={{ '--card-color': '#2ecc71' }}>
-          <div className="stat-number">{totalPaidAmount.toFixed(3)} {isArabic ? 'د.ك' : 'KWD'}</div>
-          <div className="stat-label">{isArabic ? 'المبلغ المدفوع' : 'Paid Amount'}</div>
-        </div>
-        <div className="stat-card" style={{ '--card-color': '#f39c12' }}>
-          <div className="stat-number">{pendingAmount.toFixed(3)} {isArabic ? 'د.ك' : 'KWD'}</div>
-          <div className="stat-label">{isArabic ? 'المبلغ المعلق' : 'Pending Amount'}</div>
-        </div>
-        <div className="stat-card" style={{ '--card-color': '#3498db' }}>
-          <div className="stat-number">{totalInvoiceAmount.toFixed(3)} {isArabic ? 'د.ك' : 'KWD'}</div>
-          <div className="stat-label">{isArabic ? 'الإجمالي' : 'Total'}</div>
-        </div>
-      </div>
+  const renderFinancial = () => {
+    const checkOverdue = async () => {
+      setCheckingOverdue(true);
+      try {
+        const { data } = await api.get('/invoices/overdue');
+        toast.success(isArabic ? 
+          `تم فحص ${data.overdue} فاتورة متأخرة و${data.upcoming} فاتورة تستحق قريباً` :
+          `Checked ${data.overdue} overdue and ${data.upcoming} upcoming invoices`
+        );
+      } catch (error) {
+        toast.error(isArabic ? 'خطأ في فحص الفواتير' : 'Error checking invoices');
+      } finally {
+        setCheckingOverdue(false);
+      }
+    };
 
-      <div className="report-grid">
-        <div className="report-card">
-          <h3>{isArabic ? 'حالة الفواتير' : 'Invoice Status'}</h3>
-          <div className="report-list">
-            <div className="report-item"><span>{isArabic ? 'مدفوعة' : 'Paid'}</span><span className="success">{paidInvoices}</span></div>
-            <div className="report-item"><span>{isArabic ? 'معلقة' : 'Pending'}</span><span className="warning">{pendingInvoices}</span></div>
-            <div className="report-item"><span>{isArabic ? 'متأخرة' : 'Overdue'}</span><span className="danger">{overdueInvoices}</span></div>
-            <div className="report-item"><span>{isArabic ? 'إجمالي الفواتير' : 'Total Invoices'}</span><span className="info">{totalInvoices}</span></div>
+    return (
+      <div className="report-section">
+        <div className="stats-grid">
+          <div className="stat-card" style={{ '--card-color': '#2ecc71' }}>
+            <div className="stat-number">{totalPaidAmount.toFixed(3)} {isArabic ? 'د.ك' : 'KWD'}</div>
+            <div className="stat-label">{isArabic ? 'المبلغ المدفوع' : 'Paid Amount'}</div>
+          </div>
+          <div className="stat-card" style={{ '--card-color': '#f39c12' }}>
+            <div className="stat-number">{pendingAmount.toFixed(3)} {isArabic ? 'د.ك' : 'KWD'}</div>
+            <div className="stat-label">{isArabic ? 'المبلغ المعلق' : 'Pending Amount'}</div>
+          </div>
+          <div className="stat-card" style={{ '--card-color': '#3498db' }}>
+            <div className="stat-number">{totalInvoiceAmount.toFixed(3)} {isArabic ? 'د.ك' : 'KWD'}</div>
+            <div className="stat-label">{isArabic ? 'الإجمالي' : 'Total'}</div>
           </div>
         </div>
+
+        <div className="no-print" style={{ marginBottom: '1rem' }}>
+          <button className="btn btn-warning" onClick={checkOverdue} disabled={checkingOverdue}>
+            {checkingOverdue ? (isArabic ? 'جاري الفحص...' : 'Checking...') : (isArabic ? 'فحص الفواتير المتأخرة' : 'Check Overdue Invoices')}
+          </button>
+        </div>
+
+        <div className="report-grid">
+          <div className="report-card">
+            <h3>{isArabic ? 'حالة الفواتير' : 'Invoice Status'}</h3>
+            <div className="report-list">
+              <div className="report-item"><span>{isArabic ? 'مدفوعة' : 'Paid'}</span><span className="success">{paidInvoices}</span></div>
+              <div className="report-item"><span>{isArabic ? 'معلقة' : 'Pending'}</span><span className="warning">{pendingInvoices}</span></div>
+              <div className="report-item"><span>{isArabic ? 'متأخرة' : 'Overdue'}</span><span className="danger">{overdueInvoices}</span></div>
+              <div className="report-item"><span>{isArabic ? 'إجمالي الفواتير' : 'Total Invoices'}</span><span className="info">{totalInvoices}</span></div>
+            </div>
+          </div>
+
+          {feeReport && (
+            <div className="report-card">
+              <h3>{isArabic ? 'الأتعاب حسب الشهر' : 'Fees by Month'}</h3>
+              <div className="report-list">
+                {feeReport.feesByMonth?.map(month => (
+                  <div key={month.month} className="report-item">
+                    <span>{month.month}</span>
+                    <span>
+                      {parseFloat(month.consultationTotal || 0) + parseFloat(month.litigationTotal || 0) + 
+                       parseFloat(month.sessionTotal || 0) + parseFloat(month.otherTotal || 0)} {isArabic ? 'د.ك' : 'KWD'}
+                      <small style={{color:'#999',marginLeft:8}}>({month.caseCount} {isArabic ? 'قضية' : 'cases'})</small>
+                    </span>
+                  </div>
+                ))}
+                {feeReport.feesByMonth?.length === 0 && (
+                  <div className="report-item"><span>{isArabic ? 'لا توجد بيانات' : 'No data'}</span></div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {feeReport && (
+            <div className="report-card">
+              <h3>{isArabic ? 'الأتعاب حسب المحامي' : 'Fees by Lawyer'}</h3>
+              <div className="report-list">
+                {feeReport.feesByLawyer?.map(lawyer => (
+                  <div key={lawyer.assignedLawyer?.id} className="report-item">
+                    <span>{lawyer.assignedLawyer?.fullName || (isArabic ? 'غير محدد' : 'Unassigned')}</span>
+                    <span>
+                      {parseFloat(lawyer.grandTotal || 0)} {isArabic ? 'د.ك' : 'KWD'}
+                      <small style={{color:'#999',marginLeft:8}}>
+                        (استشارة: {parseFloat(lawyer.consultationTotal || 0)} | ترافع: {parseFloat(lawyer.litigationTotal || 0)} | جلسات: {parseFloat(lawyer.sessionTotal || 0)})
+                      </small>
+                    </span>
+                  </div>
+                ))}
+                {feeReport.feesByLawyer?.length === 0 && (
+                  <div className="report-item"><span>{isArabic ? 'لا توجد بيانات' : 'No data'}</span></div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   const renderLawyer = () => (
     <div className="report-section">
