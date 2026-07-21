@@ -260,9 +260,13 @@ exports.getFeeReport = async (req, res) => {
       group: ['assignedLawyerId', 'assignedLawyer.id', 'assignedLawyer.fullName']
     });
 
+    const feesByCaseWhere = {};
+    if (lawyerId) feesByCaseWhere.assignedLawyerId = lawyerId;
+    if (caseId) feesByCaseWhere.id = caseId;
+
     const feesByCase = await Case.findAll({
       attributes: ['id', 'caseNumber', 'title', 'consultationFees', 'litigationFees', 'sessionFees', 'otherFees', 'paymentStatus'],
-      where: { assignedLawyerId: lawyerId || undefined, id: caseId || undefined },
+      where: Object.keys(feesByCaseWhere).length > 0 ? feesByCaseWhere : undefined,
       include: [
         { model: User, as: 'assignedLawyer', attributes: ['id', 'fullName'] },
         { model: Client, as: 'client', attributes: ['id', 'name'] }
