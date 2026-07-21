@@ -20,18 +20,28 @@ const Case = sequelize.define('Case', {
     type: DataTypes.TEXT
   },
   type: {
-    type: DataTypes.ENUM('civil', 'criminal', 'commercial', 'administrative', 'family', 'labor', 'other'),
+    type: DataTypes.ENUM('civil', 'criminal', 'commercial', 'administrative', 'family', 'labor', 'sharia', 'traffic', 'other'),
     allowNull: false
   },
   status: {
-    type: DataTypes.ENUM('active', 'pending', 'closed', 'won', 'lost', 'settled', 'appeal'),
+    type: DataTypes.ENUM('active', 'pending', 'closed', 'won', 'lost', 'settled', 'appeal', 'retrial', 'dismissed'),
     defaultValue: 'active'
   },
   priority: {
     type: DataTypes.ENUM('low', 'medium', 'high', 'urgent'),
     defaultValue: 'medium'
   },
+  courtType: {
+    type: DataTypes.ENUM(
+      'courtOfFirstInstance', 'familyCourt', 'criminalCourt',
+      'commercialCourt', 'laborCourt', 'administrativeCourt',
+      'appealCourt', 'cassationCourt', 'highConstitutionalCourt'
+    )
+  },
   court: {
+    type: DataTypes.STRING(100)
+  },
+  department: {
     type: DataTypes.STRING(100)
   },
   judge: {
@@ -43,8 +53,14 @@ const Case = sequelize.define('Case', {
   opposingLawyer: {
     type: DataTypes.STRING(200)
   },
+  opposingCivilId: {
+    type: DataTypes.STRING(20)
+  },
   clientName: {
     type: DataTypes.STRING(200)
+  },
+  clientCivilId: {
+    type: DataTypes.STRING(20)
   },
   clientPhone: {
     type: DataTypes.STRING(20)
@@ -60,6 +76,19 @@ const Case = sequelize.define('Case', {
   },
   closingDate: {
     type: DataTypes.DATEONLY
+  },
+  verdict: {
+    type: DataTypes.TEXT
+  },
+  verdictDate: {
+    type: DataTypes.DATEONLY
+  },
+  appealDate: {
+    type: DataTypes.DATEONLY
+  },
+  caseFees: {
+    type: DataTypes.DECIMAL(10, 3),
+    defaultValue: 0
   },
   notes: {
     type: DataTypes.TEXT

@@ -14,6 +14,7 @@ const SessionForm = () => {
   const [cases, setCases] = useState([]);
   const [formData, setFormData] = useState({
     caseId: searchParams.get('caseId') || '',
+    sessionType: 'mainSession',
     date: '',
     time: '',
     location: '',
@@ -36,7 +37,7 @@ const SessionForm = () => {
       const response = await api.get('/cases', { params: { limit: 100 } });
       setCases(response.data.cases);
     } catch (error) {
-      toast.error(t.errorFetchingCases);
+      console.error('Error fetching cases');
     }
   };
 
@@ -46,6 +47,7 @@ const SessionForm = () => {
       const session = response.data.session;
       setFormData({
         caseId: session.caseId || '',
+        sessionType: session.sessionType || 'mainSession',
         date: session.date?.split('T')[0] || '',
         time: session.time || '',
         location: session.location || '',
@@ -84,7 +86,7 @@ const SessionForm = () => {
       }
       navigate('/sessions');
     } catch (error) {
-      toast.error(error.response?.data?.error || t.errorSavingSession);
+      toast.error(error.response?.data?.details || error.response?.data?.error || t.errorSavingSession);
     } finally {
       setLoading(false);
     }
@@ -104,7 +106,7 @@ const SessionForm = () => {
         <div className="card">
           <div className="grid grid-2">
             <div className="form-group">
-              <label>{t.case} *</label>
+              <label>{t.cases} *</label>
               <select
                 name="caseId"
                 className="form-control"
@@ -113,12 +115,28 @@ const SessionForm = () => {
                 required
                 disabled={!!id || !!searchParams.get('caseId')}
               >
-                <option value="">{t.selectCase}</option>
+                <option value="">اختر القضية</option>
                 {cases.map((caseItem) => (
                   <option key={caseItem.id} value={caseItem.id}>
                     {caseItem.caseNumber} - {caseItem.title}
                   </option>
                 ))}
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label>{t.sessionType || 'نوع الجلسة'}</label>
+              <select
+                name="sessionType"
+                className="form-control"
+                value={formData.sessionType}
+                onChange={handleChange}
+              >
+                <option value="mainSession">{t.mainSession}</option>
+                <option value="subSession">{t.subSession}</option>
+                <option value="deliberation">{t.deliberation}</option>
+                <option value="verdictSession">{t.verdictSession}</option>
+                <option value="evidenceSession">{t.evidenceSession}</option>
               </select>
             </div>
 
@@ -153,6 +171,7 @@ const SessionForm = () => {
                 className="form-control"
                 value={formData.location}
                 onChange={handleChange}
+                placeholder="قاعة الجلسة"
               />
             </div>
 
@@ -172,7 +191,7 @@ const SessionForm = () => {
             </div>
 
             <div className="form-group">
-              <label>{t.outcome}</label>
+              <label>{t.sessionOutcome || 'نتيجة الجلسة'}</label>
               <textarea
                 name="outcome"
                 className="form-control"

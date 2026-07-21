@@ -247,6 +247,47 @@ body {
   gap: 1rem;
 }
 
+.stat-card.clickable {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
+}
+
+.stat-card.clickable:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  border-color: #3182ce;
+}
+
+.stat-card.clickable:focus {
+  outline: none;
+  border-color: #3182ce;
+  box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.2);
+}
+
+.session-item.clickable {
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.session-item.clickable:hover {
+  background: #f7fafc;
+  border-radius: 8px;
+}
+
+.chart-bar-item.clickable,
+.priority-bar-item.clickable {
+  cursor: pointer;
+  transition: background 0.2s ease;
+  padding: 0.5rem;
+  border-radius: 6px;
+}
+
+.chart-bar-item.clickable:hover,
+.priority-bar-item.clickable:hover {
+  background: #f7fafc;
+}
+
 .stat-icon {
   width: 50px;
   height: 50px;
@@ -261,6 +302,8 @@ body {
 .stat-icon.green { background: #f0fff4; color: #38a169; }
 .stat-icon.yellow { background: #fffff0; color: #d69e2e; }
 .stat-icon.red { background: #fff5f5; color: #e53e3e; }
+.stat-icon.purple { background: #faf5ff; color: #805ad5; }
+.stat-icon.orange { background: #fffaf0; color: #dd6b20; }
 
 .stat-info h3 {
   font-size: 1.8rem;
@@ -538,4 +581,41 @@ tr:hover {
   border-radius: 10px;
   min-width: 18px;
   text-align: center;
+}
+
+/* Priority Bars */
+.priority-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.priority-bar-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.priority-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  min-width: 80px;
+  text-align: center;
+}
+
+.priority-badge.low { background: #f0fff4; color: #38a169; }
+.priority-badge.medium { background: #fffff0; color: #d69e2e; }
+.priority-badge.high { background: #fffaf0; color: #dd6b20; }
+.priority-badge.urgent { background: #fff5f5; color: #e53e3e; }
+
+.bar-fill.priority-low { background: #38a169; }
+.bar-fill.priority-medium { background: #d69e2e; }
+.bar-fill.priority-high { background: #dd6b20; }
+.bar-fill.priority-urgent { background: #e53e3e; }
+
+.btn-sm {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.85rem;
 }

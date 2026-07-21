@@ -17,16 +17,24 @@ const CaseForm = () => {
     type: 'civil',
     status: 'active',
     priority: 'medium',
+    courtType: '',
     court: '',
+    department: '',
     judge: '',
     opposingParty: '',
     opposingLawyer: '',
+    opposingCivilId: '',
     clientName: '',
+    clientCivilId: '',
     clientPhone: '',
     clientEmail: '',
     filingDate: '',
     nextHearingDate: '',
     closingDate: '',
+    verdict: '',
+    verdictDate: '',
+    appealDate: '',
+    caseFees: '',
     notes: ''
   });
 
@@ -49,16 +57,24 @@ const CaseForm = () => {
         type: caseData.type || 'civil',
         status: caseData.status || 'active',
         priority: caseData.priority || 'medium',
+        courtType: caseData.courtType || '',
         court: caseData.court || '',
+        department: caseData.department || '',
         judge: caseData.judge || '',
         opposingParty: caseData.opposingParty || '',
         opposingLawyer: caseData.opposingLawyer || '',
+        opposingCivilId: caseData.opposingCivilId || '',
         clientName: caseData.clientName || '',
+        clientCivilId: caseData.clientCivilId || '',
         clientPhone: caseData.clientPhone || '',
         clientEmail: caseData.clientEmail || '',
         filingDate: caseData.filingDate || '',
         nextHearingDate: caseData.nextHearingDate?.split('T')[0] || '',
         closingDate: caseData.closingDate || '',
+        verdict: caseData.verdict || '',
+        verdictDate: caseData.verdictDate || '',
+        appealDate: caseData.appealDate || '',
+        caseFees: caseData.caseFees || '',
         notes: caseData.notes || ''
       });
     } catch (error) {
@@ -111,17 +127,17 @@ const CaseForm = () => {
       <form onSubmit={handleSubmit}>
         <div className="grid grid-2">
           <div className="card">
-            <h3 className="card-title">{t.caseInformation}</h3>
+            <h3 className="card-title">{t.caseInformation || 'بيانات القضية'}</h3>
             
             <div className="form-group">
-              <label>{t.caseNumber} *</label>
+              <label>{t.caseNumber}</label>
               <input
                 type="text"
                 name="caseNumber"
                 className="form-control"
                 value={formData.caseNumber}
                 onChange={handleChange}
-                required
+                placeholder="اتركه فارغاً للإنشاء التلقائي"
               />
             </div>
 
@@ -163,6 +179,8 @@ const CaseForm = () => {
                 <option value="administrative">{t.administrative}</option>
                 <option value="family">{t.family}</option>
                 <option value="labor">{t.labor}</option>
+                <option value="sharia">{t.sharia}</option>
+                <option value="traffic">{t.traffic}</option>
                 <option value="other">{t.other}</option>
               </select>
             </div>
@@ -199,11 +217,45 @@ const CaseForm = () => {
                 <option value="urgent">{t.urgent}</option>
               </select>
             </div>
+
+            <div className="form-group">
+              <label>{t.caseFees || 'رسوم القضية (د.ك)'}</label>
+              <input
+                type="number"
+                name="caseFees"
+                className="form-control"
+                value={formData.caseFees}
+                onChange={handleChange}
+                step="0.001"
+                min="0"
+              />
+            </div>
           </div>
 
           <div className="card">
-            <h3 className="card-title">{t.courtInformation}</h3>
+            <h3 className="card-title">{t.courtInformation || 'بيانات المحكمة'}</h3>
             
+            <div className="form-group">
+              <label>{t.courtType || 'نوع المحكمة'}</label>
+              <select
+                name="courtType"
+                className="form-control"
+                value={formData.courtType}
+                onChange={handleChange}
+              >
+                <option value="">اختر المحكمة</option>
+                <option value="courtOfFirstInstance">{t.courtOfFirstInstance}</option>
+                <option value="familyCourt">{t.familyCourt}</option>
+                <option value="criminalCourt">{t.criminalCourt}</option>
+                <option value="commercialCourt">{t.commercialCourt}</option>
+                <option value="laborCourt">{t.laborCourt}</option>
+                <option value="administrativeCourt">{t.administrativeCourt}</option>
+                <option value="appealCourt">{t.appealCourt}</option>
+                <option value="cassationCourt">{t.cassationCourt}</option>
+                <option value="highConstitutionalCourt">{t.highConstitutionalCourt}</option>
+              </select>
+            </div>
+
             <div className="form-group">
               <label>{t.court}</label>
               <input
@@ -211,6 +263,18 @@ const CaseForm = () => {
                 name="court"
                 className="form-control"
                 value={formData.court}
+                onChange={handleChange}
+                placeholder="اسم المحكمة"
+              />
+            </div>
+
+            <div className="form-group">
+              <label>{t.department || 'القسم'}</label>
+              <input
+                type="text"
+                name="department"
+                className="form-control"
+                value={formData.department}
                 onChange={handleChange}
               />
             </div>
@@ -258,20 +322,43 @@ const CaseForm = () => {
                 onChange={handleChange}
               />
             </div>
+
+            <div className="form-group">
+              <label>{t.verdictDate || 'تاريخ الحكم'}</label>
+              <input
+                type="date"
+                name="verdictDate"
+                className="form-control"
+                value={formData.verdictDate}
+                onChange={handleChange}
+              />
+            </div>
           </div>
         </div>
 
         <div className="grid grid-2">
           <div className="card">
-            <h3 className="card-title">{t.clientInformation}</h3>
+            <h3 className="card-title">{t.clientInformation || 'بيانات الموكل'}</h3>
             
             <div className="form-group">
-              <label>{t.clientName}</label>
+              <label>{t.clientName} *</label>
               <input
                 type="text"
                 name="clientName"
                 className="form-control"
                 value={formData.clientName}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label>{t.clientCivilId || 'الرقم المدني'}</label>
+              <input
+                type="text"
+                name="clientCivilId"
+                className="form-control"
+                value={formData.clientCivilId}
                 onChange={handleChange}
               />
             </div>
@@ -300,7 +387,7 @@ const CaseForm = () => {
           </div>
 
           <div className="card">
-            <h3 className="card-title">{t.opposingPartyInformation}</h3>
+            <h3 className="card-title">{t.opposingPartyInformation || 'بيانات الخصم'}</h3>
             
             <div className="form-group">
               <label>{t.opposingParty}</label>
@@ -320,6 +407,28 @@ const CaseForm = () => {
                 name="opposingLawyer"
                 className="form-control"
                 value={formData.opposingLawyer}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className="form-group">
+              <label>{t.opposingCivilId || 'رقم المدني الخصم'}</label>
+              <input
+                type="text"
+                name="opposingCivilId"
+                className="form-control"
+                value={formData.opposingCivilId}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className="form-group">
+              <label>{t.verdict || 'الحكم'}</label>
+              <textarea
+                name="verdict"
+                className="form-control"
+                rows="3"
+                value={formData.verdict}
                 onChange={handleChange}
               />
             </div>

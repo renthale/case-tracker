@@ -1,21 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
 import api from '../../services/api';
-import { FiPlus, FiSearch, FiFilter, FiEye, FiEdit, FiTrash2 } from 'react-icons/fi';
+import { FiPlus, FiSearch, FiEye, FiEdit, FiTrash2 } from 'react-icons/fi';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import toast from 'react-hot-toast';
 
 const CasesList = () => {
   const { t } = useLanguage();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [cases, setCases] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
     search: '',
-    status: '',
-    type: '',
-    priority: ''
+    status: searchParams.get('status') || '',
+    type: searchParams.get('type') || '',
+    priority: searchParams.get('priority') || ''
   });
   const [pagination, setPagination] = useState({
     page: 1,
@@ -35,29 +36,40 @@ const CasesList = () => {
         limit: 10
       };
       
+      Object.keys(params).forEach(key => {
+        if (!params[key]) delete params[key];
+      });
+      
       const response = await api.get('/cases', { params });
       setCases(response.data.cases);
       setPagination(response.data.pagination);
     } catch (error) {
-      toast.error(t.errorFetchingCases);
+      toast.error('خطأ في جلب القضايا');
     } finally {
       setLoading(false);
     }
   };
 
   const handleFilterChange = (e) => {
-    setFilters({ ...filters, [e.target.name]: e.target.value });
+    const newFilters = { ...filters, [e.target.name]: e.target.value };
+    setFilters(newFilters);
     setPagination({ ...pagination, page: 1 });
+
+    const params = {};
+    if (newFilters.status) params.status = newFilters.status;
+    if (newFilters.type) params.type = newFilters.type;
+    if (newFilters.priority) params.priority = newFilters.priority;
+    setSearchParams(params);
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm(t.confirmDelete)) {
+    if (window.confirm('هل أنت متأكد من حذف هذه القضية؟')) {
       try {
         await api.delete(`/cases/${id}`);
-        toast.success(t.caseDeleted);
+        toast.success('تم حذف القضية بنجاح');
         fetchCases();
       } catch (error) {
-        toast.error(t.errorDeletingCase);
+        toast.error('خطأ في حذف القضية');
       }
     }
   };
@@ -68,9 +80,11 @@ const CasesList = () => {
       pending: 'badge-pending',
       closed: 'badge-closed',
       won: 'badge-won',
-      lost: 'badge-lost'
+      lost: 'badge-lost',
+      settled: 'badge-settled',
+      appeal: 'badge-appeal'
     };
-    return <span className={`badge ${statusClasses[status]}`}>{t[status]}</span>;
+    return <span className={`badge ${statusClasses[status] || ''}`}>{t[status]}</span>;
   };
 
   if (loading) {
@@ -92,7 +106,7 @@ const CasesList = () => {
             type="text"
             name="search"
             className="form-control"
-            placeholder={t.searchCases}
+            placeholder={t.search + '...'}
             value={filters.search}
             onChange={handleFilterChange}
             style={{ paddingRight: '2.5rem' }}
@@ -106,7 +120,7 @@ const CasesList = () => {
           value={filters.status}
           onChange={handleFilterChange}
         >
-          <option value="">{t.allStatuses}</option>
+          <option value="">جميع الحالات</option>
           <option value="active">{t.active}</option>
           <option value="pending">{t.pending}</option>
           <option value="closed">{t.closed}</option>
@@ -122,13 +136,15 @@ const CasesList = () => {
           value={filters.type}
           onChange={handleFilterChange}
         >
-          <option value="">{t.allTypes}</option>
+          <option value="">جميع الأنواع</option>
           <option value="civil">{t.civil}</option>
           <option value="criminal">{t.criminal}</option>
           <option value="commercial">{t.commercial}</option>
           <option value="administrative">{t.administrative}</option>
           <option value="family">{t.family}</option>
           <option value="labor">{t.labor}</option>
+          <option value="sharia">{t.sharia}</option>
+          <option value="traffic">{t.traffic}</option>
           <option value="other">{t.other}</option>
         </select>
         
@@ -138,7 +154,7 @@ const CasesList = () => {
           value={filters.priority}
           onChange={handleFilterChange}
         >
-          <option value="">{t.allPriorities}</option>
+          <option value="">جميع الأولويات</option>
           <option value="low">{t.low}</option>
           <option value="medium">{t.medium}</option>
           <option value="high">{t.high}</option>
@@ -157,19 +173,19 @@ const CasesList = () => {
               <th>{t.casePriority}</th>
               <th>{t.clientName}</th>
               <th>{t.nextHearing}</th>
-              <th>{t.actions}</th>
+              <th>{t.actions || 'إجراءات'}</th>
             </tr>
           </thead>
           <tbody>
             {cases.length > 0 ? (
               cases.map((caseItem) => (
                 <tr key={caseItem.id}>
-                  <td>{caseItem.caseNumber}</td>
-                  <td>{caseItem.title}</td>
+                  <td><Link to={`/cases/${caseItem.id}`}>{caseItem.caseNumber || '-'}</Link></td>
+                  <td><Link to={`/cases/${caseItem.id}`}>{caseItem.title}</Link></td>
                   <td>{t[caseItem.type]}</td>
                   <td>{getStatusBadge(caseItem.status)}</td>
                   <td>{t[caseItem.priority]}</td>
-                  <td>{caseItem.clientName}</td>
+                  <td>{caseItem.clientName || '-'}</td>
                   <td>
                     {caseItem.nextHearingDate 
                       ? format(new Date(caseItem.nextHearingDate), 'dd/MM/yyyy', { locale: ar })
@@ -178,7 +194,7 @@ const CasesList = () => {
                   </td>
                   <td>
                     <div className="actions">
-                      <Link to={`/cases/${caseItem.id}`} className="btn btn-secondary" title={t.view}>
+                      <Link to={`/cases/${caseItem.id}`} className="btn btn-secondary" title={t.viewDetails}>
                         <FiEye />
                       </Link>
                       <Link to={`/cases/${caseItem.id}/edit`} className="btn btn-secondary" title={t.edit}>
@@ -197,7 +213,7 @@ const CasesList = () => {
               ))
             ) : (
               <tr>
-                <td colSpan="8" className="no-data">{t.noCasesFound}</td>
+                <td colSpan="8" className="no-data">{t.noData}</td>
               </tr>
             )}
           </tbody>
@@ -211,15 +227,15 @@ const CasesList = () => {
             disabled={pagination.page === 1}
             onClick={() => setPagination({ ...pagination, page: pagination.page - 1 })}
           >
-            {t.previous}
+            السابق
           </button>
-          <span>{t.page} {pagination.page} {t.of} {pagination.pages}</span>
+          <span>صفحة {pagination.page} من {pagination.pages}</span>
           <button 
             className="btn btn-secondary"
             disabled={pagination.page === pagination.pages}
             onClick={() => setPagination({ ...pagination, page: pagination.page + 1 })}
           >
-            {t.next}
+            التالي
           </button>
         </div>
       )}

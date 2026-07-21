@@ -19,6 +19,10 @@ const Session = sequelize.define('Session', {
     type: DataTypes.INTEGER,
     allowNull: false
   },
+  sessionType: {
+    type: DataTypes.ENUM('mainSession', 'subSession', 'deliberation', 'verdictSession', 'evidenceSession'),
+    defaultValue: 'mainSession'
+  },
   date: {
     type: DataTypes.DATE,
     allowNull: false

@@ -1,6 +1,6 @@
 export const ar = {
   // General
-  appName: 'متابعة القضايا',
+  appName: 'نظام متابعة القضايا',
   loading: 'جاري التحميل...',
   save: 'حفظ',
   cancel: 'إلغاء',
@@ -14,6 +14,17 @@ export const ar = {
   confirm: 'تأكيد',
   yes: 'نعم',
   no: 'لا',
+  viewAll: 'عرض الكل',
+  noUpcomingSessions: 'لا توجد جلسات قادمة',
+  errorFetchingCase: 'خطأ في جلب بيانات القضية',
+  errorSavingCase: 'خطأ في حفظ القضية',
+  errorFetchingSession: 'خطأ في بيانات الجلسة',
+  errorSavingSession: 'خطأ في حفظ الجلسة',
+  caseUpdated: 'تم تحديث القضية بنجاح',
+  caseCreated: 'تم إنشاء القضية بنجاح',
+  sessionUpdated: 'تم تحديث الجلسة بنجاح',
+  sessionCreated: 'تم إنشاء الجلسة بنجاح',
+  viewDetails: 'عرض التفاصيل',
 
   // Auth
   login: 'تسجيل الدخول',
@@ -24,7 +35,8 @@ export const ar = {
   confirmPassword: 'تأكيد كلمة المرور',
   fullName: 'الاسم الكامل',
   username: 'اسم المستخدم',
-  phone: 'الهاتف',
+  phone: 'الجوال',
+  civilId: 'الرقم المدني',
   rememberMe: 'تذكرني',
   forgotPassword: 'نسيت كلمة المرور؟',
   loginSuccess: 'تم تسجيل الدخول بنجاح',
@@ -32,7 +44,7 @@ export const ar = {
   invalidCredentials: 'بيانات الدخول غير صحيحة',
 
   // Navigation
-  dashboard: 'الرئيسية',
+  dashboard: 'لوحة التحكم',
   cases: 'القضايا',
   sessions: 'الجلسات',
   notifications: 'الإشعارات',
@@ -43,18 +55,20 @@ export const ar = {
 
   // Cases
   caseNumber: 'رقم القضية',
-  caseTitle: 'عنوان القضية',
+  caseTitle: 'subject Matter',
   caseType: 'نوع القضية',
   caseStatus: 'حالة القضية',
   casePriority: 'الأولوية',
   court: 'المحكمة',
+  courtType: 'نوع المحكمة',
   judge: 'القاضي',
-  opposingParty: 'الطرف المعارض',
-  opposingLawyer: 'محامي الطرف المعارض',
-  clientName: 'اسم العميل',
-  clientPhone: 'هاتف العميل',
-  clientEmail: 'بريد العميل',
-  filingDate: 'تاريخ التقديم',
+  opposingParty: 'الخصم',
+  opposingLawyer: 'محامي الخصم',
+  clientName: 'اسم الموكل',
+  clientPhone: 'جوال الموكل',
+  clientEmail: 'بريد الموكل',
+  clientCivilId: 'الرقم المدني للموكل',
+  filingDate: 'تاريخ القيد',
   nextHearing: 'الجلسة القادمة',
   closingDate: 'تاريخ الإغلاق',
   notes: 'ملاحظات',
@@ -63,48 +77,77 @@ export const ar = {
   deleteCase: 'حذف القضية',
   caseDetails: 'تفاصيل القضية',
   allCases: 'جميع القضايا',
-  activeCases: 'القضايا النشطة',
+  activeCases: 'القضايا الجارية',
   closedCases: 'القضايا المغلقة',
+  verdict: 'الحكم',
+  verdictDate: 'تاريخ الحكم',
+  appealDate: 'تاريخ الاستئناف',
+  caseFees: 'رسوم القضية',
+  department: 'القسم',
 
-  // Case Types
+  // Kuwait Court Types
+  courtOfFirstInstance: 'المحكمة الابتدائية',
+  familyCourt: 'محكمة الأهلية',
+  criminalCourt: 'محكمة الجنايات',
+  commercialCourt: 'محكمة التجارة',
+  laborCourt: 'محكمة العمل',
+  administrativeCourt: 'المحكمة الإدارية',
+  appealCourt: 'محكمة الاستئناف',
+  cassationCourt: 'محكمة النقض',
+  highConstitutionalCourt: 'المحكمة الدستورية العليا',
+
+  // Kuwait Case Types
   civil: 'مدني',
   criminal: 'جنائي',
   commercial: 'تجاري',
   administrative: 'إداري',
   family: 'أحوال شخصية',
   labor: 'عمالي',
+  sharia: 'شرعي',
+  traffic: 'مروري',
   other: 'أخرى',
 
   // Case Status
-  active: 'نشطة',
-  pending: 'قيد الانتظار',
+  active: 'جارية',
+  pending: 'معلقة',
   closed: 'مغلقة',
-  won: 'رفعت',
-  lost: 'خسارت',
-  settled: 'تسوية',
+  won: 'محكوم لصالحنا',
+  lost: 'محكوم علينا',
+  settled: 'محكمة الصلح',
   appeal: 'استئناف',
+  retrial: 'إعادة محاكمة',
+  dismissed: 'مرفوعة',
 
   // Priority
-  low: 'منخفضة',
+  low: 'عادية',
   medium: 'متوسطة',
-  high: 'عالية',
+  high: 'مهمة',
   urgent: 'عاجلة',
 
   // Sessions
   sessionNumber: 'رقم الجلسة',
   sessionDate: 'تاريخ الجلسة',
   sessionTime: 'وقت الجلسة',
-  sessionLocation: 'مكان الجلسة',
+  sessionLocation: 'قاعة الجلسة',
   sessionStatus: 'حالة الجلسة',
   sessionOutcome: 'نتيجة الجلسة',
   addSession: 'إضافة جلسة',
   editSession: 'تعديل الجلسة',
   upcomingSessions: 'الجلسات القادمة',
   pastSessions: 'الجلسات السابقة',
+  hearingNumber: 'رقم الجلسة',
+  sessionType: 'نوع الجلسة',
+
+  // Session Types (Kuwait)
+  mainSession: 'الجلسة الرئيسية',
+  subSession: 'الجلسة التمهيدية',
+  deliberation: 'المداولة',
+  verdictSession: 'جلسة النطق بالحكم',
+  evidenceSession: 'جلسة الأدلة',
 
   // Session Status
   scheduled: 'مجدولة',
-  completed: 'مكتملة',
+  completed: 'منجزة',
   postponed: 'مؤجلة',
   cancelled: 'ملغاة',
 
@@ -114,23 +157,35 @@ export const ar = {
   noNotifications: 'لا توجد إشعارات',
   caseUpdate: 'تحديث القضية',
   sessionReminder: 'تذكير بالجلسة',
-  sessionScheduled: 'جلسة مجدولة',
+  sessionScheduled: 'تم جدولة جلسة',
+  deadline: 'موعد نهائي',
 
   // Reports
   totalCases: 'إجمالي القضايا',
-  activeCasesCount: 'القضايا النشطة',
+  activeCasesCount: 'القضايا الجارية',
   closedCasesCount: 'القضايا المغلقة',
+  appealCasesCount: 'قضايا الاستئناف',
+  pendingCasesCount: 'القضايا المعلقة',
   casesByType: 'القضايا حسب النوع',
   casesByPriority: 'القضايا حسب الأولوية',
   casesByStatus: 'القضايا حسب الحالة',
   monthlyReport: 'التقرير الشهري',
+  yearlyReport: 'التقرير السنوي',
+  courtReport: 'تقرير المحكمة',
 
   // Dashboard
-  welcome: 'مرحباً',
+  welcome: 'مرحباً بك',
   recentActivity: 'النشاط الأخير',
-  quickStats: 'إحصائيات سريعة',
+  quickStats: 'ملخص سريع',
   todaySessions: 'جلسات اليوم',
-  overdueTasks: 'مهام متأخرة',
+  overdueTasks: 'المهام المتأخرة',
+  today: 'اليوم',
+  thisWeek: 'هذا الأسبوع',
+  thisMonth: 'هذا الشهر',
+
+  // Actions
+  addNewCase: 'قضية جديدة',
+  addNewSession: 'جلسة جديدة',
 
   // Language
   language: 'اللغة',
@@ -156,6 +211,17 @@ export const en = {
   confirm: 'Confirm',
   yes: 'Yes',
   no: 'No',
+  viewAll: 'View All',
+  noUpcomingSessions: 'No upcoming sessions',
+  errorFetchingCase: 'Error fetching case details',
+  errorSavingCase: 'Error saving case',
+  errorFetchingSession: 'Error fetching session',
+  errorSavingSession: 'Error saving session',
+  caseUpdated: 'Case updated successfully',
+  caseCreated: 'Case created successfully',
+  sessionUpdated: 'Session updated successfully',
+  sessionCreated: 'Session created successfully',
+  viewDetails: 'View Details',
 
   // Auth
   login: 'Login',
@@ -166,7 +232,8 @@ export const en = {
   confirmPassword: 'Confirm Password',
   fullName: 'Full Name',
   username: 'Username',
-  phone: 'Phone',
+  phone: 'Mobile',
+  civilId: 'Civil ID',
   rememberMe: 'Remember me',
   forgotPassword: 'Forgot password?',
   loginSuccess: 'Logged in successfully',
@@ -190,12 +257,14 @@ export const en = {
   caseStatus: 'Case Status',
   casePriority: 'Priority',
   court: 'Court',
+  courtType: 'Court Type',
   judge: 'Judge',
   opposingParty: 'Opposing Party',
   opposingLawyer: 'Opposing Lawyer',
   clientName: 'Client Name',
-  clientPhone: 'Client Phone',
+  clientPhone: 'Client Mobile',
   clientEmail: 'Client Email',
+  clientCivilId: 'Client Civil ID',
   filingDate: 'Filing Date',
   nextHearing: 'Next Hearing',
   closingDate: 'Closing Date',
@@ -207,6 +276,22 @@ export const en = {
   allCases: 'All Cases',
   activeCases: 'Active Cases',
   closedCases: 'Closed Cases',
+  verdict: 'Verdict',
+  verdictDate: 'Verdict Date',
+  appealDate: 'Appeal Date',
+  caseFees: 'Case Fees',
+  department: 'Department',
+
+  // Kuwait Court Types
+  courtOfFirstInstance: 'Court of First Instance',
+  familyCourt: 'Family Court',
+  criminalCourt: 'Criminal Court',
+  commercialCourt: 'Commercial Court',
+  laborCourt: 'Labor Court',
+  administrativeCourt: 'Administrative Court',
+  appealCourt: 'Court of Appeal',
+  cassationCourt: 'Court of Cassation',
+  highConstitutionalCourt: 'High Constitutional Court',
 
   // Case Types
   civil: 'Civil',
@@ -215,6 +300,8 @@ export const en = {
   administrative: 'Administrative',
   family: 'Family',
   labor: 'Labor',
+  sharia: 'Sharia',
+  traffic: 'Traffic',
   other: 'Other',
 
   // Case Status
@@ -223,8 +310,10 @@ export const en = {
   closed: 'Closed',
   won: 'Won',
   lost: 'Lost',
-  settled: 'Settled',
+  settled: 'Settlement',
   appeal: 'Appeal',
+  retrial: 'Retrial',
+  dismissed: 'Dismissed',
 
   // Priority
   low: 'Low',
@@ -236,13 +325,22 @@ export const en = {
   sessionNumber: 'Session Number',
   sessionDate: 'Session Date',
   sessionTime: 'Session Time',
-  sessionLocation: 'Session Location',
+  sessionLocation: 'Courtroom',
   sessionStatus: 'Session Status',
   sessionOutcome: 'Session Outcome',
   addSession: 'Add Session',
   editSession: 'Edit Session',
   upcomingSessions: 'Upcoming Sessions',
   pastSessions: 'Past Sessions',
+  hearingNumber: 'Hearing Number',
+  sessionType: 'Session Type',
+
+  // Session Types
+  mainSession: 'Main Hearing',
+  subSession: 'Preliminary Hearing',
+  deliberation: 'Deliberation',
+  verdictSession: 'Verdict Session',
+  evidenceSession: 'Evidence Session',
 
   // Session Status
   scheduled: 'Scheduled',
@@ -257,15 +355,20 @@ export const en = {
   caseUpdate: 'Case Update',
   sessionReminder: 'Session Reminder',
   sessionScheduled: 'Session Scheduled',
+  deadline: 'Deadline',
 
   // Reports
   totalCases: 'Total Cases',
   activeCasesCount: 'Active Cases',
   closedCasesCount: 'Closed Cases',
+  appealCasesCount: 'Appeal Cases',
+  pendingCasesCount: 'Pending Cases',
   casesByType: 'Cases by Type',
   casesByPriority: 'Cases by Priority',
   casesByStatus: 'Cases by Status',
   monthlyReport: 'Monthly Report',
+  yearlyReport: 'Yearly Report',
+  courtReport: 'Court Report',
 
   // Dashboard
   welcome: 'Welcome',
@@ -273,6 +376,13 @@ export const en = {
   quickStats: 'Quick Stats',
   todaySessions: "Today's Sessions",
   overdueTasks: 'Overdue Tasks',
+  today: 'Today',
+  thisWeek: 'This Week',
+  thisMonth: 'This Month',
+
+  // Actions
+  addNewCase: 'New Case',
+  addNewSession: 'New Session',
 
   // Language
   language: 'Language',
