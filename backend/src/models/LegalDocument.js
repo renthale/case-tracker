@@ -34,6 +34,16 @@ const LegalDocument = sequelize.define('LegalDocument', {
     type: DataTypes.INTEGER,
     references: { model: 'Users', key: 'id' }
   },
+  reviewDate: {
+    type: DataTypes.DATEONLY
+  },
+  approvedBy: {
+    type: DataTypes.INTEGER,
+    references: { model: 'Users', key: 'id' }
+  },
+  approvalDate: {
+    type: DataTypes.DATEONLY
+  },
   notes: {
     type: DataTypes.TEXT
   }

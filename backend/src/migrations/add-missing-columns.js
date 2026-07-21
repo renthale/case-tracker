@@ -44,6 +44,11 @@ const migrations = [
   `ALTER TABLE "Cases" ADD COLUMN IF NOT EXISTS "sessionFees" DECIMAL(10,3) DEFAULT 0;`,
   `ALTER TABLE "Cases" ADD COLUMN IF NOT EXISTS "otherFees" DECIMAL(10,3) DEFAULT 0;`,
   `ALTER TABLE "Cases" ADD COLUMN IF NOT EXISTS "paymentStatus" VARCHAR(20) DEFAULT 'unpaid';`,
+
+  // LegalDocument model - review and approval dates
+  `ALTER TABLE "LegalDocuments" ADD COLUMN IF NOT EXISTS "reviewDate" DATE;`,
+  `ALTER TABLE "LegalDocuments" ADD COLUMN IF NOT EXISTS "approvedBy" INTEGER;`,
+  `ALTER TABLE "LegalDocuments" ADD COLUMN IF NOT EXISTS "approvalDate" DATE;`,,
 ];
 
 const runMigrations = async () => {
