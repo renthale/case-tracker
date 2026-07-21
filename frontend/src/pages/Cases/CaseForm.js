@@ -77,12 +77,17 @@ const CaseForm = () => {
     e.preventDefault();
     setLoading(true);
 
+    const cleanedData = { ...formData };
+    Object.keys(cleanedData).forEach(key => {
+      if (cleanedData[key] === '') cleanedData[key] = null;
+    });
+
     try {
       if (id) {
-        await api.put(`/cases/${id}`, formData);
+        await api.put(`/cases/${id}`, cleanedData);
         toast.success(t.caseUpdated);
       } else {
-        await api.post('/cases', formData);
+        await api.post('/cases', cleanedData);
         toast.success(t.caseCreated);
       }
       navigate('/cases');

@@ -69,12 +69,17 @@ const SessionForm = () => {
     e.preventDefault();
     setLoading(true);
 
+    const cleanedData = { ...formData };
+    Object.keys(cleanedData).forEach(key => {
+      if (cleanedData[key] === '') cleanedData[key] = null;
+    });
+
     try {
       if (id) {
-        await api.put(`/sessions/${id}`, formData);
+        await api.put(`/sessions/${id}`, cleanedData);
         toast.success(t.sessionUpdated);
       } else {
-        await api.post(`/sessions/case/${formData.caseId}`, formData);
+        await api.post(`/sessions/case/${cleanedData.caseId}`, cleanedData);
         toast.success(t.sessionCreated);
       }
       navigate('/sessions');
