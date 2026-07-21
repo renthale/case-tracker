@@ -11,6 +11,17 @@ const migrations = [
   // Client model - passportNumber
   `ALTER TABLE "Clients" ADD COLUMN IF NOT EXISTS "passportNumber" VARCHAR(30);`,
 
+  // Transaction model - fix old ENUM 'type' column to VARCHAR
+  `DO $$ BEGIN
+    ALTER TABLE "Transactions" ALTER COLUMN "type" TYPE VARCHAR(50);
+  EXCEPTION WHEN undefined_column THEN NULL;
+  END $$;`,
+  `ALTER TABLE "Transactions" ALTER COLUMN "type" SET DEFAULT 'government_transaction';`,
+  `DO $$ BEGIN
+    ALTER TABLE "Transactions" ALTER COLUMN "status" TYPE VARCHAR(30);
+  EXCEPTION WHEN undefined_column THEN NULL;
+  END $$;`,,
+
   // Transaction model - new government transaction fields
   `ALTER TABLE "Transactions" ADD COLUMN IF NOT EXISTS "title" VARCHAR(200);`,
   `ALTER TABLE "Transactions" ADD COLUMN IF NOT EXISTS "governmentEntity" VARCHAR(200);`,
