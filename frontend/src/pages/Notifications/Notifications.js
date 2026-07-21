@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import api from '../../services/api';
-import { FiCheck, FiCheckAll, FiTrash2, FiBell } from 'react-icons/fi';
+import { FiCheck, FiCheckSquare, FiTrash2, FiBell } from 'react-icons/fi';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import toast from 'react-hot-toast';
@@ -107,7 +107,7 @@ const Notifications = () => {
         </h2>
         {unreadCount > 0 && (
           <button className="btn btn-secondary" onClick={markAllAsRead}>
-            <FiCheckAll /> {t.markAllRead}
+            <FiCheckSquare /> {t.markAllRead}
           </button>
         )}
       </div>
