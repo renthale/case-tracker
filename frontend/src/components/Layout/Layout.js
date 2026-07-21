@@ -5,7 +5,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import {
   FiHome, FiBriefcase, FiUsers, FiCalendar, FiDollarSign,
   FiFileText, FiSend, FiMap, FiBell, FiBarChart2,
-  FiSettings, FiLogOut, FiMenu, FiX, FiUser, FiGlobe
+  FiSettings, FiLogOut, FiMenu, FiX, FiUser, FiGlobe, FiShield
 } from 'react-icons/fi';
 
 const Layout = () => {
@@ -25,7 +25,8 @@ const Layout = () => {
     { path: '/transactions', icon: FiSend, label: t.transactions },
     { path: '/court-agent', icon: FiMap, label: t.courtAgent },
     { path: '/notifications', icon: FiBell, label: t.notifications },
-    { path: '/reports', icon: FiBarChart2, label: t.reports }
+    { path: '/reports', icon: FiBarChart2, label: t.reports },
+    ...(user?.role === 'admin' ? [{ path: '/users', icon: FiShield, label: t.userManagement || 'إدارة المستخدمين' }] : [])
   ];
 
   const handleLogout = () => {

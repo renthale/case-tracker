@@ -26,6 +26,7 @@ import ClientDetails from './pages/Clients/ClientDetails';
 import InvoicesList from './pages/Invoices/InvoicesList';
 import InvoiceForm from './pages/Invoices/InvoiceForm';
 import InvoiceDetails from './pages/Invoices/InvoiceDetails';
+import UsersList from './pages/Users/UsersList';
 import './styles/App.css';
 
 const PrivateRoute = ({ children }) => {
@@ -84,6 +85,7 @@ function App() {
               <Route path="invoices/:id/edit" element={<InvoiceForm />} />
               <Route path="notifications" element={<Notifications />} />
               <Route path="reports" element={<Reports />} />
+              <Route path="users" element={<UsersList />} />
             </Route>
           </Routes>
         </Router>

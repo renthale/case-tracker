@@ -296,6 +296,18 @@ export const ar = {
   documentName: 'اسم المستند',
   removeDocument: 'حذف المستند',
 
+  // User Management
+  userManagement: 'إدارة المستخدمين',
+  addUser: 'إضافة مستخدم',
+  editUser: 'تعديل المستخدم',
+  deleteUser: 'حذف المستخدم',
+  resetPassword: 'إعادة تعيين كلمة المرور',
+  newPassword: 'كلمة المرور الجديدة',
+  role: 'الدور',
+  status: 'الحالة',
+  active: 'نشط',
+  inactive: 'معطّل',
+
   // Roles
   admin: 'مدير النظام',
   partner: 'شريك',
@@ -612,6 +624,18 @@ export const en = {
   enterPostponeDate: 'Enter postpone date',
   documentName: 'Document Name',
   removeDocument: 'Remove Document',
+
+  // User Management
+  userManagement: 'User Management',
+  addUser: 'Add User',
+  editUser: 'Edit User',
+  deleteUser: 'Delete User',
+  resetPassword: 'Reset Password',
+  newPassword: 'New Password',
+  role: 'Role',
+  status: 'Status',
+  active: 'Active',
+  inactive: 'Inactive',
 
   // Roles
   admin: 'System Admin',

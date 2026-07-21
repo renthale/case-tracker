@@ -19,6 +19,12 @@ router.post('/login', [
 router.get('/profile', auth, authController.getProfile);
 router.put('/profile', auth, authController.updateProfile);
 router.put('/change-password', auth, authController.changePassword);
+
+// Admin user management
 router.get('/users', auth, authorize('admin'), authController.getAllUsers);
+router.post('/users', auth, authorize('admin'), authController.createUser);
+router.put('/users/:id', auth, authorize('admin'), authController.updateUser);
+router.post('/users/:id/reset-password', auth, authorize('admin'), authController.resetPassword);
+router.delete('/users/:id', auth, authorize('admin'), authController.deleteUser);
 
 module.exports = router;

@@ -116,6 +116,107 @@ exports.getAllUsers = async (req, res) => {
     });
     res.json({ users });
   } catch (error) {
-    res.status(500).json({ error: 'خطأ في جلب المستخدمين' });
+    res.status(500).json({ error: 'خطأ في جلب المستخدمين', details: error.message });
+  }
+};
+
+exports.createUser = async (req, res) => {
+  try {
+    const { username, email, password, fullName, role, phone, language } = req.body;
+
+    if (!username || !email || !password || !fullName) {
+      return res.status(400).json({ error: 'جميع الحقول المطلوبة يجب ملؤها' });
+    }
+
+    const existingUser = await User.findOne({ where: { email } });
+    if (existingUser) {
+      return res.status(400).json({ error: 'البريد الإلكتروني مستخدم مسبقاً' });
+    }
+
+    const existingUsername = await User.findOne({ where: { username } });
+    if (existingUsername) {
+      return res.status(400).json({ error: 'اسم المستخدم مستخدم مسبقاً' });
+    }
+
+    const user = await User.create({
+      username,
+      email,
+      password,
+      fullName,
+      role: role || 'lawyer',
+      phone: phone || null,
+      language: language || 'ar'
+    });
+
+    res.status(201).json({ message: 'تم إنشاء المستخدم بنجاح', user });
+  } catch (error) {
+    res.status(500).json({ error: 'خطأ في إنشاء المستخدم', details: error.message });
+  }
+};
+
+exports.updateUser = async (req, res) => {
+  try {
+    const user = await User.findByPk(req.params.id);
+    if (!user) {
+      return res.status(404).json({ error: 'المستخدم غير موجود' });
+    }
+
+    const { fullName, role, phone, isActive, language } = req.body;
+
+    const updates = {};
+    if (fullName !== undefined) updates.fullName = fullName;
+    if (role !== undefined) updates.role = role;
+    if (phone !== undefined) updates.phone = phone;
+    if (isActive !== undefined) updates.isActive = isActive;
+    if (language !== undefined) updates.language = language;
+
+    await user.update(updates);
+
+    res.json({ message: 'تم تحديث المستخدم بنجاح', user });
+  } catch (error) {
+    res.status(500).json({ error: 'خطأ في تحديث المستخدم', details: error.message });
+  }
+};
+
+exports.resetPassword = async (req, res) => {
+  try {
+    const user = await User.findByPk(req.params.id);
+    if (!user) {
+      return res.status(404).json({ error: 'المستخدم غير موجود' });
+    }
+
+    const { newPassword } = req.body;
+    if (!newPassword || newPassword.length < 6) {
+      return res.status(400).json({ error: 'كلمة المرور يجب أن تكون 6 أحرف على الأقل' });
+    }
+
+    await user.update({ password: newPassword });
+
+    res.json({ message: 'تم إعادة تعيين كلمة المرور بنجاح' });
+  } catch (error) {
+    res.status(500).json({ error: 'خطأ في إعادة تعيين كلمة المرور', details: error.message });
+  }
+};
+
+exports.deleteUser = async (req, res) => {
+  try {
+    const user = await User.findByPk(req.params.id);
+    if (!user) {
+      return res.status(404).json({ error: 'المستخدم غير موجود' });
+    }
+
+    if (user.role === 'admin') {
+      return res.status(403).json({ error: 'لا يمكن حذف مدير النظام' });
+    }
+
+    if (user.id === req.user.id) {
+      return res.status(403).json({ error: 'لا يمكنك حذف حسابك الخاص' });
+    }
+
+    await user.update({ isActive: false });
+
+    res.json({ message: 'تم تعطيل المستخدم بنجاح' });
+  } catch (error) {
+    res.status(500).json({ error: 'خطأ في حذف المستخدم', details: error.message });
   }
 };
