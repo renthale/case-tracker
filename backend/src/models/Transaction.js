@@ -33,11 +33,11 @@ const Transaction = sequelize.define('Transaction', {
     allowNull: false
   },
   entityType: {
-    type: DataTypes.ENUM('ministry_of_justice', 'awqaf', 'general_sec', 'kuwait_municipality', 'paci', 'embassy', 'court', 'other'),
+    type: DataTypes.STRING(50),
     defaultValue: 'other'
   },
   status: {
-    type: DataTypes.ENUM('submitted', 'processing', 'completed', 'rejected', 'pending'),
+    type: DataTypes.STRING(30),
     defaultValue: 'submitted'
   },
   submissionDate: {
