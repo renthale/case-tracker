@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 
 const CaseForm = () => {
   const { id } = useParams();
-  const { t, isArabic } = useLanguage();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
@@ -157,21 +157,21 @@ const CaseForm = () => {
       <form onSubmit={handleSubmit}>
         {/* Section 1: Case Info */}
         <div className="card" style={{ marginBottom: '1.5rem' }}>
-          <h3 className="card-title">{isArabic ? 'بيانات القضية' : 'Case Information'}</h3>
+          <h3 className="card-title">{t.caseInformation}</h3>
 
           <div className="grid grid-2">
             <div className="form-group">
               <label>{t.caseNumber}</label>
               <input type="text" name="caseNumber" className="form-control" value={formData.caseNumber} onChange={handleChange}
-                placeholder={isArabic ? 'اتركه فارغاً للإنشاء الت.AUTO' : 'Leave empty for auto-generation'} />
+                placeholder={t.autoGenerate} />
             </div>
 
             <div className="form-group">
-              <label>{isArabic ? 'نوع التقديم' : 'Filing Type'}</label>
+              <label>{t.filingType}</label>
               <select name="filingType" className="form-control" value={formData.filingType || 'new'} onChange={handleChange}>
-                <option value="new">{isArabic ? 'جديد' : 'New'}</option>
-                <option value="appeal">{isArabic ? 'استئناف' : 'Appeal'}</option>
-                <option value="cassation">{isArabic ? 'نقض' : 'Cassation'}</option>
+                <option value="new">{t.filingNew}</option>
+                <option value="appeal">{t.filingAppeal}</option>
+                <option value="cassation">{t.filingCassation}</option>
               </select>
             </div>
           </div>
@@ -212,8 +212,8 @@ const CaseForm = () => {
                 <option value="lost">{t.lost}</option>
                 <option value="settled">{t.settled}</option>
                 <option value="appeal">{t.appeal}</option>
-                <option value="retrial">{isArabic ? 'إعادة محاكمة' : 'Retrial'}</option>
-                <option value="dismissed">{isArabic ? 'مرفوض' : 'Dismissed'}</option>
+                <option value="retrial">{t.retrial}</option>
+                <option value="dismissed">{t.dismissed}</option>
               </select>
             </div>
 
@@ -231,13 +231,13 @@ const CaseForm = () => {
 
         {/* Section 2: Court Info */}
         <div className="card" style={{ marginBottom: '1.5rem' }}>
-          <h3 className="card-title">{isArabic ? 'بيانات المحكمة' : 'Court Information'}</h3>
+          <h3 className="card-title">{t.courtInformation}</h3>
 
           <div className="grid grid-3">
             <div className="form-group">
-              <label>{t.courtType || 'نوع المحكمة'}</label>
+              <label>{t.courtType}</label>
               <select name="courtType" className="form-control" value={formData.courtType} onChange={handleChange}>
-                <option value="">{isArabic ? 'اختر المحكمة' : 'Select Court'}</option>
+                <option value="">{t.selectCourt}</option>
                 <option value="courtOfFirstInstance">{t.courtOfFirstInstance}</option>
                 <option value="familyCourt">{t.familyCourt}</option>
                 <option value="criminalCourt">{t.criminalCourt}</option>
@@ -252,19 +252,18 @@ const CaseForm = () => {
 
             <div className="form-group">
               <label>{t.court}</label>
-              <input type="text" name="court" className="form-control" value={formData.court} onChange={handleChange}
-                placeholder={isArabic ? 'اسم المحكمة' : 'Court name'} />
+              <input type="text" name="court" className="form-control" value={formData.court} onChange={handleChange} />
             </div>
 
             <div className="form-group">
-              <label>{t.department || 'القسم'}</label>
+              <label>{t.department}</label>
               <input type="text" name="department" className="form-control" value={formData.department} onChange={handleChange} />
             </div>
           </div>
 
           <div className="grid grid-2">
             <div className="form-group">
-              <label>{isArabic ? 'رقم القيد' : 'Registration Number'}</label>
+              <label>{t.registrationNumber}</label>
               <input type="text" name="registrationNumber" className="form-control" value={formData.registrationNumber} onChange={handleChange} />
             </div>
 
@@ -277,12 +276,12 @@ const CaseForm = () => {
 
         {/* Section 3: Client */}
         <div className="card" style={{ marginBottom: '1.5rem' }}>
-          <h3 className="card-title">{isArabic ? 'الموكل' : 'Client'}</h3>
+          <h3 className="card-title">{t.clientSection}</h3>
 
           <div className="form-group">
-            <label>{isArabic ? 'اختر موكل' : 'Select Client'}</label>
+            <label>{t.selectClient}</label>
             <select name="clientId" className="form-control" value={formData.clientId} onChange={handleClientSelect}>
-              <option value="">{isArabic ? 'اختر موكل...' : 'Select client...'}</option>
+              <option value="">{t.selectClientPlaceholder}</option>
               {clients.map(client => (
                 <option key={client.id} value={client.id}>{client.name}</option>
               ))}
@@ -296,7 +295,7 @@ const CaseForm = () => {
             </div>
 
             <div className="form-group">
-              <label>{t.clientCivilId || 'الرقم المدني'}</label>
+              <label>{t.clientCivilId}</label>
               <input type="text" name="clientCivilId" className="form-control" value={formData.clientCivilId} onChange={handleChange} />
             </div>
           </div>
@@ -316,7 +315,7 @@ const CaseForm = () => {
 
         {/* Section 4: Opposing Party */}
         <div className="card" style={{ marginBottom: '1.5rem' }}>
-          <h3 className="card-title">{isArabic ? 'الخصم' : 'Opposing Party'}</h3>
+          <h3 className="card-title">{t.opposingPartySection}</h3>
 
           <div className="grid grid-3">
             <div className="form-group">
@@ -330,7 +329,7 @@ const CaseForm = () => {
             </div>
 
             <div className="form-group">
-              <label>{t.opposingCivilId || 'رقم المدني الخصم'}</label>
+              <label>{t.opposingCivilId}</label>
               <input type="text" name="opposingCivilId" className="form-control" value={formData.opposingCivilId} onChange={handleChange} />
             </div>
           </div>
@@ -338,7 +337,7 @@ const CaseForm = () => {
 
         {/* Section 5: Dates */}
         <div className="card" style={{ marginBottom: '1.5rem' }}>
-          <h3 className="card-title">{isArabic ? 'التواريخ' : 'Dates'}</h3>
+          <h3 className="card-title">{t.datesSection}</h3>
 
           <div className="grid grid-3">
             <div className="form-group">
@@ -359,17 +358,17 @@ const CaseForm = () => {
 
           <div className="grid grid-3">
             <div className="form-group">
-              <label>{isArabic ? 'تاريخ التكليف' : 'Assignment Date'}</label>
+              <label>{t.assignmentDate}</label>
               <input type="date" name="assignmentDate" className="form-control" value={formData.assignmentDate} onChange={handleChange} />
             </div>
 
             <div className="form-group">
-              <label>{isArabic ? 'تاريخ انتهاء التكليف' : 'Assignment End Date'}</label>
+              <label>{t.assignmentEndDate}</label>
               <input type="date" name="assignmentEndDate" className="form-control" value={formData.assignmentEndDate} onChange={handleChange} />
             </div>
 
             <div className="form-group">
-              <label>{isArabic ? 'تاريخ الحكم' : 'Verdict Date'}</label>
+              <label>{t.verdictDate}</label>
               <input type="date" name="verdictDate" className="form-control" value={formData.verdictDate} onChange={handleChange} />
             </div>
           </div>
@@ -377,17 +376,17 @@ const CaseForm = () => {
 
         {/* Section 6: Fees */}
         <div className="card" style={{ marginBottom: '1.5rem' }}>
-          <h3 className="card-title">{isArabic ? 'الأتعاب' : 'Fees'}</h3>
+          <h3 className="card-title">{t.feesSection}</h3>
 
           <div className="grid grid-2">
             <div className="form-group">
-              <label>{isArabic ? 'رسوم الاستشارة (د.ك)' : 'Consultation Fees (KWD)'}</label>
+              <label>{t.consultationFeesLabel}</label>
               <input type="number" name="consultationFees" className="form-control" step="0.001" min="0"
                 value={formData.consultationFees} onChange={handleChange} />
             </div>
 
             <div className="form-group">
-              <label>{isArabic ? 'رسوم الترافع (د.ك)' : 'Litigation Fees (KWD)'}</label>
+              <label>{t.litigationFeesLabel}</label>
               <input type="number" name="litigationFees" className="form-control" step="0.001" min="0"
                 value={formData.litigationFees} onChange={handleChange} />
             </div>
@@ -395,13 +394,13 @@ const CaseForm = () => {
 
           <div className="grid grid-2">
             <div className="form-group">
-              <label>{isArabic ? 'رسوم الجلسات (د.ك)' : 'Session Fees (KWD)'}</label>
+              <label>{t.sessionFeesLabel}</label>
               <input type="number" name="sessionFees" className="form-control" step="0.001" min="0"
                 value={formData.sessionFees} onChange={handleChange} />
             </div>
 
             <div className="form-group">
-              <label>{isArabic ? 'رسوم أخرى (د.ك)' : 'Other Fees (KWD)'}</label>
+              <label>{t.otherFeesLabel}</label>
               <input type="number" name="otherFees" className="form-control" step="0.001" min="0"
                 value={formData.otherFees} onChange={handleChange} />
             </div>
@@ -409,18 +408,18 @@ const CaseForm = () => {
 
           <div className="grid grid-2">
             <div className="form-group">
-              <label style={{ fontWeight: 'bold' }}>{isArabic ? 'الإجمالي (د.ك)' : 'Total Fees (KWD)'}</label>
+              <label style={{ fontWeight: 'bold' }}>{t.totalFeesLabel}</label>
               <input type="text" className="form-control" value={totalFees} readOnly
                 style={{ backgroundColor: '#f0f0f0', fontWeight: 'bold' }} />
             </div>
 
             <div className="form-group">
-              <label>{isArabic ? 'حالة الدفع' : 'Payment Status'}</label>
+              <label>{t.paymentStatus}</label>
               <select name="paymentStatus" className="form-control" value={formData.paymentStatus} onChange={handleChange}>
-                <option value="unpaid">{isArabic ? 'لم يُدفع' : 'Unpaid'}</option>
-                <option value="partial">{isArabic ? 'مدفوع جزئياً' : 'Partial'}</option>
-                <option value="paid">{isArabic ? 'مدفوع بالكامل' : 'Paid'}</option>
-                <option value="overdue">{isArabic ? 'متأخر' : 'Overdue'}</option>
+                <option value="unpaid">{t.unpaid}</option>
+                <option value="partial">{t.partial}</option>
+                <option value="paid">{t.paidInFull}</option>
+                <option value="overdue">{t.overdue}</option>
               </select>
             </div>
           </div>
@@ -428,10 +427,10 @@ const CaseForm = () => {
 
         {/* Section 7: Verdict & Notes */}
         <div className="card" style={{ marginBottom: '1.5rem' }}>
-          <h3 className="card-title">{isArabic ? 'الحكم والملاحظات' : 'Verdict & Notes'}</h3>
+          <h3 className="card-title">{t.verdictAndNotes}</h3>
 
           <div className="form-group">
-            <label>{isArabic ? 'الحكم' : 'Verdict'}</label>
+            <label>{t.verdict}</label>
             <textarea name="verdict" className="form-control" rows="3" value={formData.verdict} onChange={handleChange} />
           </div>
 
