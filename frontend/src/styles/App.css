@@ -227,6 +227,7 @@ body {
   font-size: 1.1rem;
   font-weight: 600;
   color: #1a365d;
+  margin-bottom: 1rem;
 }
 
 /* Stats Grid */
@@ -554,6 +555,48 @@ tr:hover {
   .grid-2, .grid-3, .grid-4 {
     grid-template-columns: 1fr;
   }
+}
+
+/* Detail Grid */
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem 2rem;
+}
+
+@media (max-width: 768px) {
+  .details-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.detail-item label {
+  font-size: 0.78rem;
+  color: #718096;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.detail-item span {
+  font-size: 0.95rem;
+  color: #1a202c;
+  font-weight: 400;
+  word-break: break-word;
+}
+
+.no-data {
+  text-align: center;
+  color: #a0aec0;
+  padding: 2rem;
+  font-size: 0.95rem;
 }
 
 /* Search and Filter */
