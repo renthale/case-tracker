@@ -11,7 +11,7 @@ const SessionsList = () => {
   const { t } = useLanguage();
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState('upcoming');
+  const [filter, setFilter] = useState('all');
   const [pagination, setPagination] = useState({
     page: 1,
     pages: 1,
