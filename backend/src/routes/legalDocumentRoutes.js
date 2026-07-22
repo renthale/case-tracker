@@ -9,7 +9,6 @@ router.use(auth);
 router.get('/', legalDocumentController.getDocuments);
 
 router.post('/', authorize('admin', 'partner', 'lawyer', 'legal_consultant', 'trainee_lawyer', 'court_agent', 'legal_secretary'), [
-  body('caseId').isInt().withMessage('معرف القضية مطلوب'),
   body('title').trim().notEmpty().withMessage('عنوان المستند مطلوب'),
   body('type').isIn(['contract', 'petition', 'judgment', 'evidence', 'correspondence', 'memo', 'other']).withMessage('نوع المستند غير صالح')
 ], legalDocumentController.createDocument);

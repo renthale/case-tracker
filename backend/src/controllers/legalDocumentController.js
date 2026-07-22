@@ -3,13 +3,16 @@ const { Op } = require('sequelize');
 
 exports.createDocument = async (req, res) => {
   try {
-    const caseRecord = await Case.findByPk(req.body.caseId);
-    if (!caseRecord) {
-      return res.status(404).json({ error: 'القضية غير موجودة' });
+    if (req.body.caseId) {
+      const caseRecord = await Case.findByPk(req.body.caseId);
+      if (!caseRecord) {
+        return res.status(404).json({ error: 'القضية غير موجودة' });
+      }
     }
 
     const document = await LegalDocument.create({
       ...req.body,
+      caseId: req.body.caseId || null,
       uploadedBy: req.user.id
     });
 

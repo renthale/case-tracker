@@ -9,7 +9,7 @@ const LegalDocument = sequelize.define('LegalDocument', {
   },
   caseId: {
     type: DataTypes.INTEGER,
-    allowNull: false,
+    allowNull: true,
     references: { model: 'Cases', key: 'id' }
   },
   title: {

@@ -40,7 +40,7 @@ const DocumentsList = () => {
         if (!params[key]) delete params[key];
       });
 
-      const response = await api.get('/legal-documents', { params });
+      const response = await api.get('/documents', { params });
       setDocuments(response.data.documents);
       setPagination(response.data.pagination);
     } catch (error) {
@@ -65,7 +65,7 @@ const DocumentsList = () => {
   const handleDelete = async (id) => {
     if (window.confirm('هل أنت متأكد من حذف هذا المستند؟')) {
       try {
-        await api.delete(`/legal-documents/${id}`);
+        await api.delete(`/documents/${id}`);
         toast.success('تم حذف المستند بنجاح');
         fetchDocuments();
       } catch (error) {

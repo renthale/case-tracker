@@ -21,7 +21,7 @@ const DocumentDetails = () => {
 
   const fetchDocumentDetails = async () => {
     try {
-      const response = await api.get(`/legal-documents/${id}`);
+      const response = await api.get(`/documents/${id}`);
       setDocument(response.data.document);
     } catch (error) {
       toast.error('خطأ في جلب المستند');
@@ -34,7 +34,7 @@ const DocumentDetails = () => {
   const handleStatusChange = async (newStatus) => {
     setStatusLoading(true);
     try {
-      await api.patch(`/legal-documents/${id}/status`, { status: newStatus });
+      await api.patch(`/documents/${id}/status`, { status: newStatus });
       toast.success('تم تغيير الحالة بنجاح');
       setDocument({ ...document, status: newStatus });
     } catch (error) {
