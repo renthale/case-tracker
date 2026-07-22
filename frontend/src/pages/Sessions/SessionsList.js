@@ -2,18 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
 import api from '../../services/api';
-import { FiPlus, FiEdit, FiSearch, FiCalendar } from 'react-icons/fi';
+import { FiPlus, FiSearch, FiEdit, FiCalendar } from 'react-icons/fi';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import toast from 'react-hot-toast';
 
 const SessionsList = () => {
-  const { t, language } = useLanguage();
-  const isArabic = language === 'ar';
+  const { t } = useLanguage();
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState('all');
-  const [searchTerm, setSearchTerm] = useState('');
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [typeFilter, setTypeFilter] = useState('');
   const [pagination, setPagination] = useState({
     page: 1,
     pages: 1,
@@ -22,21 +22,15 @@ const SessionsList = () => {
 
   useEffect(() => {
     fetchSessions();
-  }, [filter, pagination.page]);
+  }, [statusFilter, typeFilter, pagination.page]);
 
   const fetchSessions = async () => {
     try {
-      setLoading(true);
       const params = {
         page: pagination.page,
         limit: 50
       };
-      
-      if (filter === 'upcoming') {
-        params.upcoming = 'true';
-      } else if (filter !== 'all') {
-        params.status = filter;
-      }
+      if (statusFilter) params.status = statusFilter;
 
       const response = await api.get('/sessions', { params });
       setSessions(response.data.sessions);
@@ -59,14 +53,17 @@ const SessionsList = () => {
   };
 
   const filteredSessions = sessions.filter(session => {
-    if (!searchTerm) return true;
-    const term = searchTerm.toLowerCase();
+    if (!search) return true;
+    const term = search.toLowerCase();
     return (
       (session.Case?.title || '').toLowerCase().includes(term) ||
       (session.Case?.caseNumber || '').toLowerCase().includes(term) ||
       (session.location || '').toLowerCase().includes(term) ||
       String(session.sessionNumber).includes(term)
     );
+  }).filter(session => {
+    if (!typeFilter) return true;
+    return session.sessionType === typeFilter;
   });
 
   if (loading) {
@@ -76,7 +73,7 @@ const SessionsList = () => {
   return (
     <div className="sessions-list">
       <div className="card-header">
-        <h2 className="card-title">{t.allSessions} ({pagination.total})</h2>
+        <h2 className="card-title">{t.sessions} ({pagination.total})</h2>
         <Link to="/sessions/new" className="btn btn-primary">
           <FiPlus /> {t.addSession}
         </Link>
@@ -87,46 +84,38 @@ const SessionsList = () => {
           <input
             type="text"
             className="form-control"
-            placeholder={isArabic ? 'بحث برقم القضية أو العنوان أو القاعة...' : 'Search by case number, title, or location...'}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder={t.search + '...'}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
             style={{ paddingRight: '2.5rem' }}
           />
           <FiSearch style={{ position: 'absolute', right: '0.8rem', top: '50%', transform: 'translateY(-50%)', color: '#999' }} />
         </div>
-      </div>
 
-      <div className="filter-tabs">
-        <button 
-          className={`filter-tab ${filter === 'all' ? 'active' : ''}`}
-          onClick={() => setFilter('all')}
+        <select
+          className="form-control"
+          value={statusFilter}
+          onChange={(e) => { setStatusFilter(e.target.value); setPagination({ ...pagination, page: 1 }); }}
         >
-          {t.allSessions}
-        </button>
-        <button 
-          className={`filter-tab ${filter === 'upcoming' ? 'active' : ''}`}
-          onClick={() => setFilter('upcoming')}
+          <option value="">{t.allStatuses}</option>
+          <option value="scheduled">{t.scheduled}</option>
+          <option value="completed">{t.completed}</option>
+          <option value="postponed">{t.postponed}</option>
+          <option value="cancelled">{t.cancelled}</option>
+        </select>
+
+        <select
+          className="form-control"
+          value={typeFilter}
+          onChange={(e) => setTypeFilter(e.target.value)}
         >
-          <FiCalendar /> {t.upcomingSessions}
-        </button>
-        <button 
-          className={`filter-tab ${filter === 'completed' ? 'active' : ''}`}
-          onClick={() => setFilter('completed')}
-        >
-          {t.completed}
-        </button>
-        <button 
-          className={`filter-tab ${filter === 'postponed' ? 'active' : ''}`}
-          onClick={() => setFilter('postponed')}
-        >
-          {t.postponed}
-        </button>
-        <button 
-          className={`filter-tab ${filter === 'cancelled' ? 'active' : ''}`}
-          onClick={() => setFilter('cancelled')}
-        >
-          {t.cancelled}
-        </button>
+          <option value="">{t.allTypes}</option>
+          <option value="mainSession">{t.mainSession}</option>
+          <option value="subSession">{t.subSession}</option>
+          <option value="deliberation">{t.deliberation}</option>
+          <option value="verdictSession">{t.verdictSession}</option>
+          <option value="evidenceSession">{t.evidenceSession}</option>
+        </select>
       </div>
 
       <div className="table-container">
@@ -136,6 +125,7 @@ const SessionsList = () => {
               <th>{t.sessionNumber}</th>
               <th>{t.caseNumber}</th>
               <th>{t.caseTitle}</th>
+              <th>{t.sessionType}</th>
               <th>{t.sessionDate}</th>
               <th>{t.sessionTime}</th>
               <th>{t.sessionLocation}</th>
@@ -158,6 +148,7 @@ const SessionsList = () => {
                       {session.Case?.title || '-'}
                     </Link>
                   </td>
+                  <td>{t[session.sessionType] || session.sessionType}</td>
                   <td>{format(new Date(session.date), 'dd/MM/yyyy', { locale: ar })}</td>
                   <td>{session.time || '-'}</td>
                   <td>{session.location || '-'}</td>
@@ -176,7 +167,7 @@ const SessionsList = () => {
               ))
             ) : (
               <tr>
-                <td colSpan="8" className="no-data">{t.noSessionsFound}</td>
+                <td colSpan="9" className="no-data">{t.noSessionsFound}</td>
               </tr>
             )}
           </tbody>
