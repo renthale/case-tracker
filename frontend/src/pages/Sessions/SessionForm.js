@@ -7,6 +7,7 @@ import toast from 'react-hot-toast';
 const SessionForm = () => {
   const { id } = useParams();
   const [searchParams] = useSearchParams();
+  const caseId = searchParams.get('caseId');
   const { t } = useLanguage();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -57,7 +58,7 @@ const SessionForm = () => {
       });
     } catch (error) {
       toast.error(t.errorFetchingSession);
-      navigate('/sessions');
+      navigate(caseId ? `/cases/${caseId}` : '/sessions');
     } finally {
       setFetching(false);
     }
@@ -84,7 +85,7 @@ const SessionForm = () => {
         await api.post(`/sessions/case/${cleanedData.caseId}`, cleanedData);
         toast.success(t.sessionCreated);
       }
-      navigate('/sessions');
+      navigate(caseId ? `/cases/${caseId}` : '/sessions');
     } catch (error) {
       toast.error(error.response?.data?.details || error.response?.data?.error || t.errorSavingSession);
     } finally {
@@ -217,7 +218,7 @@ const SessionForm = () => {
             <button type="submit" className="btn btn-primary" disabled={loading}>
               {loading ? t.loading : t.save}
             </button>
-            <button type="button" className="btn btn-secondary" onClick={() => navigate('/sessions')}>
+            <button type="button" className="btn btn-secondary" onClick={() => navigate(caseId ? `/cases/${caseId}` : '/sessions')}>
               {t.cancel}
             </button>
           </div>
