@@ -39,6 +39,7 @@ app.use('/api/clients', clientRoutes);
 app.use('/api/invoices', invoiceRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/documents', legalDocumentRoutes);
+app.use('/api/legal-documents', legalDocumentRoutes);
 app.use('/api/transactions', transactionRoutes);
 
 // Health check
