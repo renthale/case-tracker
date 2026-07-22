@@ -8,7 +8,8 @@ import { ar } from 'date-fns/locale';
 import toast from 'react-hot-toast';
 
 const ClientsList = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isArabic = language === 'ar';
   const [searchParams, setSearchParams] = useSearchParams();
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -41,7 +42,7 @@ const ClientsList = () => {
       setClients(response.data.clients);
       setPagination(response.data.pagination);
     } catch (error) {
-      toast.error('خطأ في جلب العملاء');
+      toast.error(isArabic ? 'خطأ في جلب العملاء' : 'Error loading clients');
     } finally {
       setLoading(false);
     }
@@ -58,13 +59,13 @@ const ClientsList = () => {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('هل أنت متأكد من حذف هذا العميل؟')) {
+    if (window.confirm(isArabic ? 'هل أنت متأكد من حذف هذا العميل؟' : 'Are you sure you want to delete this client?')) {
       try {
         await api.delete(`/clients/${id}`);
-        toast.success('تم حذف العميل بنجاح');
+        toast.success(isArabic ? 'تم حذف العميل بنجاح' : 'Client deleted successfully');
         fetchClients();
       } catch (error) {
-        toast.error(error.response?.data?.error || 'خطأ في حذف العميل');
+        toast.error(error.response?.data?.error || (isArabic ? 'خطأ في حذف العميل' : 'Error deleting client'));
       }
     }
   };
@@ -76,9 +77,9 @@ const ClientsList = () => {
   return (
     <div className="clients-list">
       <div className="card-header">
-        <h2 className="card-title">{t.allClients || 'جميع العملاء'} ({pagination.total})</h2>
+        <h2 className="card-title">{t.allClients} ({pagination.total})</h2>
         <Link to="/clients/new" className="btn btn-primary">
-          <FiPlus /> {t.addClient || 'إضافة عميل'}
+          <FiPlus /> {t.addClient}
         </Link>
       </div>
 
@@ -88,7 +89,7 @@ const ClientsList = () => {
             type="text"
             name="search"
             className="form-control"
-            placeholder={(t.search || 'بحث') + '...'}
+            placeholder={t.search + '...'}
             value={filters.search}
             onChange={handleFilterChange}
             style={{ paddingRight: '2.5rem' }}
@@ -101,13 +102,13 @@ const ClientsList = () => {
         <table>
           <thead>
             <tr>
-              <th>{t.clientName || 'الاسم'}</th>
-              <th>{t.civilId || 'الرقم المدني'}</th>
-              <th>{t.phone || 'الجوال'}</th>
-              <th>{t.email || 'البريد'}</th>
-              <th>{t.casesCount || 'عدد القضايا'}</th>
-              <th>{t.registrationDate || 'تاريخ التسجيل'}</th>
-              <th>{t.actions || 'إجراءات'}</th>
+              <th>{t.clientName}</th>
+              <th>{t.civilId}</th>
+              <th>{t.phone}</th>
+              <th>{t.email}</th>
+              <th>{t.casesCount}</th>
+              <th>{t.registrationDate}</th>
+              <th>{t.actions}</th>
             </tr>
           </thead>
           <tbody>
@@ -160,15 +161,15 @@ const ClientsList = () => {
             disabled={pagination.page === 1}
             onClick={() => setPagination({ ...pagination, page: pagination.page - 1 })}
           >
-            السابق
+            {t.previous}
           </button>
-          <span>صفحة {pagination.page} من {pagination.pages}</span>
+          <span>{t.page} {pagination.page} {t.of} {pagination.pages}</span>
           <button
             className="btn btn-secondary"
             disabled={pagination.page === pagination.pages}
             onClick={() => setPagination({ ...pagination, page: pagination.page + 1 })}
           >
-            التالي
+            {t.next}
           </button>
         </div>
       )}

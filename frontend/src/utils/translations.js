@@ -55,7 +55,7 @@ export const ar = {
 
   // Cases
   caseNumber: 'رقم القضية',
-  caseTitle: 'subject Matter',
+  caseTitle: 'عنوان القضية',
   caseType: 'نوع القضية',
   caseStatus: 'حالة القضية',
   casePriority: 'الأولوية',
@@ -271,6 +271,83 @@ export const ar = {
   rejected: 'مرفوضة',
   noTransactions: 'لا توجد معاملات',
 
+  // Pagination
+  page: 'صفحة',
+  of: 'من',
+  previous: 'السابق',
+  next: 'التالي',
+
+  // Notifications extras
+  allNotifications: 'جميع الإشعارات',
+  unread: 'غير مقروء',
+  markAsRead: 'تحديد كمقروء',
+  errorFetchingNotifications: 'خطأ في جلب الإشعارات',
+  errorUpdatingNotification: 'خطأ في تحديث الإشعارة',
+  allNotificationsRead: 'تم تحديد الكل كمقروء',
+  errorUpdatingNotifications: 'خطأ في تحديث الإشعارات',
+  notificationDeleted: 'تم حذف الإشعار',
+  errorDeletingNotification: 'خطأ في حذف الإشعار',
+  deleteNotification: 'حذف الإشعار',
+
+  // Auth extras
+  dontHaveAccount: 'ليس لديك حساب؟',
+
+  // Client extras
+  errorFetchingClient: 'خطأ في جلب بيانات العميل',
+
+  // Missing keys - Cases/Details
+  caseNotFound: 'القضية غير موجودة',
+  backToCases: 'العودة للقضايا',
+  parties: 'الأطراف',
+  description: 'الوصف',
+  actions: 'إجراءات',
+  noSessions: 'لا توجد جلسات',
+  recentNotifications: 'الإشعارات الأخيرة',
+
+  // Missing keys - Sessions
+  allSessions: 'جميع الجلسات',
+  noSessionsFound: 'لا توجد جلسات',
+  errorFetchingSessions: 'خطأ في جلب الجلسات',
+
+  // Missing keys - Clients/Details
+  clientNotFound: 'العميل غير موجود',
+  backToClients: 'العودة للعملاء',
+  personalInformation: 'المعلومات الشخصية',
+  contactInformation: 'معلومات الاتصال',
+  linkedCases: 'القضايا المرتبطة',
+  noCases: 'لا توجد قضايا',
+  totalAmount: 'المبلغ الإجمالي',
+
+  // Missing keys - Documents
+  judgment: 'حكم',
+  evidence: 'دليل',
+  correspondence: 'مراسلات',
+  under_review: 'قيد المراجعة',
+  title: 'العنوان',
+  author: 'الكاتب',
+  sendForReview: 'إرسال للمراجعة',
+  approve: 'اعتماد',
+  archive: 'أرشفة',
+  print: 'طباعة',
+  backToDocuments: 'العودة للمستندات',
+  documentInfo: 'معلومات المستند',
+  createdAt: 'تاريخ الإنشاء',
+  updatedAt: 'تاريخ التعديل',
+  caseInfo: 'معلومات القضية',
+  content: 'المحتوى',
+
+  // Missing keys - Payments
+  reference: 'المرجع',
+  overdue: 'متأخر',
+
+  // Missing keys - Currency
+  currencyKWD: 'د.ك',
+
+  // Missing keys - Filter options
+  allStatuses: 'جميع الحالات',
+  allTypes: 'جميع الأنواع',
+  allPriorities: 'جميع الأولويات',
+
   // Court Agent
   courtAgent: 'مندوب المحاكم',
   courtSchedule: 'جدول المحاكم',
@@ -305,7 +382,7 @@ export const ar = {
   newPassword: 'كلمة المرور الجديدة',
   role: 'الدور',
   status: 'الحالة',
-  active: 'نشط',
+  activeStatus: 'نشط',
   inactive: 'معطّل',
 
   // Roles
@@ -600,6 +677,83 @@ export const en = {
   rejected: 'Rejected',
   noTransactions: 'No transactions',
 
+  // Pagination
+  page: 'Page',
+  of: 'of',
+  previous: 'Previous',
+  next: 'Next',
+
+  // Notifications extras
+  allNotifications: 'All Notifications',
+  unread: 'Unread',
+  markAsRead: 'Mark as Read',
+  errorFetchingNotifications: 'Error fetching notifications',
+  errorUpdatingNotification: 'Error updating notification',
+  allNotificationsRead: 'All notifications marked as read',
+  errorUpdatingNotifications: 'Error updating notifications',
+  notificationDeleted: 'Notification deleted',
+  errorDeletingNotification: 'Error deleting notification',
+  deleteNotification: 'Delete Notification',
+
+  // Auth extras
+  dontHaveAccount: "Don't have an account?",
+
+  // Client extras
+  errorFetchingClient: 'Error fetching client data',
+
+  // Missing keys - Cases/Details
+  caseNotFound: 'Case not found',
+  backToCases: 'Back to Cases',
+  parties: 'Parties',
+  description: 'Description',
+  actions: 'Actions',
+  noSessions: 'No sessions',
+  recentNotifications: 'Recent Notifications',
+
+  // Missing keys - Sessions
+  allSessions: 'All Sessions',
+  noSessionsFound: 'No sessions found',
+  errorFetchingSessions: 'Error fetching sessions',
+
+  // Missing keys - Clients/Details
+  clientNotFound: 'Client not found',
+  backToClients: 'Back to Clients',
+  personalInformation: 'Personal Information',
+  contactInformation: 'Contact Information',
+  linkedCases: 'Linked Cases',
+  noCases: 'No cases',
+  totalAmount: 'Total Amount',
+
+  // Missing keys - Documents
+  judgment: 'Judgment',
+  evidence: 'Evidence',
+  correspondence: 'Correspondence',
+  under_review: 'Under Review',
+  title: 'Title',
+  author: 'Author',
+  sendForReview: 'Send for Review',
+  approve: 'Approve',
+  archive: 'Archive',
+  print: 'Print',
+  backToDocuments: 'Back to Documents',
+  documentInfo: 'Document Info',
+  createdAt: 'Created At',
+  updatedAt: 'Updated At',
+  caseInfo: 'Case Info',
+  content: 'Content',
+
+  // Missing keys - Payments
+  reference: 'Reference',
+  overdue: 'Overdue',
+
+  // Missing keys - Currency
+  currencyKWD: 'KWD',
+
+  // Missing keys - Filter options
+  allStatuses: 'All Statuses',
+  allTypes: 'All Types',
+  allPriorities: 'All Priorities',
+
   // Court Agent
   courtAgent: 'Court Agent',
   courtSchedule: 'Court Schedule',
@@ -634,7 +788,7 @@ export const en = {
   newPassword: 'New Password',
   role: 'Role',
   status: 'Status',
-  active: 'Active',
+  activeStatus: 'Active',
   inactive: 'Inactive',
 
   // Roles

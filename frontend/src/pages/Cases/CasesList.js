@@ -8,7 +8,8 @@ import { ar } from 'date-fns/locale';
 import toast from 'react-hot-toast';
 
 const CasesList = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isArabic = language === 'ar';
   const [searchParams, setSearchParams] = useSearchParams();
   const [cases, setCases] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -44,7 +45,7 @@ const CasesList = () => {
       setCases(response.data.cases);
       setPagination(response.data.pagination);
     } catch (error) {
-      toast.error('خطأ في جلب القضايا');
+      toast.error(t.errorFetchingCase || 'خطأ في جلب القضايا');
     } finally {
       setLoading(false);
     }
@@ -63,13 +64,13 @@ const CasesList = () => {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('هل أنت متأكد من حذف هذه القضية؟')) {
+    if (window.confirm(isArabic ? 'هل أنت متأكد من حذف هذه القضية؟' : 'Are you sure you want to delete this case?')) {
       try {
         await api.delete(`/cases/${id}`);
-        toast.success('تم حذف القضية بنجاح');
+        toast.success(isArabic ? 'تم حذف القضية بنجاح' : 'Case deleted successfully');
         fetchCases();
       } catch (error) {
-        toast.error('خطأ في حذف القضية');
+        toast.error(isArabic ? 'خطأ في حذف القضية' : 'Error deleting case');
       }
     }
   };
@@ -120,7 +121,7 @@ const CasesList = () => {
           value={filters.status}
           onChange={handleFilterChange}
         >
-          <option value="">جميع الحالات</option>
+          <option value="">{t.allStatuses || 'جميع الحالات'}</option>
           <option value="active">{t.active}</option>
           <option value="pending">{t.pending}</option>
           <option value="closed">{t.closed}</option>
@@ -136,7 +137,7 @@ const CasesList = () => {
           value={filters.type}
           onChange={handleFilterChange}
         >
-          <option value="">جميع الأنواع</option>
+          <option value="">{t.allTypes || 'جميع الأنواع'}</option>
           <option value="civil">{t.civil}</option>
           <option value="criminal">{t.criminal}</option>
           <option value="commercial">{t.commercial}</option>
@@ -154,7 +155,7 @@ const CasesList = () => {
           value={filters.priority}
           onChange={handleFilterChange}
         >
-          <option value="">جميع الأولويات</option>
+          <option value="">{t.allPriorities || 'جميع الأولويات'}</option>
           <option value="low">{t.low}</option>
           <option value="medium">{t.medium}</option>
           <option value="high">{t.high}</option>
@@ -173,7 +174,7 @@ const CasesList = () => {
               <th>{t.casePriority}</th>
               <th>{t.clientName}</th>
               <th>{t.nextHearing}</th>
-              <th>{t.actions || 'إجراءات'}</th>
+              <th>{t.actions}</th>
             </tr>
           </thead>
           <tbody>
@@ -227,15 +228,15 @@ const CasesList = () => {
             disabled={pagination.page === 1}
             onClick={() => setPagination({ ...pagination, page: pagination.page - 1 })}
           >
-            السابق
+            {t.previous}
           </button>
-          <span>صفحة {pagination.page} من {pagination.pages}</span>
+          <span>{t.page} {pagination.page} {t.of} {pagination.pages}</span>
           <button 
             className="btn btn-secondary"
             disabled={pagination.page === pagination.pages}
             onClick={() => setPagination({ ...pagination, page: pagination.page + 1 })}
           >
-            التالي
+            {t.next}
           </button>
         </div>
       )}

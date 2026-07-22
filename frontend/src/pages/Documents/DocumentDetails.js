@@ -9,7 +9,8 @@ import toast from 'react-hot-toast';
 
 const DocumentDetails = () => {
   const { id } = useParams();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isArabic = language === 'ar';
   const navigate = useNavigate();
   const [document, setDocument] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -24,7 +25,7 @@ const DocumentDetails = () => {
       const response = await api.get(`/documents/${id}`);
       setDocument(response.data.document);
     } catch (error) {
-      toast.error('خطأ في جلب المستند');
+      toast.error(isArabic ? 'خطأ في جلب المستند' : 'Error loading document');
       navigate('/documents');
     } finally {
       setLoading(false);
@@ -35,10 +36,10 @@ const DocumentDetails = () => {
     setStatusLoading(true);
     try {
       await api.patch(`/documents/${id}/status`, { status: newStatus });
-      toast.success('تم تغيير الحالة بنجاح');
+      toast.success(isArabic ? 'تم تغيير الحالة بنجاح' : 'Status changed successfully');
       setDocument({ ...document, status: newStatus });
     } catch (error) {
-      toast.error(error.response?.data?.error || 'خطأ في تغيير الحالة');
+      toast.error(error.response?.data?.error || (isArabic ? 'خطأ في تغيير الحالة' : 'Error changing status'));
     } finally {
       setStatusLoading(false);
     }
@@ -56,9 +57,9 @@ const DocumentDetails = () => {
 
   const getStatusActions = () => {
     const statusFlow = {
-      draft: { next: 'under_review', label: t.sendForReview || 'إرسال للمراجعة', icon: <FiClock /> },
-      under_review: { next: 'approved', label: t.approve || 'اعتماد', icon: <FiCheckCircle /> },
-      approved: { next: 'archived', label: t.archive || 'أرشفة', icon: <FiArchive /> }
+      draft: { next: 'under_review', label: t.sendForReview, icon: <FiClock /> },
+      under_review: { next: 'approved', label: t.approve, icon: <FiCheckCircle /> },
+      approved: { next: 'archived', label: t.archive, icon: <FiArchive /> }
     };
 
     const action = statusFlow[document.status];
@@ -84,7 +85,7 @@ const DocumentDetails = () => {
   }
 
   if (!document) {
-    return <div className="no-data">المستند غير موجود</div>;
+    return <div className="no-data">{isArabic ? 'المستند غير موجود' : 'Document not found'}</div>;
   }
 
   return (
@@ -94,39 +95,39 @@ const DocumentDetails = () => {
         <div className="actions">
           {getStatusActions()}
           <Link to={`/documents/${id}/edit`} className="btn btn-primary">
-            <FiEdit /> {t.edit || 'تعديل'}
+            <FiEdit /> {t.edit}
           </Link>
           <button className="btn btn-secondary" onClick={handlePrint}>
-            <FiPrinter /> {t.print || 'طباعة'}
+            <FiPrinter /> {t.print}
           </button>
           <Link to="/documents" className="btn btn-secondary">
-            <FiArrowRight /> {t.backToDocuments || 'العودة لقائمة المستندات'}
+            <FiArrowRight /> {t.backToDocuments}
           </Link>
         </div>
       </div>
 
       <div className="grid grid-2">
         <div className="card">
-          <h3 className="card-title">{t.documentInfo || 'بيانات المستند'}</h3>
+          <h3 className="card-title">{t.documentInfo}</h3>
           <div className="details-grid">
             <div className="detail-item">
-              <label>{t.title || 'العنوان'}</label>
+              <label>{t.title}</label>
               <span>{document.title}</span>
             </div>
             <div className="detail-item">
-              <label>{t.type || 'النوع'}</label>
+              <label>{t.documentType}</label>
               <span>{t[document.type] || document.type}</span>
             </div>
             <div className="detail-item">
-              <label>{t.status || 'الحالة'}</label>
+              <label>{t.status}</label>
               {getStatusBadge(document.status)}
             </div>
             <div className="detail-item">
-              <label>{t.author || 'الكاتب'}</label>
+              <label>{t.author}</label>
               <span>{document.uploader?.fullName || '-'}</span>
             </div>
             <div className="detail-item">
-              <label>{t.createdAt || 'تاريخ الإنشاء'}</label>
+              <label>{t.createdAt}</label>
               <span>
                 {document.createdAt
                   ? format(new Date(document.createdAt), 'dd/MM/yyyy HH:mm', { locale: ar })
@@ -135,7 +136,7 @@ const DocumentDetails = () => {
               </span>
             </div>
             <div className="detail-item">
-              <label>{t.updatedAt || 'آخر تحديث'}</label>
+              <label>{t.updatedAt}</label>
               <span>
                 {document.updatedAt
                   ? format(new Date(document.updatedAt), 'dd/MM/yyyy HH:mm', { locale: ar })
@@ -147,7 +148,7 @@ const DocumentDetails = () => {
         </div>
 
         <div className="card">
-          <h3 className="card-title">{t.caseInfo || 'القضية المرتبطة'}</h3>
+          <h3 className="card-title">{t.caseInfo}</h3>
           {document.case ? (
             <div className="details-grid">
               <div className="detail-item">
@@ -155,19 +156,19 @@ const DocumentDetails = () => {
                 <span><Link to={`/cases/${document.case.id}`}>{document.case.caseNumber}</Link></span>
               </div>
               <div className="detail-item">
-                <label>{t.caseTitle || 'عنوان القضية'}</label>
+                <label>{t.caseTitle}</label>
                 <span><Link to={`/cases/${document.case.id}`}>{document.case.title}</Link></span>
               </div>
             </div>
           ) : (
-            <p className="no-data">لا ت قضية مرتبطة</p>
+            <p className="no-data">{isArabic ? 'لا توجد قضية مرتبطة' : 'No linked case'}</p>
           )}
         </div>
       </div>
 
       {document.content && (
         <div className="card">
-          <h3 className="card-title">{t.content || 'المحتوى'}</h3>
+          <h3 className="card-title">{t.content}</h3>
           <div className="document-content" style={{ whiteSpace: 'pre-wrap', lineHeight: '1.8', padding: '1rem', background: '#f9f9f9', borderRadius: '8px' }}>
             {document.content}
           </div>

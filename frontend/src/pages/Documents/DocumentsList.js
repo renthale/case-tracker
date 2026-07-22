@@ -8,7 +8,8 @@ import { ar } from 'date-fns/locale';
 import toast from 'react-hot-toast';
 
 const DocumentsList = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isArabic = language === 'ar';
   const [searchParams, setSearchParams] = useSearchParams();
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -44,7 +45,7 @@ const DocumentsList = () => {
       setDocuments(response.data.documents);
       setPagination(response.data.pagination);
     } catch (error) {
-      toast.error('خطأ في جلب المستندات');
+      toast.error(isArabic ? 'خطأ في جلب المستندات' : 'Error loading documents');
     } finally {
       setLoading(false);
     }
@@ -63,13 +64,13 @@ const DocumentsList = () => {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('هل أنت متأكد من حذف هذا المستند؟')) {
+    if (window.confirm(isArabic ? 'هل أنت متأكد من حذف هذا المستند؟' : 'Are you sure you want to delete this document?')) {
       try {
         await api.delete(`/documents/${id}`);
-        toast.success('تم حذف المستند بنجاح');
+        toast.success(isArabic ? 'تم حذف المستند بنجاح' : 'Document deleted successfully');
         fetchDocuments();
       } catch (error) {
-        toast.error('خطأ في حذف المستند');
+        toast.error(isArabic ? 'خطأ في حذف المستند' : 'Error deleting document');
       }
     }
   };
@@ -91,9 +92,9 @@ const DocumentsList = () => {
   return (
     <div className="documents-list">
       <div className="card-header">
-        <h2 className="card-title">{t.allDocuments || 'جميع المستندات'} ({pagination.total})</h2>
+        <h2 className="card-title">{t.allDocuments} ({pagination.total})</h2>
         <Link to="/documents/new" className="btn btn-primary">
-          <FiPlus /> {t.addDocument || 'إضافة مستند'}
+          <FiPlus /> {t.addDocument}
         </Link>
       </div>
 
@@ -117,13 +118,13 @@ const DocumentsList = () => {
           value={filters.type}
           onChange={handleFilterChange}
         >
-          <option value="">جميع الأنواع</option>
-          <option value="memo">{t.memo || 'مذكرة'}</option>
-          <option value="contract">{t.contract || 'عقد'}</option>
-          <option value="petition">{t.petition || 'مذكرة تقديم'}</option>
-          <option value="judgment">{t.judgment || 'حكم'}</option>
-          <option value="evidence">{t.evidence || 'دليل'}</option>
-          <option value="correspondence">{t.correspondence || 'مراسلات'}</option>
+          <option value="">{t.allTypes}</option>
+          <option value="memo">{t.memo}</option>
+          <option value="contract">{t.contract}</option>
+          <option value="petition">{t.petition}</option>
+          <option value="judgment">{t.judgment}</option>
+          <option value="evidence">{t.evidence}</option>
+          <option value="correspondence">{t.correspondence}</option>
           <option value="other">{t.other}</option>
         </select>
 
@@ -133,11 +134,11 @@ const DocumentsList = () => {
           value={filters.status}
           onChange={handleFilterChange}
         >
-          <option value="">جميع الحالات</option>
-          <option value="draft">{t.draft || 'مسودة'}</option>
-          <option value="under_review">{t.under_review || 'قيد المراجعة'}</option>
-          <option value="approved">{t.approved || 'معتمد'}</option>
-          <option value="archived">{t.archived || 'مؤرشف'}</option>
+          <option value="">{t.allStatuses}</option>
+          <option value="draft">{t.draft}</option>
+          <option value="under_review">{t.under_review}</option>
+          <option value="approved">{t.approved}</option>
+          <option value="archived">{t.archived}</option>
         </select>
       </div>
 
@@ -145,13 +146,13 @@ const DocumentsList = () => {
         <table>
           <thead>
             <tr>
-              <th>{t.title || 'العنوان'}</th>
-              <th>{t.type || 'النوع'}</th>
-              <th>{t.caseTitle || 'القضية'}</th>
-              <th>{t.status || 'الحالة'}</th>
-              <th>{t.author || 'الكاتب'}</th>
-              <th>{t.date || 'التاريخ'}</th>
-              <th>{t.actions || 'إجراءات'}</th>
+              <th>{t.title}</th>
+              <th>{t.documentType}</th>
+              <th>{t.caseTitle}</th>
+              <th>{t.status}</th>
+              <th>{t.author}</th>
+              <th>{t.createdAt}</th>
+              <th>{t.actions}</th>
             </tr>
           </thead>
           <tbody>
@@ -208,15 +209,15 @@ const DocumentsList = () => {
             disabled={pagination.page === 1}
             onClick={() => setPagination({ ...pagination, page: pagination.page - 1 })}
           >
-            {t.previous || 'السابق'}
+            {t.previous}
           </button>
-          <span>{t.page || 'صفحة'} {pagination.page} {t.of || 'من'} {pagination.pages}</span>
+          <span>{t.page} {pagination.page} {t.of} {pagination.pages}</span>
           <button
             className="btn btn-secondary"
             disabled={pagination.page === pagination.pages}
             onClick={() => setPagination({ ...pagination, page: pagination.page + 1 })}
           >
-            {t.next || 'التالي'}
+            {t.next}
           </button>
         </div>
       )}
