@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 const sequelize = require('./config/database');
 const errorHandler = require('./middleware/errorHandler');
 const runMigrations = require('./migrations/add-missing-columns');
@@ -27,8 +28,15 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Serve static frontend files
-app.use(express.static(path.join(__dirname, '../../frontend/build')));
+// Serve static frontend files with no cache for HTML
+app.use(express.static(path.join(__dirname, '../../frontend/build'), {
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('.html')) {
+      res.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+      res.set('Pragma', 'no-cache');
+    }
+  }
+}));
 
 // API Routes
 app.use('/api/auth', authRoutes);
