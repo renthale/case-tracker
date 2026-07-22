@@ -59,9 +59,22 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date() });
 });
 
-// Serve React app for all non-API routes
+// Serve React app for all non-API routes with strong no-cache
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../../frontend/build', 'index.html'));
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.set('Pragma', 'no-cache');
+  res.set('Expires', '0');
+  res.set('Surrogate-Control', 'no-store');
+  const indexPath = path.join(__dirname, '../../frontend/build', 'index.html');
+  try {
+    let html = fs.readFileSync(indexPath, 'utf8');
+    const buildTime = Date.now();
+    html = html.replace(/(src="\/static\/js\/[^"]+?)"/g, `$1?v=${buildTime}"`);
+    html = html.replace(/(href="\/static\/css\/[^"]+?)"/g, `$1?v=${buildTime}"`);
+    res.send(html);
+  } catch (err) {
+    res.sendFile(indexPath);
+  }
 });
 
 // Error handling
