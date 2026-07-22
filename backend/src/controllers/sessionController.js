@@ -2,6 +2,21 @@ const { Session, Case, Notification, User } = require('../models');
 const { Op } = require('sequelize');
 const { fn, col } = require('sequelize');
 
+const updateCaseNextHearing = async (caseId) => {
+  const nextSession = await Session.findOne({
+    where: {
+      caseId,
+      date: { [Op.gte]: new Date() },
+      status: { [Op.in]: ['scheduled', 'postponed'] }
+    },
+    order: [['date', 'ASC']]
+  });
+  await Case.update(
+    { nextHearingDate: nextSession ? nextSession.date : null },
+    { where: { id: caseId } }
+  );
+};
+
 exports.createSession = async (req, res) => {
   try {
     const { caseId } = req.params;
@@ -27,10 +42,7 @@ exports.createSession = async (req, res) => {
       sessionNumber: sessionCount + 1
     });
 
-    await Case.update(
-      { nextHearingDate: session.date },
-      { where: { id: caseId } }
-    );
+    await updateCaseNextHearing(caseId);
 
     await Notification.create({
       userId: req.user.id,
@@ -133,6 +145,8 @@ exports.updateSession = async (req, res) => {
       });
     }
 
+    await updateCaseNextHearing(session.caseId);
+
     res.json({ message: 'تم تحديث الجلسة بنجاح', session });
   } catch (error) {
     res.status(500).json({ error: 'خطأ في تحديث الجلسة' });
@@ -147,7 +161,10 @@ exports.deleteSession = async (req, res) => {
       return res.status(404).json({ error: 'الجلسة غير موجودة' });
     }
 
+    const caseId = session.caseId;
     await session.destroy();
+
+    await updateCaseNextHearing(caseId);
 
     res.json({ message: 'تم حذف الجلسة بنجاح' });
   } catch (error) {

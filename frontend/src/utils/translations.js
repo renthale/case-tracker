@@ -334,6 +334,7 @@ export const ar = {
   unpaid: 'لم يُدفع',
   paidInFull: 'مدفوع بالكامل',
   autoGenerate: 'اتركه فارغاً للإنشاء التلقائي',
+  autoUpdate: 'تلقائي',
 
   // Missing keys - Sessions
   allSessions: 'جميع الجلسات',
@@ -771,6 +772,7 @@ export const en = {
   unpaid: 'Unpaid',
   paidInFull: 'Paid',
   autoGenerate: 'Leave empty for auto-generation',
+  autoUpdate: 'Auto',
 
   // Missing keys - Sessions
   allSessions: 'All Sessions',

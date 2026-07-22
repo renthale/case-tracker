@@ -346,8 +346,9 @@ const CaseForm = () => {
             </div>
 
             <div className="form-group">
-              <label>{t.nextHearing}</label>
-              <input type="date" name="nextHearingDate" className="form-control" value={formData.nextHearingDate} onChange={handleChange} />
+              <label>{t.nextHearing} ({t.autoUpdate || 'تلقائي'})</label>
+              <input type="date" name="nextHearingDate" className="form-control" value={formData.nextHearingDate} readOnly
+                style={{ backgroundColor: '#f0f0f0' }} />
             </div>
 
             <div className="form-group">
