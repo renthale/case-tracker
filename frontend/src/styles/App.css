@@ -662,3 +662,137 @@ tr:hover {
   padding: 0.35rem 0.75rem;
   font-size: 0.85rem;
 }
+
+/* Chart Bars (Dashboard) */
+.chart-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.chart-bar-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.bar-label {
+  min-width: 80px;
+  font-size: 0.85rem;
+  color: #4a5568;
+  text-align: right;
+  white-space: nowrap;
+}
+
+[dir="ltr"] .bar-label {
+  text-align: left;
+}
+
+.bar-container {
+  flex: 1;
+  height: 20px;
+  background: #edf2f7;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  background: #3182ce;
+  border-radius: 10px;
+  transition: width 0.3s ease;
+}
+
+.bar-value {
+  min-width: 30px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+/* Sessions List (Dashboard) */
+.sessions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.session-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s;
+}
+
+.session-info h4 {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #1a365d;
+  margin-bottom: 0.2rem;
+}
+
+.session-info p {
+  font-size: 0.8rem;
+  color: #718096;
+}
+
+.session-date {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-size: 0.85rem;
+  color: #4a5568;
+  gap: 0.2rem;
+}
+
+[dir="ltr"] .session-date {
+  align-items: flex-start;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding: 1rem 0;
+}
+
+/* Page Container */
+.page-container {
+  max-width: 1200px;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.page-header h1 {
+  font-size: 1.4rem;
+  color: #1a365d;
+  font-weight: 600;
+}
+
+/* Form Actions */
+.form-actions {
+  display: flex;
+  justify-content: flex-start;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+/* Actions buttons */
+.actions {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: nowrap;
+}
