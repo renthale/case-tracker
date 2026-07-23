@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
-import { FiPlus, FiSearch, FiEye, FiEdit, FiTrash2, FiCalendar } from 'react-icons/fi';
+import { FiPlus, FiSearch, FiEye, FiEdit, FiTrash2, FiCalendar, FiCheckCircle, FiClock, FiXCircle, FiFileText } from 'react-icons/fi';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import toast from 'react-hot-toast';
@@ -13,9 +13,11 @@ const CasesList = () => {
   const { user } = useAuth();
   const isArabic = language === 'ar';
   const isCourtAgent = user?.role === 'court_agent';
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [cases, setCases] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [updatingCase, setUpdatingCase] = useState(null);
   const [filters, setFilters] = useState({
     search: '',
     status: searchParams.get('status') || '',
@@ -75,6 +77,19 @@ const CasesList = () => {
       } catch (error) {
         toast.error(isArabic ? 'خطأ في حذف القضية' : 'Error deleting case');
       }
+    }
+  };
+
+  const handleStatusUpdate = async (caseId, newStatus) => {
+    setUpdatingCase(caseId);
+    try {
+      await api.put(`/cases/${caseId}`, { status: newStatus });
+      toast.success(isArabic ? 'تم تحديث حالة القضية' : 'Case status updated');
+      setCases(cases.map(c => c.id === caseId ? { ...c, status: newStatus } : c));
+    } catch (error) {
+      toast.error(isArabic ? 'خطأ في التحديث' : 'Update error');
+    } finally {
+      setUpdatingCase(null);
     }
   };
 
@@ -180,33 +195,78 @@ const CasesList = () => {
       {isCourtAgent ? (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '1rem' }}>
           {cases.length > 0 ? cases.map((caseItem) => (
-            <Link
+            <div
               key={caseItem.id}
-              to={`/cases/${caseItem.id}`}
               className="card"
-              style={{ margin: 0, cursor: 'pointer', textDecoration: 'none', color: 'inherit', borderLeft: '4px solid #1976d2', transition: 'transform 0.2s, box-shadow 0.2s' }}
-              onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'none'; }}
+              style={{ margin: 0, borderLeft: '4px solid #1976d2' }}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
-                <div>
-                  <div style={{ fontWeight: 'bold', fontSize: '0.9rem', color: '#1a365d' }}>{caseItem.caseNumber}</div>
-                  <div style={{ fontSize: '0.95rem', marginTop: '0.25rem' }}>{caseItem.title}</div>
+              <div
+                style={{ cursor: 'pointer' }}
+                onClick={() => navigate(`/cases/${caseItem.id}`)}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
+                  <div>
+                    <div style={{ fontWeight: 'bold', fontSize: '0.9rem', color: '#1a365d' }}>{caseItem.caseNumber}</div>
+                    <div style={{ fontSize: '0.95rem', marginTop: '0.25rem' }}>{caseItem.title}</div>
+                  </div>
+                  {getStatusBadge(caseItem.status)}
                 </div>
-                {getStatusBadge(caseItem.status)}
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', fontSize: '0.85rem', color: '#666' }}>
-                <div><span style={{ color: '#999' }}>{t.caseType}:</span> {t[caseItem.type]}</div>
-                <div><span style={{ color: '#999' }}>{t.clientName}:</span> {caseItem.clientName || '-'}</div>
-                <div>
-                  <FiCalendar /> <span style={{ color: '#999' }}>{t.nextHearing}:</span>{' '}
-                  {caseItem.nextHearingDate
-                    ? format(new Date(caseItem.nextHearingDate), 'dd/MM/yyyy', { locale: ar })
-                    : (isArabic ? 'غير محدد' : 'Not set')}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', fontSize: '0.85rem', color: '#666', marginBottom: '0.75rem' }}>
+                  <div><span style={{ color: '#999' }}>{t.caseType}:</span> {t[caseItem.type]}</div>
+                  <div><span style={{ color: '#999' }}>{t.clientName}:</span> {caseItem.clientName || '-'}</div>
+                  <div>
+                    <FiCalendar /> <span style={{ color: '#999' }}>{t.nextHearing}:</span>{' '}
+                    {caseItem.nextHearingDate
+                      ? format(new Date(caseItem.nextHearingDate), 'dd/MM/yyyy', { locale: ar })
+                      : (isArabic ? 'غير محدد' : 'Not set')}
+                  </div>
+                  <div><span style={{ color: '#999' }}>{t.casePriority}:</span> {t[caseItem.priority]}</div>
                 </div>
-                <div><span style={{ color: '#999' }}>{t.casePriority}:</span> {t[caseItem.priority]}</div>
               </div>
-            </Link>
+
+              <div style={{ borderTop: '1px solid #eee', paddingTop: '0.75rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                <button
+                  className="btn btn-secondary btn-sm"
+                  onClick={() => navigate(`/cases/${caseItem.id}`)}
+                  title={t.viewDetails}
+                >
+                  <FiEye /> {isArabic ? 'عرض' : 'View'}
+                </button>
+
+                {caseItem.status !== 'closed' && caseItem.status !== 'won' && caseItem.status !== 'lost' && (
+                  <>
+                    <button
+                      className="btn btn-primary btn-sm"
+                      disabled={updatingCase === caseItem.id}
+                      onClick={() => handleStatusUpdate(caseItem.id, 'closed')}
+                    >
+                      <FiCheckCircle /> {isArabic ? 'إغلاق' : 'Close'}
+                    </button>
+                    <button
+                      className="btn btn-secondary btn-sm"
+                      disabled={updatingCase === caseItem.id}
+                      onClick={() => handleStatusUpdate(caseItem.id, 'pending')}
+                    >
+                      <FiClock /> {isArabic ? 'تأجيل' : 'Postpone'}
+                    </button>
+                    <button
+                      className="btn btn-danger btn-sm"
+                      disabled={updatingCase === caseItem.id}
+                      onClick={() => handleStatusUpdate(caseItem.id, 'won')}
+                    >
+                      <FiCheckCircle /> {isArabic ? 'فوز' : 'Won'}
+                    </button>
+                    <button
+                      className="btn btn-danger btn-sm"
+                      disabled={updatingCase === caseItem.id}
+                      onClick={() => handleStatusUpdate(caseItem.id, 'lost')}
+                    >
+                      <FiXCircle /> {isArabic ? 'خسارة' : 'Lost'}
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
           )) : (
             <div className="no-data" style={{ gridColumn: '1 / -1' }}>{t.noData}</div>
           )}
