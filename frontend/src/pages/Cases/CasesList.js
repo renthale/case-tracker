@@ -177,6 +177,41 @@ const CasesList = () => {
         </select>
       </div>
 
+      {isCourtAgent ? (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '1rem' }}>
+          {cases.length > 0 ? cases.map((caseItem) => (
+            <Link
+              key={caseItem.id}
+              to={`/cases/${caseItem.id}`}
+              className="card"
+              style={{ margin: 0, cursor: 'pointer', textDecoration: 'none', color: 'inherit', borderLeft: '4px solid #1976d2', transition: 'transform 0.2s, box-shadow 0.2s' }}
+              onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'none'; }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
+                <div>
+                  <div style={{ fontWeight: 'bold', fontSize: '0.9rem', color: '#1a365d' }}>{caseItem.caseNumber}</div>
+                  <div style={{ fontSize: '0.95rem', marginTop: '0.25rem' }}>{caseItem.title}</div>
+                </div>
+                {getStatusBadge(caseItem.status)}
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', fontSize: '0.85rem', color: '#666' }}>
+                <div><span style={{ color: '#999' }}>{t.caseType}:</span> {t[caseItem.type]}</div>
+                <div><span style={{ color: '#999' }}>{t.clientName}:</span> {caseItem.clientName || '-'}</div>
+                <div>
+                  <FiCalendar /> <span style={{ color: '#999' }}>{t.nextHearing}:</span>{' '}
+                  {caseItem.nextHearingDate
+                    ? format(new Date(caseItem.nextHearingDate), 'dd/MM/yyyy', { locale: ar })
+                    : (isArabic ? 'غير محدد' : 'Not set')}
+                </div>
+                <div><span style={{ color: '#999' }}>{t.casePriority}:</span> {t[caseItem.priority]}</div>
+              </div>
+            </Link>
+          )) : (
+            <div className="no-data" style={{ gridColumn: '1 / -1' }}>{t.noData}</div>
+          )}
+        </div>
+      ) : (
       <div className="table-container">
         <table>
           <thead>
@@ -212,20 +247,16 @@ const CasesList = () => {
                       <Link to={`/cases/${caseItem.id}`} className="btn btn-secondary" title={t.viewDetails}>
                         <FiEye />
                       </Link>
-                      {!isCourtAgent && (
-                        <>
-                          <Link to={`/cases/${caseItem.id}/edit`} className="btn btn-secondary" title={t.edit}>
-                            <FiEdit />
-                          </Link>
-                          <button 
-                            className="btn btn-danger" 
-                            title={t.delete}
-                            onClick={() => handleDelete(caseItem.id)}
-                          >
-                            <FiTrash2 />
-                          </button>
-                        </>
-                      )}
+                      <Link to={`/cases/${caseItem.id}/edit`} className="btn btn-secondary" title={t.edit}>
+                        <FiEdit />
+                      </Link>
+                      <button 
+                        className="btn btn-danger" 
+                        title={t.delete}
+                        onClick={() => handleDelete(caseItem.id)}
+                      >
+                        <FiTrash2 />
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -238,6 +269,7 @@ const CasesList = () => {
           </tbody>
         </table>
       </div>
+      )}
 
       {pagination.pages > 1 && (
         <div className="pagination">
