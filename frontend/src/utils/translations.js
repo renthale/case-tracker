@@ -423,6 +423,7 @@ export const ar = {
   lawyer: 'محامي',
   traineeLawyer: 'محامي متدرّب',
   legalConsultant: 'مستشار قانوني',
+  courtAgentRole: 'مندوب المحاكم',
   transactionsAgent: 'مندوب معاملات',
   legalSecretary: 'سكرتير قانوني',
 
@@ -861,6 +862,7 @@ export const en = {
   lawyer: 'Lawyer',
   traineeLawyer: 'Trainee Lawyer',
   legalConsultant: 'Legal Consultant',
+  courtAgentRole: 'Court Agent',
   transactionsAgent: 'Transactions Agent',
   legalSecretary: 'Legal Secretary',
 
