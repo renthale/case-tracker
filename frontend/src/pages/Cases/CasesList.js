@@ -93,15 +93,20 @@ const CasesList = () => {
   }
 
   return (
-    <div className="cases-list">
-      <div className="card-header">
+    <div className="cases-list print-page">
+      <div className="card-header no-print">
         <h2 className="card-title">{t.allCases} ({pagination.total})</h2>
-        <Link to="/cases/new" className="btn btn-primary">
-          <FiPlus /> {t.addCase}
-        </Link>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <button className="btn btn-secondary" onClick={() => window.print()}>
+            {isArabic ? 'طباعة' : 'Print'}
+          </button>
+          <Link to="/cases/new" className="btn btn-primary">
+            <FiPlus /> {t.addCase}
+          </Link>
+        </div>
       </div>
 
-      <div className="search-filter">
+      <div className="search-filter no-print">
         <div className="search-input" style={{ position: 'relative' }}>
           <input
             type="text"
@@ -174,7 +179,7 @@ const CasesList = () => {
               <th>{t.casePriority}</th>
               <th>{t.clientName}</th>
               <th>{t.nextHearing}</th>
-              <th>{t.actions}</th>
+              <th className="no-print">{t.actions}</th>
             </tr>
           </thead>
           <tbody>
@@ -194,7 +199,7 @@ const CasesList = () => {
                     }
                   </td>
                   <td>
-                    <div className="actions">
+                    <div className="actions no-print">
                       <Link to={`/cases/${caseItem.id}`} className="btn btn-secondary" title={t.viewDetails}>
                         <FiEye />
                       </Link>

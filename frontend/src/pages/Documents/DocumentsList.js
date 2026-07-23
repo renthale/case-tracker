@@ -90,15 +90,20 @@ const DocumentsList = () => {
   }
 
   return (
-    <div className="documents-list">
-      <div className="card-header">
+    <div className="documents-list print-page">
+      <div className="card-header no-print">
         <h2 className="card-title">{t.allDocuments} ({pagination.total})</h2>
-        <Link to="/documents/new" className="btn btn-primary">
-          <FiPlus /> {t.addDocument}
-        </Link>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <button className="btn btn-secondary" onClick={() => window.print()}>
+            {isArabic ? 'طباعة' : 'Print'}
+          </button>
+          <Link to="/documents/new" className="btn btn-primary">
+            <FiPlus /> {t.addDocument}
+          </Link>
+        </div>
       </div>
 
-      <div className="search-filter">
+      <div className="search-filter no-print">
         <div className="search-input" style={{ position: 'relative' }}>
           <input
             type="text"
@@ -152,7 +157,7 @@ const DocumentsList = () => {
               <th>{t.status}</th>
               <th>{t.author}</th>
               <th>{t.createdAt}</th>
-              <th>{t.actions}</th>
+              <th className="no-print">{t.actions}</th>
             </tr>
           </thead>
           <tbody>
@@ -175,7 +180,7 @@ const DocumentsList = () => {
                     }
                   </td>
                   <td>
-                    <div className="actions">
+                    <div className="actions no-print">
                       <Link to={`/documents/${doc.id}`} className="btn btn-secondary" title={t.viewDetails}>
                         <FiEye />
                       </Link>

@@ -8,7 +8,8 @@ import { ar } from 'date-fns/locale';
 import toast from 'react-hot-toast';
 
 const SessionsList = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isArabic = language === 'ar';
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -71,15 +72,20 @@ const SessionsList = () => {
   }
 
   return (
-    <div className="sessions-list">
-      <div className="card-header">
+    <div className="sessions-list print-page">
+      <div className="card-header no-print">
         <h2 className="card-title">{t.sessions} ({pagination.total})</h2>
-        <Link to="/sessions/new" className="btn btn-primary">
-          <FiPlus /> {t.addSession}
-        </Link>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <button className="btn btn-secondary" onClick={() => window.print()}>
+            {isArabic ? 'طباعة' : 'Print'}
+          </button>
+          <Link to="/sessions/new" className="btn btn-primary">
+            <FiPlus /> {t.addSession}
+          </Link>
+        </div>
       </div>
 
-      <div className="search-filter">
+      <div className="search-filter no-print">
         <div className="search-input" style={{ position: 'relative' }}>
           <input
             type="text"
@@ -130,7 +136,7 @@ const SessionsList = () => {
               <th>{t.sessionTime}</th>
               <th>{t.sessionLocation}</th>
               <th>{t.sessionStatus}</th>
-              <th>{t.actions}</th>
+              <th className="no-print">{t.actions}</th>
             </tr>
           </thead>
           <tbody>
@@ -154,7 +160,7 @@ const SessionsList = () => {
                   <td>{session.location || '-'}</td>
                   <td>{getStatusBadge(session.status)}</td>
                   <td>
-                    <div className="actions">
+                    <div className="actions no-print">
                       <Link to={`/cases/${session.Case?.id}`} className="btn btn-secondary" title={t.viewDetails}>
                         <FiCalendar />
                       </Link>

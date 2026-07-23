@@ -94,15 +94,20 @@ const InvoicesList = () => {
   }
 
   return (
-    <div className="invoices-list">
-      <div className="card-header">
+    <div className="invoices-list print-page">
+      <div className="card-header no-print">
         <h2 className="card-title">{t.invoices} ({pagination.total})</h2>
-        <Link to="/invoices/new" className="btn btn-primary">
-          <FiPlus /> {t.addInvoice}
-        </Link>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <button className="btn btn-secondary" onClick={() => window.print()}>
+            {isArabic ? 'طباعة' : 'Print'}
+          </button>
+          <Link to="/invoices/new" className="btn btn-primary">
+            <FiPlus /> {t.addInvoice}
+          </Link>
+        </div>
       </div>
 
-      <div className="search-filter">
+      <div className="search-filter no-print">
         <select
           name="status"
           className="form-control"
@@ -155,7 +160,7 @@ const InvoicesList = () => {
               <th>{t.amount}</th>
               <th>{t.status}</th>
               <th>{t.dueDate}</th>
-              <th>{t.actions}</th>
+              <th className="no-print">{t.actions}</th>
             </tr>
           </thead>
           <tbody>
@@ -179,7 +184,7 @@ const InvoicesList = () => {
                     }
                   </td>
                   <td>
-                    <div className="actions">
+                    <div className="actions no-print">
                       <Link to={`/invoices/${invoice.id}`} className="btn btn-secondary" title={t.viewDetails}>
                         <FiEye />
                       </Link>

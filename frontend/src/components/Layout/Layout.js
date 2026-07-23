@@ -37,7 +37,7 @@ const Layout = () => {
   return (
     <div className="layout">
       <aside
-        className={`sidebar ${sidebarOpen ? 'open' : ''}`}
+        className={`sidebar no-print ${sidebarOpen ? 'open' : ''}`}
         dir={language === 'ar' ? 'rtl' : 'ltr'}
       >
         <div className="sidebar-header">
@@ -80,7 +80,7 @@ const Layout = () => {
       </aside>
 
       <main className="main-content">
-        <header className="top-bar">
+        <header className="top-bar no-print">
           <button className="menu-btn" onClick={() => setSidebarOpen(true)}>
             <FiMenu />
           </button>
