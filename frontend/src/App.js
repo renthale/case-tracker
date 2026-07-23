@@ -29,6 +29,38 @@ import InvoiceDetails from './pages/Invoices/InvoiceDetails';
 import UsersList from './pages/Users/UsersList';
 import './styles/App.css';
 
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error, info) {
+    console.error('ErrorBoundary caught:', error, info);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ padding: '2rem', fontFamily: 'monospace', direction: 'ltr' }}>
+          <h2 style={{ color: 'red' }}>Something went wrong</h2>
+          <pre style={{ whiteSpace: 'pre-wrap', background: '#f5f5f5', padding: '1rem', borderRadius: '4px' }}>
+            {this.state.error?.message}
+          </pre>
+          <pre style={{ whiteSpace: 'pre-wrap', background: '#f5f5f5', padding: '1rem', borderRadius: '4px', fontSize: '0.8rem' }}>
+            {this.state.error?.stack}
+          </pre>
+          <button onClick={() => { this.setState({ hasError: false }); window.location.href = '/'; }} style={{ marginTop: '1rem', padding: '0.5rem 1rem' }}>
+            Reload App
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 const PrivateRoute = ({ children }) => {
   const { user, loading } = useAuth();
   
@@ -51,6 +83,7 @@ const PublicRoute = ({ children }) => {
 
 function App() {
   return (
+    <ErrorBoundary>
     <LanguageProvider>
       <AuthProvider>
         <Router>
@@ -91,6 +124,7 @@ function App() {
         </Router>
       </AuthProvider>
     </LanguageProvider>
+    </ErrorBoundary>
   );
 }
 

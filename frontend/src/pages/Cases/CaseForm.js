@@ -18,7 +18,7 @@ const CaseForm = () => {
     priority: 'medium', courtType: '', court: '', department: '', registrationNumber: '',
     judge: '', opposingParty: '', opposingLawyer: '', opposingCivilId: '',
     clientName: '', clientCivilId: '', clientPhone: '', clientEmail: '',
-    clientId: '', courtAgentId: '', filingDate: '', nextHearingDate: '', closingDate: '',
+    clientId: '', courtAgentId: '', filingDate: '', filingType: 'new', nextHearingDate: '', closingDate: '',
     assignmentDate: '', assignmentEndDate: '', verdict: '', verdictDate: '',
     appealDate: '', consultationFees: '', litigationFees: '', sessionFees: '',
     otherFees: '', paymentStatus: 'unpaid', notes: ''
@@ -45,7 +45,8 @@ const CaseForm = () => {
   const fetchClients = async () => {
     try {
       const response = await api.get('/clients');
-      setClients(response.data.clients || response.data || []);
+      const clientsData = response.data.clients || response.data;
+      setClients(Array.isArray(clientsData) ? clientsData : []);
     } catch (error) {
       console.error('Error fetching clients:', error);
     }
@@ -53,8 +54,9 @@ const CaseForm = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await api.get('/users/list');
-      setUsers(response.data.users || response.data || []);
+      const response = await api.get('/auth/users/list');
+      const usersData = response.data.users || response.data;
+      setUsers(Array.isArray(usersData) ? usersData : []);
     } catch (error) {
       console.error('Error fetching users:', error);
     }
