@@ -52,6 +52,10 @@ const migrations = [
 
   // Session model - postponedTo for court agent
   `ALTER TABLE "Sessions" ADD COLUMN IF NOT EXISTS "postponedTo" DATE;`,
+
+  // Case model - court agent + secondary lawyer FK columns
+  `ALTER TABLE "Cases" ADD COLUMN IF NOT EXISTS "courtAgentId" INTEGER;`,
+  `ALTER TABLE "Cases" ADD COLUMN IF NOT EXISTS "secondaryLawyerId" INTEGER;`,
 ];
 
 const runMigrations = async () => {
