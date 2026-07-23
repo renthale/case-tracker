@@ -67,9 +67,10 @@ const Layout = () => {
             <span>{language === 'ar' ? t.english : t.arabic}</span>
           </button>
 
-          <div className="user-info">
+          <div className="user-info" onClick={handleLogout} style={{ cursor: 'pointer' }} title={t.logout}>
             <FiUser />
             <span>{user?.fullName}</span>
+            <FiLogOut style={{ marginInlineStart: 'auto' }} />
           </div>
 
           <button className="logout-btn" onClick={handleLogout}>
