@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
+import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
-import { FiPlus, FiSearch, FiEye, FiEdit, FiTrash2 } from 'react-icons/fi';
+import { FiPlus, FiSearch, FiEye, FiEdit, FiTrash2, FiCalendar } from 'react-icons/fi';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import toast from 'react-hot-toast';
 
 const CasesList = () => {
   const { t, language } = useLanguage();
+  const { user } = useAuth();
   const isArabic = language === 'ar';
+  const isCourtAgent = user?.role === 'court_agent';
   const [searchParams, setSearchParams] = useSearchParams();
   const [cases, setCases] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -95,14 +98,20 @@ const CasesList = () => {
   return (
     <div className="cases-list print-page">
       <div className="card-header no-print">
-        <h2 className="card-title">{t.allCases} ({pagination.total})</h2>
+        <h2 className="card-title">
+          {isCourtAgent
+            ? (isArabic ? 'قضايا المنتسبة إلي' : 'My Assigned Cases')
+            : t.allCases} ({pagination.total})
+        </h2>
         <div style={{ display: 'flex', gap: '0.5rem' }}>
           <button className="btn btn-secondary" onClick={() => window.print()}>
             {isArabic ? 'طباعة' : 'Print'}
           </button>
-          <Link to="/cases/new" className="btn btn-primary">
-            <FiPlus /> {t.addCase}
-          </Link>
+          {!isCourtAgent && (
+            <Link to="/cases/new" className="btn btn-primary">
+              <FiPlus /> {t.addCase}
+            </Link>
+          )}
         </div>
       </div>
 
@@ -203,16 +212,20 @@ const CasesList = () => {
                       <Link to={`/cases/${caseItem.id}`} className="btn btn-secondary" title={t.viewDetails}>
                         <FiEye />
                       </Link>
-                      <Link to={`/cases/${caseItem.id}/edit`} className="btn btn-secondary" title={t.edit}>
-                        <FiEdit />
-                      </Link>
-                      <button 
-                        className="btn btn-danger" 
-                        title={t.delete}
-                        onClick={() => handleDelete(caseItem.id)}
-                      >
-                        <FiTrash2 />
-                      </button>
+                      {!isCourtAgent && (
+                        <>
+                          <Link to={`/cases/${caseItem.id}/edit`} className="btn btn-secondary" title={t.edit}>
+                            <FiEdit />
+                          </Link>
+                          <button 
+                            className="btn btn-danger" 
+                            title={t.delete}
+                            onClick={() => handleDelete(caseItem.id)}
+                          >
+                            <FiTrash2 />
+                          </button>
+                        </>
+                      )}
                     </div>
                   </td>
                 </tr>
