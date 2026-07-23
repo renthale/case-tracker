@@ -14,6 +14,8 @@ const CourtAgent = () => {
   const isArabic = language === 'ar';
   const reportRef = useRef();
   const [sessions, setSessions] = useState([]);
+  const [allSessions, setAllSessions] = useState([]);
+  const [assignedCases, setAssignedCases] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [updatingId, setUpdatingId] = useState(null);
@@ -24,29 +26,48 @@ const CourtAgent = () => {
   const [dailyReport, setDailyReport] = useState(null);
   const [outcomeText, setOutcomeText] = useState({});
 
+  const stats = React.useMemo(() => {
+    const today = format(new Date(), 'yyyy-MM-dd');
+    const upcoming = allSessions.filter(s => s.status === 'scheduled' && format(new Date(s.date), 'yyyy-MM-dd') >= today);
+    const completed = allSessions.filter(s => s.status === 'completed');
+    const postponed = allSessions.filter(s => s.status === 'postponed');
+    return {
+      totalCases: assignedCases.length,
+      totalSessions: allSessions.length,
+      upcoming: upcoming.length,
+      completed: completed.length,
+      postponed: postponed.length
+    };
+  }, [allSessions, assignedCases]);
+
   useEffect(() => {
-    fetchSessions();
+    fetchAllData();
     setShowReport(false);
   }, [selectedDate]);
 
-  const fetchSessions = async () => {
+  const fetchAllData = async () => {
     setLoading(true);
     try {
-      const response = await api.get('/sessions', { params: { page: 1, limit: 200 } });
-      const allSessions = response.data.sessions;
-      
-      // Filter sessions based on current user's courtAgentId
-      const filtered = allSessions.filter((session) => {
-        // Only show sessions for cases assigned to this court agent
-        if (user && session.Case && session.Case.courtAgentId !== user.id) {
-          return false;
-        }
-        const sessionDate = format(new Date(session.date), 'yyyy-MM-dd');
+      const [sessionsRes, casesRes] = await Promise.all([
+        api.get('/sessions', { params: { page: 1, limit: 500 } }),
+        api.get('/cases', { params: { page: 1, limit: 200 } })
+      ]);
+
+      const agentSessions = (sessionsRes.data.sessions || []).filter(
+        s => user && s.Case && s.Case.courtAgentId === user.id
+      );
+      setAllSessions(agentSessions);
+
+      const agentCases = (casesRes.data.cases || []);
+      setAssignedCases(agentCases);
+
+      const filtered = agentSessions.filter(s => {
+        const sessionDate = format(new Date(s.date), 'yyyy-MM-dd');
         return sessionDate === selectedDate;
       });
       setSessions(filtered);
     } catch (error) {
-      toast.error(isArabic ? 'خطأ في جلب جلسات اليوم' : 'Error loading sessions');
+      toast.error(isArabic ? 'خطأ في جلب البيانات' : 'Error loading data');
     } finally {
       setLoading(false);
     }
@@ -69,9 +90,7 @@ const CourtAgent = () => {
       }
       await api.put(`/sessions/${sessionId}`, updateData);
       toast.success(isArabic ? 'تم تحديث حالة الجلسة' : 'Session status updated');
-      setSessions(sessions.map(s =>
-        s.id === sessionId ? { ...s, ...updateData } : s
-      ));
+      fetchAllData();
     } catch (error) {
       toast.error(error.response?.data?.error || (isArabic ? 'خطأ في التحديث' : 'Update error'));
     } finally {
@@ -99,7 +118,7 @@ const CourtAgent = () => {
           data: base64
         });
         toast.success(isArabic ? 'تم رفع المستند بنجاح' : 'Document uploaded');
-        fetchSessions();
+        fetchAllData();
         setUploadingId(null);
       };
       reader.readAsDataURL(file);
@@ -115,7 +134,7 @@ const CourtAgent = () => {
     try {
       await api.delete(`/sessions/${sessionId}/documents/${docIndex}`);
       toast.success(isArabic ? 'تم حذف المستند' : 'Document deleted');
-      fetchSessions();
+      fetchAllData();
     } catch (error) {
       toast.error(isArabic ? 'خطأ في الحذف' : 'Delete error');
     }
@@ -186,6 +205,29 @@ const CourtAgent = () => {
         <button className="btn btn-secondary" onClick={fetchDailyReport}>
           <FiFileText /> {isArabic ? 'تقرير يومي' : 'Daily Report'}
         </button>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+        <div className="card" style={{ margin: 0, textAlign: 'center', borderTop: '3px solid #1976d2' }}>
+          <div style={{ fontSize: '1.8rem', fontWeight: 'bold', color: '#1976d2' }}>{stats.totalCases}</div>
+          <div style={{ fontSize: '0.85rem', color: '#666' }}>{isArabic ? 'قضايا منسوبة' : 'Assigned Cases'}</div>
+        </div>
+        <div className="card" style={{ margin: 0, textAlign: 'center', borderTop: '3px solid #9c27b0' }}>
+          <div style={{ fontSize: '1.8rem', fontWeight: 'bold', color: '#9c27b0' }}>{stats.totalSessions}</div>
+          <div style={{ fontSize: '0.85rem', color: '#666' }}>{isArabic ? 'إجمالي الجلسات' : 'Total Sessions'}</div>
+        </div>
+        <div className="card" style={{ margin: 0, textAlign: 'center', borderTop: '3px solid #2196f3' }}>
+          <div style={{ fontSize: '1.8rem', fontWeight: 'bold', color: '#2196f3' }}>{stats.upcoming}</div>
+          <div style={{ fontSize: '0.85rem', color: '#666' }}>{isArabic ? 'جلسات قادمة' : 'Upcoming'}</div>
+        </div>
+        <div className="card" style={{ margin: 0, textAlign: 'center', borderTop: '3px solid #4caf50' }}>
+          <div style={{ fontSize: '1.8rem', fontWeight: 'bold', color: '#4caf50' }}>{stats.completed}</div>
+          <div style={{ fontSize: '0.85rem', color: '#666' }}>{isArabic ? 'منجزة' : 'Completed'}</div>
+        </div>
+        <div className="card" style={{ margin: 0, textAlign: 'center', borderTop: '3px solid #ff9800' }}>
+          <div style={{ fontSize: '1.8rem', fontWeight: 'bold', color: '#ff9800' }}>{stats.postponed}</div>
+          <div style={{ fontSize: '0.85rem', color: '#666' }}>{isArabic ? 'مؤجلة' : 'Postponed'}</div>
+        </div>
       </div>
 
       <div className="card" style={{ marginBottom: '1rem' }}>
