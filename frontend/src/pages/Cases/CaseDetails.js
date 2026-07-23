@@ -9,7 +9,8 @@ import toast from 'react-hot-toast';
 
 const CaseDetails = () => {
   const { id } = useParams();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isArabic = language === 'ar';
   const navigate = useNavigate();
   const [caseData, setCaseData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -135,6 +136,20 @@ const CaseDetails = () => {
               <label>{t.opposingLawyer}</label>
               <span>{caseData.opposingLawyer || '-'}</span>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="card" style={{ marginBottom: '1rem' }}>
+        <h3 className="card-title">{isArabic ? 'الفريق' : 'Team'}</h3>
+        <div className="details-grid">
+          <div className="detail-item">
+            <label>{isArabic ? 'المحامي المسؤول' : 'Assigned Lawyer'}</label>
+            <span>{caseData.assignedLawyer?.fullName || '-'}</span>
+          </div>
+          <div className="detail-item">
+            <label>{isArabic ? 'مندوب المحاكم' : 'Court Agent'}</label>
+            <span>{caseData.courtAgent?.fullName || '-'}</span>
           </div>
         </div>
       </div>

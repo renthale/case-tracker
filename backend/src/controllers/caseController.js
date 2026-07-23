@@ -84,12 +84,18 @@ exports.getCases = async (req, res) => {
       ];
     }
 
+    if (userRole === 'court_agent') {
+      // Court agents only see their assigned cases
+      where.courtAgentId = userId;
+    }
+
     const offset = (page - 1) * limit;
 
     const { count, rows: cases } = await Case.findAndCountAll({
       where,
       include: [
         { model: User, as: 'assignedLawyer', attributes: ['id', 'fullName'] },
+        { model: User, as: 'courtAgent', attributes: ['id', 'fullName'] },
         { model: Client, as: 'client', attributes: ['id', 'name', 'phone'] }
       ],
       order: [[sortBy, sortOrder]],
@@ -115,6 +121,7 @@ exports.getCaseById = async (req, res) => {
     const caseRecord = await Case.findByPk(req.params.id, {
       include: [
         { model: User, as: 'assignedLawyer', attributes: ['id', 'fullName', 'email'] },
+        { model: User, as: 'courtAgent', attributes: ['id', 'fullName', 'email'] },
         { model: Client, as: 'client' },
         { model: Session, as: 'sessions', order: [['date', 'DESC']] },
         { model: Invoice, as: 'invoices', attributes: ['id', 'invoiceNumber', 'totalAmount', 'paidAmount', 'status', 'dueDate'] },

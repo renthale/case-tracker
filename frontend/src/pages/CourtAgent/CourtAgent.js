@@ -1,14 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
+import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
+import toast from 'react-hot-toast';
 import { FiCalendar, FiClock, FiMapPin, FiCheckCircle, FiXCircle, FiFileText, FiPrinter, FiChevronDown, FiChevronUp, FiUpload, FiTrash2 } from 'react-icons/fi';
 import { format, parseISO } from 'date-fns';
 import { ar } from 'date-fns/locale';
-import toast from 'react-hot-toast';
 
 const CourtAgent = () => {
   const { t, language } = useLanguage();
+  const { user } = useAuth();
   const isArabic = language === 'ar';
   const reportRef = useRef();
   const [sessions, setSessions] = useState([]);
@@ -30,9 +32,15 @@ const CourtAgent = () => {
   const fetchSessions = async () => {
     setLoading(true);
     try {
-      const response = await api.get('/sessions', { params: { page: 1, limit: 100 } });
+      const response = await api.get('/sessions', { params: { page: 1, limit: 200 } });
       const allSessions = response.data.sessions;
+      
+      // Filter sessions based on current user's courtAgentId
       const filtered = allSessions.filter((session) => {
+        // Only show sessions for cases assigned to this court agent
+        if (user && session.Case && session.Case.courtAgentId !== user.id) {
+          return false;
+        }
         const sessionDate = format(new Date(session.date), 'yyyy-MM-dd');
         return sessionDate === selectedDate;
       });
@@ -167,7 +175,14 @@ const CourtAgent = () => {
   return (
     <div className="page-container">
       <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h1>{isArabic ? 'مندوب المحاكم' : 'Court Agent'}</h1>
+        <div>
+          <h1>{isArabic ? 'مندوب المحاكم' : 'Court Agent'}</h1>
+          {user && (
+            <p style={{ fontSize: '0.85rem', color: '#666', marginTop: '0.25rem' }}>
+              {isArabic ? 'المندوب:' : 'Agent:'} <strong>{user.fullName}</strong>
+            </p>
+          )}
+        </div>
         <button className="btn btn-secondary" onClick={fetchDailyReport}>
           <FiFileText /> {isArabic ? 'تقرير يومي' : 'Daily Report'}
         </button>

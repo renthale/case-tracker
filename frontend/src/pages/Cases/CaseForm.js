@@ -6,17 +6,19 @@ import toast from 'react-hot-toast';
 
 const CaseForm = () => {
   const { id } = useParams();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isArabic = language === 'ar';
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [clients, setClients] = useState([]);
+  const [users, setUsers] = useState([]);
   const [formData, setFormData] = useState({
     caseNumber: '', title: '', description: '', type: 'civil', status: 'active',
     priority: 'medium', courtType: '', court: '', department: '', registrationNumber: '',
     judge: '', opposingParty: '', opposingLawyer: '', opposingCivilId: '',
     clientName: '', clientCivilId: '', clientPhone: '', clientEmail: '',
-    clientId: '', filingDate: '', nextHearingDate: '', closingDate: '',
+    clientId: '', courtAgentId: '', filingDate: '', nextHearingDate: '', closingDate: '',
     assignmentDate: '', assignmentEndDate: '', verdict: '', verdictDate: '',
     appealDate: '', consultationFees: '', litigationFees: '', sessionFees: '',
     otherFees: '', paymentStatus: 'unpaid', notes: ''
@@ -32,6 +34,7 @@ const CaseForm = () => {
 
   useEffect(() => {
     fetchClients();
+    fetchUsers();
     if (id) {
       fetchCase();
     } else {
@@ -45,6 +48,15 @@ const CaseForm = () => {
       setClients(response.data.clients || response.data || []);
     } catch (error) {
       console.error('Error fetching clients:', error);
+    }
+  };
+
+  const fetchUsers = async () => {
+    try {
+      const response = await api.get('/users');
+      setUsers(response.data.users || response.data || []);
+    } catch (error) {
+      console.error('Error fetching users:', error);
     }
   };
 
@@ -72,6 +84,7 @@ const CaseForm = () => {
         clientPhone: caseData.clientPhone || '',
         clientEmail: caseData.clientEmail || '',
         clientId: caseData.clientId || '',
+        courtAgentId: caseData.courtAgentId || '',
         filingDate: caseData.filingDate || '',
         nextHearingDate: caseData.nextHearingDate?.split('T')[0] || '',
         closingDate: caseData.closingDate || '',
@@ -313,7 +326,24 @@ const CaseForm = () => {
           </div>
         </div>
 
-        {/* Section 4: Opposing Party */}
+        {/* Section 4: Team Assignment */}
+        <div className="card" style={{ marginBottom: '1.5rem' }}>
+          <h3 className="card-title">{isArabic ? 'الفريق' : 'Team Assignment'}</h3>
+
+          <div className="grid grid-2">
+            <div className="form-group">
+              <label>{isArabic ? 'مندوب المحاكم' : 'Court Agent'}</label>
+              <select name="courtAgentId" className="form-control" value={formData.courtAgentId} onChange={handleChange}>
+                <option value="">{isArabic ? 'اختر مندوب المحاكم' : 'Select court agent'}</option>
+                {users.filter(u => u.role === 'court_agent' || u.role === 'admin').map(user => (
+                  <option key={user.id} value={user.id}>{user.fullName}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* Section 5: Opposing Party */}
         <div className="card" style={{ marginBottom: '1.5rem' }}>
           <h3 className="card-title">{t.opposingPartySection}</h3>
 

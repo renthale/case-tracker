@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
+import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import {
   FiPrinter, FiBarChart2, FiDollarSign, FiUsers, FiCalendar,
-  FiBriefcase, FiFileText, FiFilter
+  FiBriefcase, FiFileText, FiFilter, FiMapPin
 } from 'react-icons/fi';
 
 const reportTabs = [
@@ -14,10 +15,12 @@ const reportTabs = [
   { key: 'financial', icon: FiDollarSign, labelAr: 'المالية', labelEn: 'Financial' },
   { key: 'invoices', icon: FiFileText, labelAr: 'الفواتير', labelEn: 'Invoices' },
   { key: 'clients', icon: FiUsers, labelAr: 'العملاء', labelEn: 'Clients' },
+  { key: 'courtAgent', icon: FiMapPin, labelAr: 'مندوب المحاكم', labelEn: 'Court Agent' },
 ];
 
 const Reports = () => {
   const { language, t } = useLanguage();
+  const { user } = useAuth();
   const isArabic = language === 'ar';
   const [activeTab, setActiveTab] = useState('overview');
   const [dateRange, setDateRange] = useState({ from: '', to: '' });
@@ -658,8 +661,121 @@ const Reports = () => {
       case 'financial': return renderFinancial();
       case 'invoices': return renderInvoices();
       case 'clients': return renderClients();
+      case 'courtAgent': return renderCourtAgent();
       default: return renderOverview();
     }
+  };
+
+  const renderCourtAgent = () => {
+    // Get court agent cases (cases where courtAgentId matches current user)
+    const agentCases = filteredCases.filter(c => c.courtAgentId === user?.id);
+    const agentSessions = filteredSessions.filter(s => s.Case?.courtAgentId === user?.id);
+    const upcomingAgentSessions = agentSessions.filter(s => s.status === 'scheduled');
+    const completedAgentSessions = agentSessions.filter(s => s.status === 'completed');
+    const postponedAgentSessions = agentSessions.filter(s => s.status === 'postponed');
+
+    return (
+      <div>
+        <div className="card" style={{ marginBottom: '1rem', background: '#f0f7ff', border: '1px solid #bee3f8' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <FiMapPin style={{ fontSize: '1.5rem', color: '#3182ce' }} />
+            <div>
+              <h3 style={{ margin: 0, color: '#1a365d' }}>{isArabic ? 'تقرير مندوب المحاكم' : 'Court Agent Report'}</h3>
+              <p style={{ margin: 0, fontSize: '0.85rem', color: '#666' }}>
+                {isArabic ? 'المندوب:' : 'Agent:'} <strong>{user?.fullName || '-'}</strong>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(170px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+          <div style={kpi('#3498db')}>
+            <div style={kpiNum('#3498db')}>{agentCases.length}</div>
+            <div style={kpiLabel()}>{isArabic ? 'القضايا المنسوبة' : 'Assigned Cases'}</div>
+          </div>
+          <div style={kpi('#f39c12')}>
+            <div style={kpiNum('#f39c12')}>{agentSessions.length}</div>
+            <div style={kpiLabel()}>{isArabic ? 'إجمالي الجلسات' : 'Total Sessions'}</div>
+          </div>
+          <div style={kpi('#2ecc71')}>
+            <div style={kpiNum('#2ecc71')}>{upcomingAgentSessions.length}</div>
+            <div style={kpiLabel()}>{isArabic ? 'الجلسات القادمة' : 'Upcoming'}</div>
+          </div>
+          <div style={kpi('#27ae60')}>
+            <div style={kpiNum('#27ae60')}>{completedAgentSessions.length}</div>
+            <div style={kpiLabel()}>{isArabic ? 'المنجزة' : 'Completed'}</div>
+          </div>
+          <div style={kpi('#e67e22')}>
+            <div style={kpiNum('#e67e22')}>{postponedAgentSessions.length}</div>
+            <div style={kpiLabel()}>{isArabic ? 'المؤجلة' : 'Postponed'}</div>
+          </div>
+        </div>
+
+        <div className="card" style={{ marginBottom: '1rem' }}>
+          <h3 className="card-title">{isArabic ? 'القضايا المنسوبة' : 'Assigned Cases'}</h3>
+          <div style={{ overflowX: 'auto' }}>
+            <table className="data-table" style={{ width: '100%' }}>
+              <thead>
+                <tr>
+                  <th>{isArabic ? 'رقم القضية' : 'Case No.'}</th>
+                  <th>{isArabic ? 'العنوان' : 'Title'}</th>
+                  <th>{isArabic ? 'النوع' : 'Type'}</th>
+                  <th>{isArabic ? 'الحالة' : 'Status'}</th>
+                  <th>{isArabic ? 'الموكل' : 'Client'}</th>
+                  <th>{isArabic ? 'الجلسة القادمة' : 'Next Session'}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {agentCases.map(c => (
+                  <tr key={c.id}>
+                    <td>{c.caseNumber}</td>
+                    <td>{c.title}</td>
+                    <td>{c.type}</td>
+                    <td><span className={`badge badge-${c.status === 'active' ? 'active' : c.status === 'won' ? 'won' : c.status === 'lost' ? 'lost' : 'pending'}`}>{c.status}</span></td>
+                    <td>{c.clientName || c.Client?.name || '-'}</td>
+                    <td>{c.nextHearingDate ? new Date(c.nextHearingDate).toLocaleDateString('ar-KW') : '-'}</td>
+                  </tr>
+                ))}
+                {agentCases.length === 0 && <tr><td colSpan="6" className="no-data">{isArabic ? 'لا توجد قضايا منسوبة' : 'No assigned cases'}</td></tr>}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div className="card">
+          <h3 className="card-title">{isArabic ? 'الجلسات القادمة' : 'Upcoming Sessions'}</h3>
+          <div style={{ overflowX: 'auto' }}>
+            <table className="data-table" style={{ width: '100%' }}>
+              <thead>
+                <tr>
+                  <th>{isArabic ? 'التاريخ' : 'Date'}</th>
+                  <th>{isArabic ? 'الوقت' : 'Time'}</th>
+                  <th>{isArabic ? 'رقم القضية' : 'Case No.'}</th>
+                  <th>{isArabic ? 'القضية' : 'Case'}</th>
+                  <th>{isArabic ? 'رقم الجلسة' : 'Session #'}</th>
+                  <th>{isArabic ? 'الموقع' : 'Location'}</th>
+                  <th>{isArabic ? 'الحالة' : 'Status'}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {upcomingAgentSessions.sort((a, b) => new Date(a.date) - new Date(b.date)).map(s => (
+                  <tr key={s.id}>
+                    <td>{new Date(s.date).toLocaleDateString('ar-KW')}</td>
+                    <td>{s.time || '-'}</td>
+                    <td>{s.Case?.caseNumber || '-'}</td>
+                    <td>{s.Case?.title || '-'}</td>
+                    <td>{s.sessionNumber}</td>
+                    <td>{s.location || '-'}</td>
+                    <td><span className="badge badge-active">{isArabic ? 'مجدولة' : 'Scheduled'}</span></td>
+                  </tr>
+                ))}
+                {upcomingAgentSessions.length === 0 && <tr><td colSpan="7" className="no-data">{isArabic ? 'لا توجد جلسات قادمة' : 'No upcoming sessions'}</td></tr>}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   const reportTitle = {
@@ -669,6 +785,7 @@ const Reports = () => {
     financial: isArabic ? 'التقرير المالي' : 'Financial Report',
     invoices: isArabic ? 'تقرير الفواتير' : 'Invoice Report',
     clients: isArabic ? 'تقرير العملاء' : 'Client Report',
+    courtAgent: isArabic ? 'تقرير مندوب المحاكم' : 'Court Agent Report',
   };
 
   return (

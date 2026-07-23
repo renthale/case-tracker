@@ -130,6 +130,13 @@ const Case = sequelize.define('Case', {
       key: 'id'
     }
   },
+  courtAgentId: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: 'Users',
+      key: 'id'
+    }
+  },
   documents: {
     type: DataTypes.JSONB,
     defaultValue: []
