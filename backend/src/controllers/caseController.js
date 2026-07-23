@@ -150,9 +150,10 @@ exports.updateCase = async (req, res) => {
 
     const isAssignedLawyer = caseRecord.assignedLawyerId === req.user.id;
     const isSecondaryLawyer = caseRecord.secondaryLawyerId === req.user.id;
+    const isCourtAgent = caseRecord.courtAgentId === req.user.id;
     const isAdminOrPartner = ['admin', 'partner'].includes(req.user.role);
 
-    if (!isAssignedLawyer && !isSecondaryLawyer && !isAdminOrPartner) {
+    if (!isAssignedLawyer && !isSecondaryLawyer && !isCourtAgent && !isAdminOrPartner) {
       return res.status(403).json({ error: 'ليس لديك صلاحية لتحديث هذه القضية' });
     }
 

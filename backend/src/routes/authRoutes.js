@@ -20,6 +20,9 @@ router.get('/profile', auth, authController.getProfile);
 router.put('/profile', auth, authController.updateProfile);
 router.put('/change-password', auth, authController.changePassword);
 
+// Lightweight user list for dropdowns (any authenticated user)
+router.get('/users/list', auth, authController.getUserList);
+
 // Admin user management
 router.get('/users', auth, authorize('admin'), authController.getAllUsers);
 router.post('/users', auth, authorize('admin'), authController.createUser);

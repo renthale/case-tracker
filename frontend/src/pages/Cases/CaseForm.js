@@ -53,7 +53,7 @@ const CaseForm = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await api.get('/users');
+      const response = await api.get('/users/list');
       setUsers(response.data.users || response.data || []);
     } catch (error) {
       console.error('Error fetching users:', error);
