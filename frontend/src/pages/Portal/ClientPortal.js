@@ -1,5 +1,5 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, Link } from 'react-router-dom';
+import { Routes, Route, Navigate, Link, useNavigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import api from '../../services/portalApi';
 import PortalLogin from './PortalLogin';
@@ -20,7 +20,6 @@ const PortalProvider = ({ children }) => {
   useEffect(() => {
     const token = localStorage.getItem('portalToken');
     if (token) {
-      api.defaults.headers.common['Authorization'] = `Portal ${token}`;
       fetchProfile();
     } else {
       setLoading(false);
@@ -41,14 +40,12 @@ const PortalProvider = ({ children }) => {
   const login = async (email, password) => {
     const res = await api.post('/portal/login', { email, password });
     localStorage.setItem('portalToken', res.data.token);
-    api.defaults.headers.common['Authorization'] = `Portal ${res.data.token}`;
     setClient(res.data.client);
     return res.data;
   };
 
   const logout = () => {
     localStorage.removeItem('portalToken');
-    delete api.defaults.headers.common['Authorization'];
     setClient(null);
   };
 
@@ -95,27 +92,25 @@ const PortalLayout = ({ children }) => {
 
 const ClientPortal = () => {
   return (
-    <Router>
+    <PortalProvider>
       <Toaster position="top-right" />
-      <PortalProvider>
-        <Routes>
-          <Route path="/portal/login" element={<PortalLogin />} />
-          <Route path="/portal/*" element={
-            <ProtectedPortal>
-              <PortalLayout>
-                <Routes>
-                  <Route path="/" element={<PortalDashboard />} />
-                  <Route path="/cases" element={<PortalCases />} />
-                  <Route path="/cases/:id" element={<PortalCaseDetails />} />
-                  <Route path="/invoices" element={<PortalInvoices />} />
-                  <Route path="*" element={<Navigate to="/portal" />} />
-                </Routes>
-              </PortalLayout>
-            </ProtectedPortal>
-          } />
-        </Routes>
-      </PortalProvider>
-    </Router>
+      <Routes>
+        <Route path="/portal/login" element={<PortalLogin />} />
+        <Route path="/portal/*" element={
+          <ProtectedPortal>
+            <PortalLayout>
+              <Routes>
+                <Route path="/" element={<PortalDashboard />} />
+                <Route path="/cases" element={<PortalCases />} />
+                <Route path="/cases/:id" element={<PortalCaseDetails />} />
+                <Route path="/invoices" element={<PortalInvoices />} />
+                <Route path="*" element={<Navigate to="/portal" />} />
+              </Routes>
+            </PortalLayout>
+          </ProtectedPortal>
+        } />
+      </Routes>
+    </PortalProvider>
   );
 };
 
