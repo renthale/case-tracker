@@ -1,5 +1,5 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
-import { Routes, Route, Navigate, Link, useNavigate } from 'react-router-dom';
+import { Navigate, Link, useNavigate, useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import api from '../../services/portalApi';
 import PortalLogin from './PortalLogin';
@@ -56,13 +56,13 @@ const PortalProvider = ({ children }) => {
   );
 };
 
-const ProtectedPortal = ({ children }) => {
+export const ProtectedPortal = ({ children }) => {
   const { client, loading } = usePortal();
   if (loading) return <div className="portal-loading">Loading...</div>;
   return client ? children : <Navigate to="/portal/login" />;
 };
 
-const PortalLayout = ({ children }) => {
+export const PortalLayout = ({ children }) => {
   const { client, logout } = usePortal();
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -90,28 +90,4 @@ const PortalLayout = ({ children }) => {
   );
 };
 
-const ClientPortal = () => {
-  return (
-    <PortalProvider>
-      <Toaster position="top-right" />
-      <Routes>
-        <Route path="/portal/login" element={<PortalLogin />} />
-        <Route path="/portal/*" element={
-          <ProtectedPortal>
-            <PortalLayout>
-              <Routes>
-                <Route path="/" element={<PortalDashboard />} />
-                <Route path="/cases" element={<PortalCases />} />
-                <Route path="/cases/:id" element={<PortalCaseDetails />} />
-                <Route path="/invoices" element={<PortalInvoices />} />
-                <Route path="*" element={<Navigate to="/portal" />} />
-              </Routes>
-            </PortalLayout>
-          </ProtectedPortal>
-        } />
-      </Routes>
-    </PortalProvider>
-  );
-};
-
-export default ClientPortal;
+export { PortalProvider };

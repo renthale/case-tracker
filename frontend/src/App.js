@@ -28,8 +28,14 @@ import InvoiceForm from './pages/Invoices/InvoiceForm';
 import InvoiceDetails from './pages/Invoices/InvoiceDetails';
 import UsersList from './pages/Users/UsersList';
 import TimeTracking from './pages/TimeTracking/TimeTracking';
-import ClientPortal from './pages/Portal/ClientPortal';
+import { PortalProvider, ProtectedPortal, PortalLayout } from './pages/Portal/ClientPortal';
+import PortalLogin from './pages/Portal/PortalLogin';
+import PortalDashboard from './pages/Portal/PortalDashboard';
+import PortalCases from './pages/Portal/PortalCases';
+import PortalCaseDetails from './pages/Portal/PortalCaseDetails';
+import PortalInvoices from './pages/Portal/PortalInvoices';
 import './styles/App.css';
+import './pages/Portal/Portal.css';
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -91,7 +97,11 @@ function App() {
         <Router>
           <Toaster position="top-right" />
           <Routes>
-            <Route path="/portal/*" element={<ClientPortal />} />
+            <Route path="/portal/login" element={<PortalProvider><Toaster position="top-right" /><PortalLogin /></PortalProvider>} />
+            <Route path="/portal/cases/:id" element={<PortalProvider><ProtectedPortal><PortalLayout><PortalCaseDetails /></PortalLayout></ProtectedPortal></PortalProvider>} />
+            <Route path="/portal/cases" element={<PortalProvider><ProtectedPortal><PortalLayout><PortalCases /></PortalLayout></ProtectedPortal></PortalProvider>} />
+            <Route path="/portal/invoices" element={<PortalProvider><ProtectedPortal><PortalLayout><PortalInvoices /></PortalLayout></ProtectedPortal></PortalProvider>} />
+            <Route path="/portal" element={<PortalProvider><ProtectedPortal><PortalLayout><PortalDashboard /></PortalLayout></ProtectedPortal></PortalProvider>} />
             <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
 
             <Route path="/" element={<PrivateRoute><Layout /></PrivateRoute>}>
