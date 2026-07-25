@@ -1,5 +1,6 @@
 const { LegalDocument, Case, User } = require('../models');
 const { Op } = require('sequelize');
+const { uploadFile, deleteFile } = require('../utils/fileUpload');
 
 exports.createDocument = async (req, res) => {
   try {
@@ -10,8 +11,23 @@ exports.createDocument = async (req, res) => {
       }
     }
 
+    let fileUrl = req.body.fileUrl || null;
+
+    // Upload file to Supabase Storage if provided
+    if (req.file) {
+      const folder = req.body.caseId ? `cases/${req.body.caseId}` : 'documents';
+      const uploadResult = await uploadFile(req.file, folder);
+
+      if (uploadResult.url) {
+        fileUrl = uploadResult.url;
+      } else if (uploadResult.error) {
+        return res.status(500).json({ error: 'خطأ في رفع الملف', details: uploadResult.error });
+      }
+    }
+
     const document = await LegalDocument.create({
       ...req.body,
+      fileUrl,
       caseId: req.body.caseId || null,
       uploadedBy: req.user.id
     });
@@ -101,7 +117,19 @@ exports.updateDocument = async (req, res) => {
       return res.status(404).json({ error: 'المستند غير موجود' });
     }
 
-    await document.update(req.body);
+    const updates = { ...req.body };
+
+    // Upload new file if provided
+    if (req.file) {
+      const folder = document.caseId ? `cases/${document.caseId}` : 'documents';
+      const uploadResult = await uploadFile(req.file, folder);
+
+      if (uploadResult.url) {
+        updates.fileUrl = uploadResult.url;
+      }
+    }
+
+    await document.update(updates);
     res.json({ message: 'تم تحديث المستند بنجاح', document });
   } catch (error) {
     res.status(500).json({ error: 'خطأ في تحديث المستند', details: error.message });

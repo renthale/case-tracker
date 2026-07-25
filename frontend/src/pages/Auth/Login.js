@@ -72,8 +72,8 @@ const Login = () => {
           </button>
         </form>
         
-        <div className="auth-footer">
-          {t.dontHaveAccount} <Link to="/register">{t.register}</Link>
+        <div className="auth-footer" style={{ color: '#666', fontSize: '0.9rem' }}>
+          {t.adminCreateAccount || 'فقط المدير يمكنه إنشاء حساب جديد'}
         </div>
       </div>
     </div>

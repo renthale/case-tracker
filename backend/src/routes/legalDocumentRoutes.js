@@ -3,19 +3,20 @@ const router = express.Router();
 const { body } = require('express-validator');
 const legalDocumentController = require('../controllers/legalDocumentController');
 const { auth, authorize } = require('../middleware/auth');
+const upload = require('../middleware/upload');
 
 router.use(auth);
 
 router.get('/', legalDocumentController.getDocuments);
 
-router.post('/', authorize('admin', 'partner', 'lawyer', 'legal_consultant', 'trainee_lawyer', 'court_agent', 'legal_secretary'), [
+router.post('/', authorize('admin', 'partner', 'lawyer', 'legal_consultant', 'trainee_lawyer', 'court_agent', 'legal_secretary'), upload.single('file'), [
   body('title').trim().notEmpty().withMessage('عنوان المستند مطلوب'),
   body('type').isIn(['contract', 'petition', 'judgment', 'evidence', 'correspondence', 'memo', 'other']).withMessage('نوع المستند غير صالح')
 ], legalDocumentController.createDocument);
 
 router.get('/:id', legalDocumentController.getDocumentById);
 
-router.put('/:id', authorize('admin', 'partner', 'lawyer', 'legal_consultant', 'trainee_lawyer', 'court_agent', 'legal_secretary'), [
+router.put('/:id', authorize('admin', 'partner', 'lawyer', 'legal_consultant', 'trainee_lawyer', 'court_agent', 'legal_secretary'), upload.single('file'), [
   body('title').optional().trim().notEmpty(),
   body('type').optional().isIn(['contract', 'petition', 'judgment', 'evidence', 'correspondence', 'memo', 'other'])
 ], legalDocumentController.updateDocument);

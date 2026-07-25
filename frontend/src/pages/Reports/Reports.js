@@ -5,7 +5,7 @@ import api from '../../services/api';
 import toast from 'react-hot-toast';
 import {
   FiPrinter, FiBarChart2, FiDollarSign, FiUsers, FiCalendar,
-  FiBriefcase, FiFileText, FiFilter, FiMapPin
+  FiBriefcase, FiFileText, FiFilter, FiMapPin, FiShield
 } from 'react-icons/fi';
 
 const reportTabs = [
@@ -16,6 +16,7 @@ const reportTabs = [
   { key: 'invoices', icon: FiFileText, labelAr: 'الفواتير', labelEn: 'Invoices' },
   { key: 'clients', icon: FiUsers, labelAr: 'العملاء', labelEn: 'Clients' },
   { key: 'courtAgent', icon: FiMapPin, labelAr: 'مندوب المحاكم', labelEn: 'Court Agent' },
+  { key: 'auditLog', icon: FiShield, labelAr: 'سجل التدقيق', labelEn: 'Audit Log' },
 ];
 
 const Reports = () => {
@@ -27,6 +28,11 @@ const Reports = () => {
   const [loading, setLoading] = useState(true);
   const [checkingOverdue, setCheckingOverdue] = useState(false);
   const [feeReport, setFeeReport] = useState(null);
+  const [auditLogs, setAuditLogs] = useState([]);
+  const [auditStats, setAuditStats] = useState(null);
+  const [auditLoading, setAuditLoading] = useState(false);
+  const [auditPage, setAuditPage] = useState(1);
+  const [auditFilters, setAuditFilters] = useState({ action: '', entityType: '', startDate: '', endDate: '' });
   const [data, setData] = useState({
     cases: [], sessions: [], invoices: [], clients: []
   });
@@ -58,6 +64,29 @@ const Reports = () => {
       console.error('Error:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchAuditLogs = async (page = 1, filters = {}) => {
+    try {
+      setAuditLoading(true);
+      const params = new URLSearchParams({ page, limit: 20 });
+      if (filters.action) params.append('action', filters.action);
+      if (filters.entityType) params.append('entityType', filters.entityType);
+      if (filters.startDate) params.append('startDate', filters.startDate);
+      if (filters.endDate) params.append('endDate', filters.endDate);
+
+      const [logsRes, statsRes] = await Promise.all([
+        api.get(`/audit-logs?${params}`),
+        api.get('/audit-logs/stats')
+      ]);
+      setAuditLogs(logsRes.data.logs || []);
+      setAuditStats(statsRes.data);
+      setAuditPage(page);
+    } catch (error) {
+      console.error('Audit log error:', error);
+    } finally {
+      setAuditLoading(false);
     }
   };
 
@@ -653,6 +682,129 @@ const Reports = () => {
     );
   };
 
+  // ──────────────── AUDIT LOG ────────────────
+  const renderAuditLog = () => {
+    if (user?.role !== 'admin' && user?.role !== 'partner') {
+      return (
+        <div className="card">
+          <p style={{ textAlign: 'center', color: '#999', padding: '2rem' }}>
+            {isArabic ? 'ليس لديك صلاحية لعرض سجل التدقيق' : 'You do not have permission to view audit logs'}
+          </p>
+        </div>
+      );
+    }
+
+    if (auditLogs.length === 0 && !auditLoading) {
+      fetchAuditLogs(1, auditFilters);
+    }
+
+    const actionLabels = {
+      CREATE: isArabic ? 'إنشاء' : 'Create',
+      UPDATE: isArabic ? 'تعديل' : 'Update',
+      DELETE: isArabic ? 'حذف' : 'Delete',
+      READ: isArabic ? 'عرض' : 'Read',
+      LOGIN: isArabic ? 'دخول' : 'Login',
+      LOGOUT: isArabic ? 'خروج' : 'Logout'
+    };
+
+    const actionColors = {
+      CREATE: '#2ecc71',
+      UPDATE: '#3498db',
+      DELETE: '#e74c3c',
+      READ: '#95a5a6',
+      LOGIN: '#9b59b6',
+      LOGOUT: '#e67e22'
+    };
+
+    return (
+      <div>
+        <div className="card" style={{ marginBottom: '1rem' }}>
+          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+            <select value={auditFilters.action} onChange={e => setAuditFilters({ ...auditFilters, action: e.target.value })} className="form-control" style={{ maxWidth: 150 }}>
+              <option value="">{isArabic ? 'جميع الإجراءات' : 'All Actions'}</option>
+              <option value="CREATE">{isArabic ? 'إنشاء' : 'Create'}</option>
+              <option value="UPDATE">{isArabic ? 'تعديل' : 'Update'}</option>
+              <option value="DELETE">{isArabic ? 'حذف' : 'Delete'}</option>
+            </select>
+            <select value={auditFilters.entityType} onChange={e => setAuditFilters({ ...auditFilters, entityType: e.target.value })} className="form-control" style={{ maxWidth: 150 }}>
+              <option value="">{isArabic ? 'جميع الكيانات' : 'All Entities'}</option>
+              <option value="Case">{isArabic ? 'قضية' : 'Case'}</option>
+              <option value="Session">{isArabic ? 'جلسة' : 'Session'}</option>
+              <option value="Invoice">{isArabic ? 'فاتورة' : 'Invoice'}</option>
+              <option value="User">{isArabic ? 'مستخدم' : 'User'}</option>
+              <option value="Client">{isArabic ? 'عميل' : 'Client'}</option>
+            </select>
+            <input type="date" value={auditFilters.startDate} onChange={e => setAuditFilters({ ...auditFilters, startDate: e.target.value })} className="form-control" style={{ maxWidth: 160 }} />
+            <span>{isArabic ? 'إلى' : 'to'}</span>
+            <input type="date" value={auditFilters.endDate} onChange={e => setAuditFilters({ ...auditFilters, endDate: e.target.value })} className="form-control" style={{ maxWidth: 160 }} />
+            <button className="btn btn-primary btn-sm" onClick={() => fetchAuditLogs(1, auditFilters)}>
+              {isArabic ? 'بحث' : 'Search'}
+            </button>
+          </div>
+        </div>
+
+        {auditStats && (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(170px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+            <div style={kpi('#3498db')}>
+              <div style={kpiNum('#3498db')}>{auditStats.recentCount || 0}</div>
+              <div style={kpiLabel()}>{isArabic ? 'آخر 30 يوم' : 'Last 30 Days'}</div>
+            </div>
+            {auditStats.byAction?.map(a => (
+              <div key={a.action} style={kpi(actionColors[a.action] || '#999')}>
+                <div style={kpiNum(actionColors[a.action] || '#999')}>{a.count}</div>
+                <div style={kpiLabel()}>{actionLabels[a.action] || a.action}</div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className="card">
+          <h3 className="card-title">{isArabic ? 'سجل التدقيق' : 'Audit Log'}</h3>
+          <div style={{ overflowX: 'auto' }}>
+            <table className="data-table" style={{ width: '100%' }}>
+              <thead>
+                <tr>
+                  <th>{isArabic ? 'التاريخ' : 'Date'}</th>
+                  <th>{isArabic ? 'المستخدم' : 'User'}</th>
+                  <th>{isArabic ? 'الإجراء' : 'Action'}</th>
+                  <th>{isArabic ? 'النوع' : 'Entity'}</th>
+                  <th>{isArabic ? 'المعرف' : 'ID'}</th>
+                  <th>{isArabic ? 'التفاصيل' : 'Details'}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {auditLogs.map(log => (
+                  <tr key={log.id}>
+                    <td style={{ fontSize: '0.85rem' }}>{new Date(log.createdAt).toLocaleString('ar-KW')}</td>
+                    <td>{log.user?.fullName || '-'}</td>
+                    <td>
+                      <span style={{
+                        padding: '2px 8px',
+                        borderRadius: 4,
+                        fontSize: '0.8rem',
+                        fontWeight: 600,
+                        color: '#fff',
+                        background: actionColors[log.action] || '#999'
+                      }}>
+                        {actionLabels[log.action] || log.action}
+                      </span>
+                    </td>
+                    <td>{log.entityType}</td>
+                    <td>{log.entityId || '-'}</td>
+                    <td style={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {log.entityName || log.notes || '-'}
+                    </td>
+                  </tr>
+                ))}
+                {auditLogs.length === 0 && <tr><td colSpan="6" className="no-data">{isArabic ? 'لا توجد سجلات' : 'No logs'}</td></tr>}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const renderContent = () => {
     if (loading) return <div className="loading">{isArabic ? 'جاري التحميل...' : 'Loading...'}</div>;
     switch (activeTab) {
@@ -662,6 +814,7 @@ const Reports = () => {
       case 'invoices': return renderInvoices();
       case 'clients': return renderClients();
       case 'courtAgent': return renderCourtAgent();
+      case 'auditLog': return renderAuditLog();
       default: return renderOverview();
     }
   };
@@ -786,6 +939,7 @@ const Reports = () => {
     invoices: isArabic ? 'تقرير الفواتير' : 'Invoice Report',
     clients: isArabic ? 'تقرير العملاء' : 'Client Report',
     courtAgent: isArabic ? 'تقرير مندوب المحاكم' : 'Court Agent Report',
+    auditLog: isArabic ? 'سجل التدقيق' : 'Audit Log',
   };
 
   return (

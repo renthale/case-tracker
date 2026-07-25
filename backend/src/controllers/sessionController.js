@@ -1,6 +1,7 @@
 const { Session, Case, Notification, User } = require('../models');
 const { Op } = require('sequelize');
 const { fn, col } = require('sequelize');
+const { uploadFile, deleteFile } = require('../utils/fileUpload');
 
 const updateCaseNextHearing = async (caseId) => {
   const nextSession = await Session.findOne({
@@ -197,24 +198,46 @@ exports.uploadDocument = async (req, res) => {
       return res.status(404).json({ error: 'الجلسة غير موجودة' });
     }
 
-    const { name, type, data } = req.body;
-    if (!name || !data) {
-      return res.status(400).json({ error: 'اسم المستند والبيانات مطلوبان' });
+    let newDoc;
+
+    // File uploaded via multer (Supabase Storage)
+    if (req.file) {
+      const uploadResult = await uploadFile(req.file, `sessions/${session.caseId}`);
+
+      if (uploadResult.error && !uploadResult.url) {
+        return res.status(500).json({ error: 'خطأ في رفع الملف', details: uploadResult.error });
+      }
+
+      newDoc = {
+        name: req.file.originalname,
+        type: req.file.mimetype,
+        url: uploadResult.url,
+        path: uploadResult.path,
+        size: req.file.size,
+        uploadedAt: new Date().toISOString(),
+        uploadedBy: req.user.id
+      };
+    } else {
+      // Base64 fallback (backward compatibility)
+      const { name, type, data } = req.body;
+      if (!name || !data) {
+        return res.status(400).json({ error: 'اسم المستند والبيانات مطلوبان' });
+      }
+      newDoc = {
+        name,
+        type: type || 'image',
+        data,
+        uploadedAt: new Date().toISOString(),
+        uploadedBy: req.user.id
+      };
     }
 
     const existingDocs = session.documents || [];
-    const newDoc = {
-      name,
-      type: type || 'image',
-      data,
-      uploadedAt: new Date().toISOString(),
-      uploadedBy: req.user.id
-    };
-
     await session.update({ documents: [...existingDocs, newDoc] });
 
     res.json({ message: 'تم رفع المستند بنجاح', documents: session.documents });
   } catch (error) {
+    console.error('Upload document error:', error);
     res.status(500).json({ error: 'خطأ في رفع المستند', details: error.message });
   }
 };
@@ -230,6 +253,12 @@ exports.deleteDocument = async (req, res) => {
     const existingDocs = session.documents || [];
     if (docIndex < 0 || docIndex >= existingDocs.length) {
       return res.status(404).json({ error: 'المستند غير موجود' });
+    }
+
+    // Delete from Supabase Storage if path exists
+    const doc = existingDocs[docIndex];
+    if (doc.path) {
+      await deleteFile(doc.path);
     }
 
     existingDocs.splice(docIndex, 1);

@@ -62,7 +62,7 @@ exports.deletePayment = async (req, res) => {
     await payment.destroy();
 
     const totalPaid = parseFloat(invoice.paidAmount) - parseFloat(payment.amount);
-    const newStatus = totalPaid <= 0 ? 'pending' : totalPaid >= parseFloat(invoice.totalAmount) ? 'paid' : 'pending';
+    const newStatus = totalPaid >= parseFloat(invoice.totalAmount) ? 'paid' : 'pending';
 
     await invoice.update({ paidAmount: Math.max(0, totalPaid), status: newStatus });
 

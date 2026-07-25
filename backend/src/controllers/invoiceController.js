@@ -1,6 +1,7 @@
 const { Invoice, Payment, Client, Case, User } = require('../models');
 const { Op } = require('sequelize');
 const sequelize = require('../config/database');
+const { sendInvoiceCreated } = require('../utils/emailService');
 
 exports.createInvoice = async (req, res) => {
   try {
@@ -22,6 +23,15 @@ exports.createInvoice = async (req, res) => {
       taxAmount,
       status: 'pending'
     });
+
+    // Send email notification
+    if (req.body.clientId) {
+      const client = await Client.findByPk(req.body.clientId);
+      const assignedUser = await User.findByPk(req.user.id);
+      if (assignedUser && assignedUser.email) {
+        await sendInvoiceCreated(assignedUser, invoice, client);
+      }
+    }
 
     res.status(201).json({ message: 'تم إنشاء الفاتورة بنجاح', invoice });
   } catch (error) {

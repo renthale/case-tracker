@@ -1,0 +1,121 @@
+require('dotenv').config();
+const nodemailer = require('nodemailer');
+
+let transporter = null;
+
+const initTransporter = () => {
+  if (transporter) return transporter;
+
+  const host = process.env.SMTP_HOST;
+  const port = parseInt(process.env.SMTP_PORT || '587');
+  const user = process.env.SMTP_USER;
+  const pass = process.env.SMTP_PASS;
+
+  if (!host || !user || !pass) {
+    console.warn('⚠️ SMTP not configured — emails will not be sent');
+    return null;
+  }
+
+  transporter = nodemailer.createTransport({
+    host,
+    port,
+    secure: port === 465,
+    auth: { user, pass },
+    tls: { rejectUnauthorized: false }
+  });
+
+  return transporter;
+};
+
+const sendEmail = async (options) => {
+  const transport = initTransporter();
+  if (!transport) {
+    console.log('📧 Email not sent (SMTP not configured):', options.subject);
+    return { sent: false, reason: 'SMTP not configured' };
+  }
+
+  try {
+    const info = await transport.sendMail({
+      from: process.env.SMTP_FROM || `"نظام إدارة القضايا" <${process.env.SMTP_USER}>`,
+      to: options.to,
+      subject: options.subject,
+      html: options.html,
+      text: options.text
+    });
+
+    console.log('📧 Email sent:', info.messageId);
+    return { sent: true, messageId: info.messageId };
+  } catch (error) {
+    console.error('📧 Email send error:', error.message);
+    return { sent: false, reason: error.message };
+  }
+};
+
+const sendSessionReminder = async (user, session, caseRecord, interval) => {
+  return sendEmail({
+    to: user.email,
+    subject: `تذكير بجلسة ${interval} - ${caseRecord.caseNumber}`,
+    html: `
+      <div dir="rtl" style="font-family: Arial, sans-serif; line-height: 1.6;">
+        <h2 style="color: #1a365d;">تذكير بجلسة محكمة</h2>
+        <p>مرحباً ${user.fullName},</p>
+        <p>هذا تذكير بجلسة محكمة ${interval}:</p>
+        <div style="background: #f7fafc; padding: 15px; border-radius: 8px; margin: 15px 0;">
+          <p><strong>القضية:</strong> ${caseRecord.title}</p>
+          <p><strong>رقم القضية:</strong> ${caseRecord.caseNumber}</p>
+          <p><strong>المحكمة:</strong> ${caseRecord.court || 'غير محدد'}</p>
+          <p><strong>رقم الجلسة:</strong> ${session.sessionNumber}</p>
+          <p><strong>التاريخ:</strong> ${new Date(session.date).toLocaleDateString('ar-KW')}</p>
+          ${session.time ? `<p><strong>الوقت:</strong> ${session.time}</p>` : ''}
+          ${session.location ? `<p><strong>الموقع:</strong> ${session.location}</p>` : ''}
+        </div>
+        <p style="color: #e53e3e; font-weight: bold;">يرجى التأكد من الحضور في الموعد المحدد.</p>
+      </div>
+    `
+  });
+};
+
+const sendInvoiceCreated = async (user, invoice, client) => {
+  return sendEmail({
+    to: user.email,
+    subject: `فاتورة جديدة - ${invoice.invoiceNumber}`,
+    html: `
+      <div dir="rtl" style="font-family: Arial, sans-serif; line-height: 1.6;">
+        <h2 style="color: #1a365d;">فاتورة جديدة</h2>
+        <p>مرحباً ${user.fullName},</p>
+        <p>تم إنشاء فاتورة جديدة:</p>
+        <div style="background: #f7fafc; padding: 15px; border-radius: 8px; margin: 15px 0;">
+          <p><strong>رقم الفاتورة:</strong> ${invoice.invoiceNumber}</p>
+          <p><strong>العميل:</strong> ${client?.name || 'غير محدد'}</p>
+          <p><strong>المبلغ الإجمالي:</strong> ${invoice.totalAmount} د.ك</p>
+          ${invoice.dueDate ? `<p><strong>تاريخ الاستحقاق:</strong> ${invoice.dueDate}</p>` : ''}
+        </div>
+      </div>
+    `
+  });
+};
+
+const sendCaseUpdate = async (user, caseRecord, oldStatus, newStatus) => {
+  return sendEmail({
+    to: user.email,
+    subject: `تحديث حالة القضية - ${caseRecord.caseNumber}`,
+    html: `
+      <div dir="rtl" style="font-family: Arial, sans-serif; line-height: 1.6;">
+        <h2 style="color: #1a365d;">تحديث حالة القضية</h2>
+        <p>مرحباً ${user.fullName},</p>
+        <p>تم تحديث حالة القضية "${caseRecord.title}" (${caseRecord.caseNumber}):</p>
+        <div style="background: #f7fafc; padding: 15px; border-radius: 8px; margin: 15px 0;">
+          <p><strong>من:</strong> ${oldStatus}</p>
+          <p><strong>إلى:</strong> ${newStatus}</p>
+        </div>
+      </div>
+    `
+  });
+};
+
+module.exports = {
+  sendEmail,
+  sendSessionReminder,
+  sendInvoiceCreated,
+  sendCaseUpdate
+};

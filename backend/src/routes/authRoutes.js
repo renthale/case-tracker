@@ -4,12 +4,8 @@ const { body } = require('express-validator');
 const authController = require('../controllers/authController');
 const { auth, authorize } = require('../middleware/auth');
 
-router.post('/register', [
-  body('username').trim().isLength({ min: 3 }),
-  body('email').isEmail().normalizeEmail(),
-  body('password').isLength({ min: 6 }),
-  body('fullName').trim().notEmpty()
-], authController.register);
+// Registration disabled — users created by admin via POST /users
+// router.post('/register', [...], authController.register);
 
 router.post('/login', [
   body('email').isEmail().normalizeEmail(),

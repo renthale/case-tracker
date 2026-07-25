@@ -5,7 +5,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import {
   FiHome, FiBriefcase, FiUsers, FiCalendar, FiDollarSign,
   FiFileText, FiSend, FiMap, FiBell, FiBarChart2,
-  FiSettings, FiLogOut, FiMenu, FiX, FiUser, FiGlobe, FiShield
+  FiSettings, FiLogOut, FiMenu, FiX, FiUser, FiGlobe, FiShield, FiClock
 } from 'react-icons/fi';
 
 const Layout = () => {
@@ -26,6 +26,7 @@ const Layout = () => {
     { path: '/court-agent', icon: FiMap, label: t.courtAgent },
     { path: '/notifications', icon: FiBell, label: t.notifications },
     { path: '/reports', icon: FiBarChart2, label: t.reports },
+    { path: '/time-tracking', icon: FiClock, label: t.timeTracking || 'تتبع الوقت' },
     ...(user?.role === 'admin' ? [{ path: '/users', icon: FiShield, label: t.userManagement || 'إدارة المستخدمين' }] : [])
   ];
 

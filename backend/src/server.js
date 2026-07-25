@@ -16,6 +16,14 @@ const invoiceRoutes = require('./routes/invoiceRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 const legalDocumentRoutes = require('./routes/legalDocumentRoutes');
 const transactionRoutes = require('./routes/transactionRoutes');
+const auditRoutes = require('./routes/auditRoutes');
+const deadlineRoutes = require('./routes/deadlineRoutes');
+const conflictRoutes = require('./routes/conflictRoutes');
+const timeEntryRoutes = require('./routes/timeEntryRoutes');
+const clientPortalRoutes = require('./routes/clientPortalRoutes');
+const exportRoutes = require('./routes/exportRoutes');
+const calendarRoutes = require('./routes/calendarRoutes');
+const { startScheduler } = require('./scheduler/sessionReminder');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -44,6 +52,13 @@ app.use('/api/payments', paymentRoutes);
 app.use('/api/documents', legalDocumentRoutes);
 app.use('/api/legal-documents', legalDocumentRoutes);
 app.use('/api/transactions', transactionRoutes);
+app.use('/api/audit-logs', auditRoutes);
+app.use('/api/deadlines', deadlineRoutes);
+app.use('/api/conflicts', conflictRoutes);
+app.use('/api/time-entries', timeEntryRoutes);
+app.use('/portal', clientPortalRoutes);
+app.use('/api/export', exportRoutes);
+app.use('/api/calendar', calendarRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -91,6 +106,7 @@ const startServer = async () => {
 
     app.listen(PORT, () => {
       console.log(`🚀 Server running on port ${PORT}`);
+      startScheduler();
     });
   } catch (error) {
     console.error('❌ Unable to connect to database:', error);

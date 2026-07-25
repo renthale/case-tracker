@@ -7,6 +7,9 @@ const Invoice = require('./Invoice');
 const Payment = require('./Payment');
 const LegalDocument = require('./LegalDocument');
 const Transaction = require('./Transaction');
+const AuditLog = require('./AuditLog');
+const TimeEntry = require('./TimeEntry');
+const ClientPortalUser = require('./ClientPortalUser');
 
 // Case belongs to User (assigned lawyer)
 Case.belongsTo(User, { as: 'assignedLawyer', foreignKey: 'assignedLawyerId' });
@@ -75,6 +78,22 @@ Invoice.hasMany(Transaction, { as: 'transactions', foreignKey: 'invoiceId' });
 Transaction.belongsTo(User, { as: 'creator', foreignKey: 'createdBy' });
 User.hasMany(Transaction, { as: 'createdTransactions', foreignKey: 'createdBy' });
 
+// AuditLog belongs to User
+AuditLog.belongsTo(User, { as: 'user', foreignKey: 'userId' });
+User.hasMany(AuditLog, { as: 'auditLogs', foreignKey: 'userId' });
+
+// TimeEntry belongs to Case
+TimeEntry.belongsTo(Case, { as: 'case', foreignKey: 'caseId' });
+Case.hasMany(TimeEntry, { as: 'timeEntries', foreignKey: 'caseId' });
+
+// TimeEntry belongs to User
+TimeEntry.belongsTo(User, { as: 'user', foreignKey: 'userId' });
+User.hasMany(TimeEntry, { as: 'timeEntries', foreignKey: 'userId' });
+
+// ClientPortalUser belongs to Client
+ClientPortalUser.belongsTo(Client, { as: 'client', foreignKey: 'clientId' });
+Client.hasOne(ClientPortalUser, { as: 'portalUser', foreignKey: 'clientId' });
+
 module.exports = {
   User,
   Case,
@@ -84,5 +103,8 @@ module.exports = {
   Invoice,
   Payment,
   LegalDocument,
-  Transaction
+  Transaction,
+  AuditLog,
+  TimeEntry,
+  ClientPortalUser
 };
