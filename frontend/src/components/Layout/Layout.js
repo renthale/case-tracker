@@ -27,7 +27,10 @@ const Layout = () => {
     { path: '/notifications', icon: FiBell, label: t.notifications },
     { path: '/reports', icon: FiBarChart2, label: t.reports },
     { path: '/time-tracking', icon: FiClock, label: t.timeTracking || 'تتبع الوقت' },
-    ...(user?.role === 'admin' ? [{ path: '/users', icon: FiShield, label: t.userManagement || 'إدارة المستخدمين' }] : [])
+    ...(user?.role === 'admin' ? [
+      { path: '/users', icon: FiShield, label: t.userManagement || 'إدارة المستخدمين' },
+      { path: '/portal-users', icon: FiGlobe, label: 'Portal Users' }
+    ] : [])
   ];
 
   const handleLogout = () => {

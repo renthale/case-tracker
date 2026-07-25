@@ -28,6 +28,7 @@ import InvoiceForm from './pages/Invoices/InvoiceForm';
 import InvoiceDetails from './pages/Invoices/InvoiceDetails';
 import UsersList from './pages/Users/UsersList';
 import TimeTracking from './pages/TimeTracking/TimeTracking';
+import PortalUsers from './pages/PortalUsers/PortalUsers';
 import { PortalProvider, ProtectedPortal, PortalLayout } from './pages/Portal/ClientPortal';
 import PortalLogin from './pages/Portal/PortalLogin';
 import PortalDashboard from './pages/Portal/PortalDashboard';
@@ -133,6 +134,7 @@ function App() {
               <Route path="reports" element={<Reports />} />
               <Route path="time-tracking" element={<TimeTracking />} />
               <Route path="users" element={<UsersList />} />
+              <Route path="portal-users" element={<PortalUsers />} />
             </Route>
           </Routes>
         </Router>
