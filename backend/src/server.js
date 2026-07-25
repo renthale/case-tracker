@@ -56,7 +56,7 @@ app.use('/api/audit-logs', auditRoutes);
 app.use('/api/deadlines', deadlineRoutes);
 app.use('/api/conflicts', conflictRoutes);
 app.use('/api/time-entries', timeEntryRoutes);
-app.use('/portal', clientPortalRoutes);
+app.use('/api/portal', clientPortalRoutes);
 app.use('/api/export', exportRoutes);
 app.use('/api/calendar', calendarRoutes);
 
