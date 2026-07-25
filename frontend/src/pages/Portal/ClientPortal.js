@@ -1,7 +1,7 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, Link } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
-import api from '../../services/api';
+import api from '../../services/portalApi';
 import PortalLogin from './PortalLogin';
 import PortalDashboard from './PortalDashboard';
 import PortalCases from './PortalCases';
