@@ -104,6 +104,28 @@ const startServer = async () => {
     await runMigrations();
     console.log('✅ Migrations completed');
 
+    // Auto-seed client portal users if none exist
+    const { ClientPortalUser, Client } = require('./models');
+    const portalCount = await ClientPortalUser.count();
+    if (portalCount === 0) {
+      console.log('🔧 Seeding client portal users...');
+      const clients = await Client.findAll({ limit: 5 });
+      const accounts = [
+        { idx: 0, email: 'ahmed@client.kw', password: 'Client@123' },
+        { idx: 1, email: 'fatima@client.kw', password: 'Client@123' },
+        { idx: 2, email: 'khalid@client.kw', password: 'Client@123' },
+        { idx: 3, email: 'sara@client.kw', password: 'Client@123' },
+        { idx: 4, email: 'mohammed@client.kw', password: 'Client@123' },
+      ];
+      for (const acct of accounts) {
+        const client = clients[acct.idx];
+        if (!client) continue;
+        await ClientPortalUser.create({ clientId: client.id, email: acct.email, password: acct.password, isActive: true });
+        console.log(`  ✅ ${acct.email} → ${client.name}`);
+      }
+      console.log('✅ Client portal users seeded');
+    }
+
     app.listen(PORT, () => {
       console.log(`🚀 Server running on port ${PORT}`);
       startScheduler();
