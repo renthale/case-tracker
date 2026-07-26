@@ -65,17 +65,17 @@ const Layout = () => {
         </nav>
 
         <div className="sidebar-footer">
+          <div className="user-info" onClick={handleLogout} style={{ cursor: 'pointer' }} title={t.logout}>
+            <FiUser />
+            <span>{user?.fullName}</span>
+            <FiLogOut style={{ marginInlineStart: 'auto' }} />
+          </div>
+
           <div className="sidebar-footer-actions">
             <button className="language-btn" onClick={toggleLanguage}>
               <FiGlobe />
               <span>{language === 'ar' ? t.english : t.arabic}</span>
             </button>
-          </div>
-
-          <div className="user-info" onClick={handleLogout} style={{ cursor: 'pointer' }} title={t.logout}>
-            <FiUser />
-            <span>{user?.fullName}</span>
-            <FiLogOut style={{ marginInlineStart: 'auto' }} />
           </div>
         </div>
       </aside>
