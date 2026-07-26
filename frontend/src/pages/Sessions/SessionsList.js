@@ -79,7 +79,7 @@ const SessionsList = () => {
           <button className="btn btn-secondary" onClick={() => window.print()}>
             {isArabic ? 'طباعة' : 'Print'}
           </button>
-          <Link to="/sessions/new" className="btn btn-primary">
+          <Link to="/dashboard/sessions/new" className="btn btn-primary">
             <FiPlus /> {t.addSession}
           </Link>
         </div>
@@ -145,12 +145,12 @@ const SessionsList = () => {
                 <tr key={session.id}>
                   <td>{session.sessionNumber}</td>
                   <td>
-                    <Link to={`/cases/${session.Case?.id}`}>
+                    <Link to={`/dashboard/cases/${session.Case?.id}`}>
                       {session.Case?.caseNumber || '-'}
                     </Link>
                   </td>
                   <td>
-                    <Link to={`/cases/${session.Case?.id}`}>
+                    <Link to={`/dashboard/cases/${session.Case?.id}`}>
                       {session.Case?.title || '-'}
                     </Link>
                   </td>
@@ -161,10 +161,10 @@ const SessionsList = () => {
                   <td>{getStatusBadge(session.status)}</td>
                   <td>
                     <div className="actions no-print">
-                      <Link to={`/cases/${session.Case?.id}`} className="btn btn-secondary" title={t.viewDetails}>
+                      <Link to={`/dashboard/cases/${session.Case?.id}`} className="btn btn-secondary" title={t.viewDetails}>
                         <FiCalendar />
                       </Link>
-                      <Link to={`/sessions/${session.id}/edit`} className="btn btn-secondary" title={t.edit}>
+                      <Link to={`/dashboard/sessions/${session.id}/edit`} className="btn btn-secondary" title={t.edit}>
                         <FiEdit />
                       </Link>
                     </div>

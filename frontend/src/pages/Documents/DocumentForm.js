@@ -184,7 +184,7 @@ const DocumentForm = () => {
       });
     } catch (error) {
       toast.error(isArabic ? 'خطأ في جلب المستند' : 'Error loading document');
-      navigate('/documents');
+      navigate('/dashboard/documents');
     } finally {
       setFetching(false);
     }
@@ -224,7 +224,7 @@ const DocumentForm = () => {
         await api.post('/documents', cleanedData);
         toast.success(isArabic ? 'تم إنشاء المستند بنجاح' : 'Document created');
       }
-      navigate('/documents');
+      navigate('/dashboard/documents');
     } catch (error) {
       toast.error(error.response?.data?.details || error.response?.data?.error || (isArabic ? 'خطأ في حفظ المستند' : 'Error saving'));
     } finally {
@@ -338,7 +338,7 @@ const DocumentForm = () => {
         </div>
 
         <div className="form-actions">
-          <button type="button" className="btn btn-secondary" onClick={() => navigate('/documents')}>
+          <button type="button" className="btn btn-secondary" onClick={() => navigate('/dashboard/documents')}>
             {isArabic ? 'إلغاء' : 'Cancel'}
           </button>
           <button type="submit" className="btn btn-primary" disabled={loading}>

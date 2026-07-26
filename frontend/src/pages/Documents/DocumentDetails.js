@@ -26,7 +26,7 @@ const DocumentDetails = () => {
       setDocument(response.data.document);
     } catch (error) {
       toast.error(isArabic ? 'خطأ في جلب المستند' : 'Error loading document');
-      navigate('/documents');
+      navigate('/dashboard/documents');
     } finally {
       setLoading(false);
     }
@@ -94,13 +94,13 @@ const DocumentDetails = () => {
         <h2 className="card-title">{document.title}</h2>
         <div className="actions">
           {getStatusActions()}
-          <Link to={`/documents/${id}/edit`} className="btn btn-primary">
+          <Link to={`/dashboard/documents/${id}/edit`} className="btn btn-primary">
             <FiEdit /> {t.edit}
           </Link>
           <button className="btn btn-secondary" onClick={handlePrint}>
             <FiPrinter /> {t.print}
           </button>
-          <Link to="/documents" className="btn btn-secondary">
+          <Link to="/dashboard/documents" className="btn btn-secondary">
             <FiArrowRight /> {t.backToDocuments}
           </Link>
         </div>
@@ -153,11 +153,11 @@ const DocumentDetails = () => {
             <div className="details-grid">
               <div className="detail-item">
                 <label>{t.caseNumber}</label>
-                <span><Link to={`/cases/${document.case.id}`}>{document.case.caseNumber}</Link></span>
+                <span><Link to={`/dashboard/cases/${document.case.id}`}>{document.case.caseNumber}</Link></span>
               </div>
               <div className="detail-item">
                 <label>{t.caseTitle}</label>
-                <span><Link to={`/cases/${document.case.id}`}>{document.case.title}</Link></span>
+                <span><Link to={`/dashboard/cases/${document.case.id}`}>{document.case.title}</Link></span>
               </div>
             </div>
           ) : (

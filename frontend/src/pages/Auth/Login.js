@@ -20,7 +20,7 @@ const Login = () => {
     try {
       await login(email, password);
       toast.success(t.loginSuccess);
-      navigate('/');
+      navigate('/dashboard');
     } catch (error) {
       toast.error(error.response?.data?.error || t.invalidCredentials);
     } finally {

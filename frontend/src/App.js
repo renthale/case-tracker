@@ -5,6 +5,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { LanguageProvider } from './context/LanguageContext';
 import Layout from './components/Layout/Layout';
 import Login from './pages/Auth/Login';
+import Landing from './pages/Landing/Landing';
 
 import Dashboard from './pages/Dashboard/Dashboard';
 import CasesList from './pages/Cases/CasesList';
@@ -37,6 +38,7 @@ import PortalCaseDetails from './pages/Portal/PortalCaseDetails';
 import PortalInvoices from './pages/Portal/PortalInvoices';
 import './styles/App.css';
 import './pages/Portal/Portal.css';
+import './pages/Landing/Landing.css';
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -57,9 +59,6 @@ class ErrorBoundary extends React.Component {
           <pre style={{ whiteSpace: 'pre-wrap', background: '#f5f5f5', padding: '1rem', borderRadius: '4px' }}>
             {this.state.error?.message}
           </pre>
-          <pre style={{ whiteSpace: 'pre-wrap', background: '#f5f5f5', padding: '1rem', borderRadius: '4px', fontSize: '0.8rem' }}>
-            {this.state.error?.stack}
-          </pre>
           <button onClick={() => { this.setState({ hasError: false }); window.location.href = '/'; }} style={{ marginTop: '1rem', padding: '0.5rem 1rem' }}>
             Reload App
           </button>
@@ -72,22 +71,14 @@ class ErrorBoundary extends React.Component {
 
 const PrivateRoute = ({ children }) => {
   const { user, loading } = useAuth();
-  
-  if (loading) {
-    return <div className="loading">جاري التحميل...</div>;
-  }
-  
+  if (loading) return <div className="loading">جاري التحميل...</div>;
   return user ? children : <Navigate to="/login" />;
 };
 
 const PublicRoute = ({ children }) => {
   const { user, loading } = useAuth();
-  
-  if (loading) {
-    return <div className="loading">جاري التحميل...</div>;
-  }
-  
-  return user ? <Navigate to="/" /> : children;
+  if (loading) return <div className="loading">جاري التحميل...</div>;
+  return user ? <Navigate to="/dashboard" /> : children;
 };
 
 function App() {
@@ -98,14 +89,17 @@ function App() {
         <Router>
           <Toaster position="top-right" />
           <Routes>
+            <Route path="/" element={<Landing />} />
+
+            <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+
             <Route path="/portal/login" element={<PortalProvider><Toaster position="top-right" /><PortalLogin /></PortalProvider>} />
             <Route path="/portal/cases/:id" element={<PortalProvider><ProtectedPortal><PortalLayout><PortalCaseDetails /></PortalLayout></ProtectedPortal></PortalProvider>} />
             <Route path="/portal/cases" element={<PortalProvider><ProtectedPortal><PortalLayout><PortalCases /></PortalLayout></ProtectedPortal></PortalProvider>} />
             <Route path="/portal/invoices" element={<PortalProvider><ProtectedPortal><PortalLayout><PortalInvoices /></PortalLayout></ProtectedPortal></PortalProvider>} />
             <Route path="/portal" element={<PortalProvider><ProtectedPortal><PortalLayout><PortalDashboard /></PortalLayout></ProtectedPortal></PortalProvider>} />
-            <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
 
-            <Route path="/" element={<PrivateRoute><Layout /></PrivateRoute>}>
+            <Route path="/dashboard" element={<PrivateRoute><Layout /></PrivateRoute>}>
               <Route index element={<Dashboard />} />
               <Route path="cases" element={<CasesList />} />
               <Route path="cases/new" element={<CaseForm />} />

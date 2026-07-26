@@ -61,7 +61,7 @@ const InvoiceForm = () => {
       });
     } catch (error) {
       toast.error('خطأ في جلب بيانات الفاتورة');
-      navigate('/invoices');
+      navigate('/dashboard/invoices');
     } finally {
       setFetching(false);
     }
@@ -88,7 +88,7 @@ const InvoiceForm = () => {
         await api.post('/invoices', cleanedData);
         toast.success('تم إنشاء الفاتورة بنجاح');
       }
-      navigate('/invoices');
+      navigate('/dashboard/invoices');
     } catch (error) {
       toast.error(error.response?.data?.details || error.response?.data?.error || 'خطأ في حفظ الفاتورة');
     } finally {
@@ -227,7 +227,7 @@ const InvoiceForm = () => {
           <button type="submit" className="btn btn-primary" disabled={loading}>
             {loading ? t.loading : t.save}
           </button>
-          <button type="button" className="btn btn-secondary" onClick={() => navigate('/invoices')}>
+          <button type="button" className="btn btn-secondary" onClick={() => navigate('/dashboard/invoices')}>
             {t.cancel}
           </button>
         </div>

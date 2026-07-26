@@ -97,7 +97,7 @@ const DocumentsList = () => {
           <button className="btn btn-secondary" onClick={() => window.print()}>
             {isArabic ? 'طباعة' : 'Print'}
           </button>
-          <Link to="/documents/new" className="btn btn-primary">
+          <Link to="/dashboard/documents/new" className="btn btn-primary">
             <FiPlus /> {t.addDocument}
           </Link>
         </div>
@@ -164,11 +164,11 @@ const DocumentsList = () => {
             {documents.length > 0 ? (
               documents.map((doc) => (
                 <tr key={doc.id}>
-                  <td><Link to={`/documents/${doc.id}`}>{doc.title}</Link></td>
+                  <td><Link to={`/dashboard/documents/${doc.id}`}>{doc.title}</Link></td>
                   <td>{t[doc.type] || doc.type}</td>
                   <td>
                     {doc.case ? (
-                      <Link to={`/cases/${doc.case.id}`}>{doc.case.title}</Link>
+                      <Link to={`/dashboard/cases/${doc.case.id}`}>{doc.case.title}</Link>
                     ) : '-'}
                   </td>
                   <td>{getStatusBadge(doc.status)}</td>
@@ -181,10 +181,10 @@ const DocumentsList = () => {
                   </td>
                   <td>
                     <div className="actions no-print">
-                      <Link to={`/documents/${doc.id}`} className="btn btn-secondary" title={t.viewDetails}>
+                      <Link to={`/dashboard/documents/${doc.id}`} className="btn btn-secondary" title={t.viewDetails}>
                         <FiEye />
                       </Link>
-                      <Link to={`/documents/${doc.id}/edit`} className="btn btn-secondary" title={t.edit}>
+                      <Link to={`/dashboard/documents/${doc.id}/edit`} className="btn btn-secondary" title={t.edit}>
                         <FiEdit />
                       </Link>
                       <button

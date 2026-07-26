@@ -114,7 +114,7 @@ const TransactionsList = () => {
           <button className="btn btn-secondary" onClick={() => window.print()}>
             <FiPrinter /> {isArabic ? 'طباعة' : 'Print'}
           </button>
-          <Link to="/transactions/new" className="btn btn-primary">
+          <Link to="/dashboard/transactions/new" className="btn btn-primary">
             <FiPlus /> {isArabic ? 'إضافة معاملة' : 'Add Transaction'}
           </Link>
         </div>
@@ -212,7 +212,7 @@ const TransactionsList = () => {
                   <td>{getEntityLabel(tx.entityType)}</td>
                   <td>
                     {tx.case ? (
-                      <Link to={`/cases/${tx.case.id}`} style={{ color: '#3182ce', fontWeight: 500 }}>
+                      <Link to={`/dashboard/cases/${tx.case.id}`} style={{ color: '#3182ce', fontWeight: 500 }}>
                         {tx.case.caseNumber}
                       </Link>
                     ) : <span style={{ color: '#999' }}>-</span>}

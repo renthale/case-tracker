@@ -49,7 +49,7 @@ const ClientForm = () => {
       });
     } catch (error) {
       toast.error(t.errorFetchingClient || 'خطأ في جلب بيانات العميل');
-      navigate('/clients');
+      navigate('/dashboard/clients');
     } finally {
       setFetching(false);
     }
@@ -76,7 +76,7 @@ const ClientForm = () => {
         await api.post('/clients', cleanedData);
         toast.success(t.clientCreated || 'تم إنشاء العميل بنجاح');
       }
-      navigate('/clients');
+      navigate('/dashboard/clients');
     } catch (error) {
       toast.error(error.response?.data?.details || error.response?.data?.error || (t.errorSavingClient || 'خطأ في حفظ بيانات العميل'));
     } finally {
@@ -220,7 +220,7 @@ const ClientForm = () => {
           <button type="submit" className="btn btn-primary" disabled={loading}>
             {loading ? t.loading : t.save}
           </button>
-          <button type="button" className="btn btn-secondary" onClick={() => navigate('/clients')}>
+          <button type="button" className="btn btn-secondary" onClick={() => navigate('/dashboard/clients')}>
             {t.cancel}
           </button>
         </div>

@@ -123,7 +123,7 @@ const CasesList = () => {
             {isArabic ? 'طباعة' : 'Print'}
           </button>
           {!isCourtAgent && (
-            <Link to="/cases/new" className="btn btn-primary">
+            <Link to="/dashboard/cases/new" className="btn btn-primary">
               <FiPlus /> {t.addCase}
             </Link>
           )}
@@ -290,8 +290,8 @@ const CasesList = () => {
             {cases.length > 0 ? (
               cases.map((caseItem) => (
                 <tr key={caseItem.id}>
-                  <td><Link to={`/cases/${caseItem.id}`}>{caseItem.caseNumber || '-'}</Link></td>
-                  <td><Link to={`/cases/${caseItem.id}`}>{caseItem.title}</Link></td>
+                  <td><Link to={`/dashboard/cases/${caseItem.id}`}>{caseItem.caseNumber || '-'}</Link></td>
+                  <td><Link to={`/dashboard/cases/${caseItem.id}`}>{caseItem.title}</Link></td>
                   <td>{t[caseItem.type]}</td>
                   <td>{getStatusBadge(caseItem.status)}</td>
                   <td>{t[caseItem.priority]}</td>
@@ -304,10 +304,10 @@ const CasesList = () => {
                   </td>
                   <td>
                     <div className="actions no-print">
-                      <Link to={`/cases/${caseItem.id}`} className="btn btn-secondary" title={t.viewDetails}>
+                      <Link to={`/dashboard/cases/${caseItem.id}`} className="btn btn-secondary" title={t.viewDetails}>
                         <FiEye />
                       </Link>
-                      <Link to={`/cases/${caseItem.id}/edit`} className="btn btn-secondary" title={t.edit}>
+                      <Link to={`/dashboard/cases/${caseItem.id}/edit`} className="btn btn-secondary" title={t.edit}>
                         <FiEdit />
                       </Link>
                       <button 

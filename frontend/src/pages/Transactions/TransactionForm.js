@@ -115,7 +115,7 @@ const TransactionForm = () => {
         await api.post('/transactions', payload);
         toast.success(isArabic ? 'تم إنشاء المعاملة بنجاح' : 'Transaction created');
       }
-      navigate('/transactions');
+      navigate('/dashboard/transactions');
     } catch (error) {
       toast.error(error.response?.data?.error || (isArabic ? 'خطأ في حفظ المعاملة' : 'Error saving transaction'));
     } finally {
@@ -247,7 +247,7 @@ const TransactionForm = () => {
         </div>
 
         <div className="form-actions">
-          <button type="button" className="btn btn-secondary" onClick={() => navigate('/transactions')}>
+          <button type="button" className="btn btn-secondary" onClick={() => navigate('/dashboard/transactions')}>
             {t.cancel}
           </button>
           <button type="submit" className="btn btn-primary" disabled={loading}>

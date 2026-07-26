@@ -337,7 +337,7 @@ const CourtAgent = () => {
               <div key={session.id} className="card" style={{ margin: 0, borderLeft: session.status === 'completed' ? '4px solid #4caf50' : session.status === 'postponed' ? '4px solid #ff9800' : session.status === 'cancelled' ? '4px solid #f44336' : '4px solid #2196f3' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
                   <h4 style={{ margin: 0, fontSize: '0.95rem' }}>
-                    <Link to={'/cases/' + (session.Case?.id || '')}>
+                    <Link to={'/dashboard/cases/' + (session.Case?.id || '')}>
                       {session.Case?.title || (isArabic ? 'قضية غير معروفة' : 'Unknown case')}
                     </Link>
                   </h4>
@@ -454,7 +454,7 @@ const CourtAgent = () => {
 
                   {session.status !== 'scheduled' && (
                     <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                      <Link to={'/sessions/' + session.id + '/edit'} className="btn btn-secondary btn-sm">
+                      <Link to={'/dashboard/sessions/' + session.id + '/edit'} className="btn btn-secondary btn-sm">
                         {isArabic ? 'تعديل' : 'Edit'}
                       </Link>
                       <button className="btn btn-secondary btn-sm" onClick={() => toggleExpand(session.id)}>

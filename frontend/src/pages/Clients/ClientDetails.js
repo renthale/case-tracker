@@ -24,7 +24,7 @@ const ClientDetails = () => {
       setClient(response.data.client);
     } catch (error) {
       toast.error(t.errorFetchingClient || 'خطأ في جلب بيانات العميل');
-      navigate('/clients');
+      navigate('/dashboard/clients');
     } finally {
       setLoading(false);
     }
@@ -69,7 +69,7 @@ const ClientDetails = () => {
           <Link to={`/clients/${id}/edit`} className="btn btn-primary">
             <FiEdit /> {t.editClient || 'تعديل بيانات العميل'}
           </Link>
-          <Link to="/clients" className="btn btn-secondary">
+          <Link to="/dashboard/clients" className="btn btn-secondary">
             <FiArrowRight /> {t.backToClients || 'العودة لقائمة العملاء'}
           </Link>
         </div>
@@ -145,7 +145,7 @@ const ClientDetails = () => {
       <div className="card">
         <div className="card-header">
           <h3 className="card-title">{t.linkedCases || 'القضايا المرتبطة'}</h3>
-          <Link to={`/cases/new?clientId=${id}`} className="btn btn-primary">
+          <Link to={`/dashboard/cases/new?clientId=${id}`} className="btn btn-primary">
             <FiPlus /> {t.addCase || 'إضافة قضية'}
           </Link>
         </div>
@@ -165,12 +165,12 @@ const ClientDetails = () => {
               <tbody>
                 {client.cases.map((caseItem) => (
                   <tr key={caseItem.id}>
-                    <td><Link to={`/cases/${caseItem.id}`}>{caseItem.caseNumber || '-'}</Link></td>
-                    <td><Link to={`/cases/${caseItem.id}`}>{caseItem.title}</Link></td>
+                    <td><Link to={`/dashboard/cases/${caseItem.id}`}>{caseItem.caseNumber || '-'}</Link></td>
+                    <td><Link to={`/dashboard/cases/${caseItem.id}`}>{caseItem.title}</Link></td>
                     <td>{t[caseItem.type]}</td>
                     <td>{getStatusBadge(caseItem.status)}</td>
                     <td>
-                      <Link to={`/cases/${caseItem.id}`} className="btn btn-secondary">
+                      <Link to={`/dashboard/cases/${caseItem.id}`} className="btn btn-secondary">
                         {t.viewDetails}
                       </Link>
                     </td>

@@ -37,42 +37,42 @@ const Dashboard = () => {
       value: stats?.stats?.total || 0,
       label: t.totalCases,
       color: 'blue',
-      onClick: () => navigate('/cases')
+      onClick: () => navigate('/dashboard/cases')
     },
     {
       icon: <FiCheckCircle />,
       value: stats?.stats?.active || 0,
       label: t.activeCasesCount,
       color: 'green',
-      onClick: () => navigate('/cases?status=active')
+      onClick: () => navigate('/dashboard/cases?status=active')
     },
     {
       icon: <FiClock />,
       value: stats?.stats?.pending || 0,
       label: t.pendingCasesCount,
       color: 'yellow',
-      onClick: () => navigate('/cases?status=pending')
+      onClick: () => navigate('/dashboard/cases?status=pending')
     },
     {
       icon: <FiAlertTriangle />,
       value: stats?.stats?.appeal || 0,
       label: t.appealCasesCount,
       color: 'orange',
-      onClick: () => navigate('/cases?status=appeal')
+      onClick: () => navigate('/dashboard/cases?status=appeal')
     },
     {
       icon: <FiCalendar />,
       value: stats?.upcomingSessions?.length || 0,
       label: t.upcomingSessions,
       color: 'purple',
-      onClick: () => navigate('/sessions')
+      onClick: () => navigate('/dashboard/sessions')
     },
     {
       icon: <FiXCircle />,
       value: stats?.stats?.closed || 0,
       label: t.closedCasesCount,
       color: 'red',
-      onClick: () => navigate('/cases?status=closed')
+      onClick: () => navigate('/dashboard/cases?status=closed')
     }
   ];
 
@@ -105,7 +105,7 @@ const Dashboard = () => {
             <h3 className="card-title">{t.upcomingSessions}</h3>
             <button 
               className="btn btn-secondary btn-sm" 
-              onClick={() => navigate('/sessions')}
+              onClick={() => navigate('/dashboard/sessions')}
             >
               {t.viewAll}
             </button>
@@ -142,7 +142,7 @@ const Dashboard = () => {
             <h3 className="card-title">{t.casesByType}</h3>
             <button 
               className="btn btn-secondary btn-sm" 
-              onClick={() => navigate('/reports')}
+              onClick={() => navigate('/dashboard/reports')}
             >
               {t.viewAll}
             </button>

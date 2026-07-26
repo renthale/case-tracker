@@ -25,7 +25,7 @@ const CaseDetails = () => {
       setCaseData(response.data.case);
     } catch (error) {
       toast.error(t.errorFetchingCase);
-      navigate('/cases');
+      navigate('/dashboard/cases');
     } finally {
       setLoading(false);
     }
@@ -55,10 +55,10 @@ const CaseDetails = () => {
       <div className="card-header">
         <h2 className="card-title">{caseData.title}</h2>
         <div className="actions">
-          <Link to={`/cases/${id}/edit`} className="btn btn-primary">
+          <Link to={`/dashboard/cases/${id}/edit`} className="btn btn-primary">
             <FiEdit /> {t.editCase}
           </Link>
-          <Link to="/cases" className="btn btn-secondary">
+          <Link to="/dashboard/cases" className="btn btn-secondary">
             <FiArrowRight /> {t.backToCases}
           </Link>
         </div>
@@ -171,7 +171,7 @@ const CaseDetails = () => {
       <div className="card">
         <div className="card-header">
           <h3 className="card-title">{t.sessions}</h3>
-          <Link to={`/sessions/new?caseId=${id}`} className="btn btn-primary">
+          <Link to={`/dashboard/sessions/new?caseId=${id}`} className="btn btn-primary">
             <FiPlus /> {t.addSession}
           </Link>
         </div>
@@ -198,7 +198,7 @@ const CaseDetails = () => {
                     <td>{session.location || '-'}</td>
                     <td>{t[session.status]}</td>
                     <td>
-                      <Link to={`/sessions/${session.id}/edit`} className="btn btn-secondary">
+                      <Link to={`/dashboard/sessions/${session.id}/edit`} className="btn btn-secondary">
                         <FiEdit />
                       </Link>
                     </td>

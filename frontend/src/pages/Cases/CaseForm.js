@@ -104,7 +104,7 @@ const CaseForm = () => {
       });
     } catch (error) {
       toast.error(t.errorFetchingCase);
-      navigate('/cases');
+      navigate('/dashboard/cases');
     } finally {
       setFetching(false);
     }
@@ -151,7 +151,7 @@ const CaseForm = () => {
         await api.post('/cases', cleanedData);
         toast.success(t.caseCreated);
       }
-      navigate('/cases');
+      navigate('/dashboard/cases');
     } catch (error) {
       toast.error(error.response?.data?.details || error.response?.data?.error || t.errorSavingCase);
     } finally {
@@ -477,7 +477,7 @@ const CaseForm = () => {
           <button type="submit" className="btn btn-primary" disabled={loading}>
             {loading ? t.loading : t.save}
           </button>
-          <button type="button" className="btn btn-secondary" onClick={() => navigate('/cases')}>
+          <button type="button" className="btn btn-secondary" onClick={() => navigate('/dashboard/cases')}>
             {t.cancel}
           </button>
         </div>

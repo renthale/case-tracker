@@ -16,26 +16,26 @@ const Layout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const menuItems = [
-    { path: '/', icon: FiHome, label: t.dashboard },
-    { path: '/cases', icon: FiBriefcase, label: t.cases },
-    { path: '/clients', icon: FiUsers, label: t.clients },
-    { path: '/sessions', icon: FiCalendar, label: t.sessions },
-    { path: '/invoices', icon: FiDollarSign, label: t.invoices },
-    { path: '/documents', icon: FiFileText, label: t.legalDocuments },
-    { path: '/transactions', icon: FiSend, label: t.transactions },
-    { path: '/court-agent', icon: FiMap, label: t.courtAgent },
-    { path: '/notifications', icon: FiBell, label: t.notifications },
-    { path: '/reports', icon: FiBarChart2, label: t.reports },
-    { path: '/time-tracking', icon: FiClock, label: t.timeTracking || 'تتبع الوقت' },
+    { path: '/dashboard', icon: FiHome, label: t.dashboard },
+    { path: '/dashboard/cases', icon: FiBriefcase, label: t.cases },
+    { path: '/dashboard/clients', icon: FiUsers, label: t.clients },
+    { path: '/dashboard/sessions', icon: FiCalendar, label: t.sessions },
+    { path: '/dashboard/invoices', icon: FiDollarSign, label: t.invoices },
+    { path: '/dashboard/documents', icon: FiFileText, label: t.legalDocuments },
+    { path: '/dashboard/transactions', icon: FiSend, label: t.transactions },
+    { path: '/dashboard/court-agent', icon: FiMap, label: t.courtAgent },
+    { path: '/dashboard/notifications', icon: FiBell, label: t.notifications },
+    { path: '/dashboard/reports', icon: FiBarChart2, label: t.reports },
+    { path: '/dashboard/time-tracking', icon: FiClock, label: t.timeTracking || 'تتبع الوقت' },
     ...(user?.role === 'admin' ? [
-      { path: '/users', icon: FiShield, label: t.userManagement || 'إدارة المستخدمين' },
-      { path: '/portal-users', icon: FiGlobe, label: 'Portal Users' }
+      { path: '/dashboard/users', icon: FiShield, label: t.userManagement || 'إدارة المستخدمين' },
+      { path: '/dashboard/portal-users', icon: FiGlobe, label: 'Portal Users' }
     ] : [])
   ];
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate('/');
   };
 
   return (
@@ -56,7 +56,7 @@ const Layout = () => {
             <Link
               key={item.path}
               to={item.path}
-              className={`nav-item ${location.pathname === item.path ? 'active' : ''}`}
+              className={`nav-item ${location.pathname === item.path || (item.path !== '/dashboard' && location.pathname.startsWith(item.path)) ? 'active' : ''}`}
               onClick={() => setSidebarOpen(false)}
             >
               <item.icon />

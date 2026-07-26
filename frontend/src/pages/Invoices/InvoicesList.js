@@ -101,7 +101,7 @@ const InvoicesList = () => {
           <button className="btn btn-secondary" onClick={() => window.print()}>
             {isArabic ? 'طباعة' : 'Print'}
           </button>
-          <Link to="/invoices/new" className="btn btn-primary">
+          <Link to="/dashboard/invoices/new" className="btn btn-primary">
             <FiPlus /> {t.addInvoice}
           </Link>
         </div>
@@ -167,10 +167,10 @@ const InvoicesList = () => {
             {invoices.length > 0 ? (
               invoices.map((invoice) => (
                 <tr key={invoice.id}>
-                  <td><Link to={`/invoices/${invoice.id}`}>{invoice.invoiceNumber || '-'}</Link></td>
+                  <td><Link to={`/dashboard/invoices/${invoice.id}`}>{invoice.invoiceNumber || '-'}</Link></td>
                   <td>
                     {invoice.caseId ? (
-                      <Link to={`/cases/${invoice.caseId}`}>{invoice.caseNumber || invoice.caseTitle || '-'}</Link>
+                      <Link to={`/dashboard/cases/${invoice.caseId}`}>{invoice.caseNumber || invoice.caseTitle || '-'}</Link>
                     ) : '-'}
                   </td>
                   <td>{invoice.clientName || '-'}</td>
@@ -185,10 +185,10 @@ const InvoicesList = () => {
                   </td>
                   <td>
                     <div className="actions no-print">
-                      <Link to={`/invoices/${invoice.id}`} className="btn btn-secondary" title={t.viewDetails}>
+                      <Link to={`/dashboard/invoices/${invoice.id}`} className="btn btn-secondary" title={t.viewDetails}>
                         <FiEye />
                       </Link>
-                      <Link to={`/invoices/${invoice.id}/edit`} className="btn btn-secondary" title={t.edit}>
+                      <Link to={`/dashboard/invoices/${invoice.id}/edit`} className="btn btn-secondary" title={t.edit}>
                         <FiEdit />
                       </Link>
                       <button

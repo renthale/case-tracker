@@ -82,7 +82,7 @@ const ClientsList = () => {
           <button className="btn btn-secondary" onClick={() => window.print()}>
             {isArabic ? 'طباعة' : 'Print'}
           </button>
-          <Link to="/clients/new" className="btn btn-primary">
+          <Link to="/dashboard/clients/new" className="btn btn-primary">
             <FiPlus /> {t.addClient}
           </Link>
         </div>

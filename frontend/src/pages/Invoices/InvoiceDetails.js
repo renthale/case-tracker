@@ -31,7 +31,7 @@ const InvoiceDetails = () => {
       setInvoice(response.data.invoice);
     } catch (error) {
       toast.error('خطأ في جلب بيانات الفاتورة');
-      navigate('/invoices');
+      navigate('/dashboard/invoices');
     } finally {
       setLoading(false);
     }
@@ -115,13 +115,13 @@ const InvoiceDetails = () => {
       <div className="card-header">
         <h2 className="card-title">فاتورة #{invoice.invoiceNumber}</h2>
         <div className="actions">
-          <Link to={`/invoices/${id}/edit`} className="btn btn-primary">
+          <Link to={`/dashboard/invoices/${id}/edit`} className="btn btn-primary">
             <FiEdit /> تعديل
           </Link>
           <button className="btn btn-secondary" onClick={() => window.print()}>
             <FiPrinter /> طباعة
           </button>
-          <Link to="/invoices" className="btn btn-secondary">
+          <Link to="/dashboard/invoices" className="btn btn-secondary">
             <FiArrowRight /> العودة للفواتير
           </Link>
         </div>
@@ -191,7 +191,7 @@ const InvoiceDetails = () => {
               <label>القضية</label>
               <span>
                 {invoice.caseId ? (
-                  <Link to={`/cases/${invoice.caseId}`}>{invoice.caseNumber || invoice.caseTitle || '-'}</Link>
+                  <Link to={`/dashboard/cases/${invoice.caseId}`}>{invoice.caseNumber || invoice.caseTitle || '-'}</Link>
                 ) : '-'}
               </span>
             </div>
