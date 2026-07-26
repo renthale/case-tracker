@@ -24,7 +24,6 @@ const Layout = () => {
     { path: '/dashboard/documents', icon: FiFileText, label: t.legalDocuments },
     { path: '/dashboard/transactions', icon: FiSend, label: t.transactions },
     { path: '/dashboard/court-agent', icon: FiMap, label: t.courtAgent },
-    { path: '/dashboard/notifications', icon: FiBell, label: t.notifications },
     { path: '/dashboard/reports', icon: FiBarChart2, label: t.reports },
     { path: '/dashboard/time-tracking', icon: FiClock, label: t.timeTracking || 'تتبع الوقت' },
     ...(user?.role === 'admin' ? [
@@ -66,21 +65,17 @@ const Layout = () => {
         </nav>
 
         <div className="sidebar-footer">
-          <div className="user-info" onClick={handleLogout} style={{ cursor: 'pointer' }} title={t.logout}>
-            <FiUser />
-            <span>{user?.fullName}</span>
-            <FiLogOut style={{ marginInlineStart: 'auto' }} />
-          </div>
-
           <div className="sidebar-footer-actions">
             <button className="language-btn" onClick={toggleLanguage}>
               <FiGlobe />
               <span>{language === 'ar' ? t.english : t.arabic}</span>
             </button>
-            <button className="logout-btn" onClick={handleLogout}>
-              <FiLogOut />
-              <span>{t.logout}</span>
-            </button>
+          </div>
+
+          <div className="user-info" onClick={handleLogout} style={{ cursor: 'pointer' }} title={t.logout}>
+            <FiUser />
+            <span>{user?.fullName}</span>
+            <FiLogOut style={{ marginInlineStart: 'auto' }} />
           </div>
         </div>
       </aside>
@@ -91,6 +86,9 @@ const Layout = () => {
             <FiMenu />
           </button>
           <h1>{menuItems.find(item => item.path === location.pathname)?.label || t.dashboard}</h1>
+          <Link to="/dashboard/notifications" className="top-bar-notification" title={t.notifications}>
+            <FiBell />
+          </Link>
         </header>
 
         <div className="content">
