@@ -108,31 +108,33 @@ const startServer = async () => {
     try {
       const { ClientPortalUser, Client } = require('./models');
       const portalCount = await ClientPortalUser.count();
-      const accounts = [
-        { clientId: 1,  email: 'abdullah@client.kw', password: 'Client@123' },
-        { clientId: 3,  email: 'mohammed@client.kw', password: 'Client@123' },
-        { clientId: 4,  email: 'samir@client.kw',    password: 'Client@123' },
-        { clientId: 6,  email: 'yousef@client.kw',   password: 'Client@123' },
-        { clientId: 7,  email: 'fatima@client.kw',   password: 'Client@123' },
-        { clientId: 8,  email: 'ahmed@client.kw',    password: 'Client@123' },
-        { clientId: 9,  email: 'noura@client.kw',    password: 'Client@123' },
-        { clientId: 11, email: 'reem@client.kw',     password: 'Client@123' },
-        { clientId: 13, email: 'manal@client.kw',    password: 'Client@123' },
-        { clientId: 15, email: 'hanan@client.kw',    password: 'Client@123' },
-      ];
 
-      // Delete old portal users and recreate with correct mappings
+      // Delete old portal users and recreate
       if (portalCount > 0) {
-        console.log('🔄 Resetting portal users with correct client mappings...');
+        console.log('🔄 Resetting portal users...');
         await ClientPortalUser.destroy({ where: {} });
       }
 
+      // Dynamically find clients by name and map portal accounts
       console.log('🔧 Seeding client portal users...');
-      for (const acct of accounts) {
-        const client = await Client.findByPk(acct.clientId);
-        if (!client) continue;
-        await ClientPortalUser.create({ clientId: client.id, email: acct.email, password: acct.password, isActive: true });
-        console.log(`  ✅ ${acct.email} → ${client.name} (ID: ${client.id})`);
+      const clientMappings = [
+        { search: 'عبدالله يوسف', email: 'abdullah@client.kw' },
+        { search: 'محمد عبدالرحمن', email: 'mohammed@client.kw' },
+        { search: 'سمير جعفر', email: 'samir@client.kw' },
+        { search: 'يوسف فيصل', email: 'yousef@client.kw' },
+        { search: 'فاطمة ناصر', email: 'fatima@client.kw' },
+        { search: 'أحمد خالد الفهد', email: 'ahmed@client.kw' },
+        { search: 'نورة سعيد', email: 'noura@client.kw' },
+        { search: 'ريم فهد', email: 'reem@client.kw' },
+        { search: 'منال حسن', email: 'manal@client.kw' },
+        { search: 'حنان عبدالله', email: 'hanan@client.kw' },
+      ];
+
+      for (const mapping of clientMappings) {
+        const client = await Client.findOne({ where: { name: { [require('sequelize').Op.like]: `%${mapping.search}%` } } });
+        if (!client) { console.log(`  ⚠️ Client not found: ${mapping.search}`); continue; }
+        await ClientPortalUser.create({ clientId: client.id, email: mapping.email, password: 'Client@123', isActive: true });
+        console.log(`  ✅ ${mapping.email} → ${client.name} (ID: ${client.id})`);
       }
       console.log('✅ Client portal users seeded');
     } catch (seedError) {

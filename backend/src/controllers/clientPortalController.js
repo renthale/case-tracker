@@ -99,8 +99,8 @@ exports.getMyCaseDetails = async (req, res) => {
     const caseRecord = await Case.findOne({
       where: { id: req.params.id, clientId: req.client.id },
       include: [
-        { model: Session, attributes: ['id', 'sessionNumber', 'date', 'time', 'location', 'status', 'outcome'], order: [['date', 'DESC']] },
-        { model: Invoice, attributes: ['id', 'invoiceNumber', 'totalAmount', 'paidAmount', 'status', 'dueDate'] }
+        { model: Session, as: 'sessions', attributes: ['id', 'sessionNumber', 'date', 'time', 'location', 'status', 'outcome'] },
+        { model: Invoice, as: 'invoices', attributes: ['id', 'invoiceNumber', 'totalAmount', 'paidAmount', 'status', 'dueDate'] }
       ]
     });
 
