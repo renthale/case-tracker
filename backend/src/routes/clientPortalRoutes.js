@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { body } = require('express-validator');
 const clientPortalController = require('../controllers/clientPortalController');
-const { authenticateToken, authorizeRoles } = require('../middleware/auth');
+const { auth, authorize } = require('../middleware/auth');
 const { ClientPortalUser, Client } = require('../models');
 
 // Public routes
@@ -12,7 +12,7 @@ router.post('/login', [
 ], clientPortalController.portalLogin);
 
 // Admin routes (use main app auth, not portal auth)
-router.get('/admin/list', authenticateToken, authorizeRoles('admin', 'partner'), async (req, res) => {
+router.get('/admin/list', auth, authorize('admin', 'partner'), async (req, res) => {
   try {
     const portalUsers = await ClientPortalUser.findAll({
       include: [{ model: Client, as: 'client', attributes: ['id', 'name', 'email', 'phone'] }],
@@ -25,7 +25,7 @@ router.get('/admin/list', authenticateToken, authorizeRoles('admin', 'partner'),
   }
 });
 
-router.get('/admin/available-clients', authenticateToken, authorizeRoles('admin', 'partner'), async (req, res) => {
+router.get('/admin/available-clients', auth, authorize('admin', 'partner'), async (req, res) => {
   try {
     const allClients = await Client.findAll({
       attributes: ['id', 'name', 'email', 'phone'],
@@ -39,7 +39,7 @@ router.get('/admin/available-clients', authenticateToken, authorizeRoles('admin'
   }
 });
 
-router.post('/admin/create', authenticateToken, authorizeRoles('admin'), [
+router.post('/admin/create', auth, authorize('admin'), [
   body('clientId').isInt(),
   body('email').isEmail().normalizeEmail(),
   body('password').isLength({ min: 6 })
@@ -62,7 +62,7 @@ router.post('/admin/create', authenticateToken, authorizeRoles('admin'), [
   }
 });
 
-router.put('/admin/:id/toggle', authenticateToken, authorizeRoles('admin'), async (req, res) => {
+router.put('/admin/:id/toggle', auth, authorize('admin'), async (req, res) => {
   try {
     const portalUser = await ClientPortalUser.findByPk(req.params.id);
     if (!portalUser) return res.status(404).json({ error: 'المستخدم غير موجود' });
@@ -73,7 +73,7 @@ router.put('/admin/:id/toggle', authenticateToken, authorizeRoles('admin'), asyn
   }
 });
 
-router.delete('/admin/:id', authenticateToken, authorizeRoles('admin'), async (req, res) => {
+router.delete('/admin/:id', auth, authorize('admin'), async (req, res) => {
   try {
     const portalUser = await ClientPortalUser.findByPk(req.params.id);
     if (!portalUser) return res.status(404).json({ error: 'المستخدم غير موجود' });
@@ -84,7 +84,7 @@ router.delete('/admin/:id', authenticateToken, authorizeRoles('admin'), async (r
   }
 });
 
-router.post('/admin/:id/reset-password', authenticateToken, authorizeRoles('admin'), [
+router.post('/admin/:id/reset-password', auth, authorize('admin'), [
   body('password').isLength({ min: 6 })
 ], async (req, res) => {
   try {

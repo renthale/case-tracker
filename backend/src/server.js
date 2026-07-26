@@ -105,35 +105,39 @@ const startServer = async () => {
     console.log('✅ Migrations completed');
 
     // Auto-seed client portal users — reset and recreate with correct client mappings
-    const { ClientPortalUser, Client } = require('./models');
-    const portalCount = await ClientPortalUser.count();
-    const accounts = [
-      { clientId: 1,  email: 'abdullah@client.kw', password: 'Client@123' },
-      { clientId: 3,  email: 'mohammed@client.kw', password: 'Client@123' },
-      { clientId: 4,  email: 'samir@client.kw',    password: 'Client@123' },
-      { clientId: 6,  email: 'yousef@client.kw',   password: 'Client@123' },
-      { clientId: 7,  email: 'fatima@client.kw',   password: 'Client@123' },
-      { clientId: 8,  email: 'ahmed@client.kw',    password: 'Client@123' },
-      { clientId: 9,  email: 'noura@client.kw',    password: 'Client@123' },
-      { clientId: 11, email: 'reem@client.kw',     password: 'Client@123' },
-      { clientId: 13, email: 'manal@client.kw',    password: 'Client@123' },
-      { clientId: 15, email: 'hanan@client.kw',    password: 'Client@123' },
-    ];
+    try {
+      const { ClientPortalUser, Client } = require('./models');
+      const portalCount = await ClientPortalUser.count();
+      const accounts = [
+        { clientId: 1,  email: 'abdullah@client.kw', password: 'Client@123' },
+        { clientId: 3,  email: 'mohammed@client.kw', password: 'Client@123' },
+        { clientId: 4,  email: 'samir@client.kw',    password: 'Client@123' },
+        { clientId: 6,  email: 'yousef@client.kw',   password: 'Client@123' },
+        { clientId: 7,  email: 'fatima@client.kw',   password: 'Client@123' },
+        { clientId: 8,  email: 'ahmed@client.kw',    password: 'Client@123' },
+        { clientId: 9,  email: 'noura@client.kw',    password: 'Client@123' },
+        { clientId: 11, email: 'reem@client.kw',     password: 'Client@123' },
+        { clientId: 13, email: 'manal@client.kw',    password: 'Client@123' },
+        { clientId: 15, email: 'hanan@client.kw',    password: 'Client@123' },
+      ];
 
-    // Delete old portal users and recreate with correct mappings
-    if (portalCount > 0) {
-      console.log('🔄 Resetting portal users with correct client mappings...');
-      await ClientPortalUser.destroy({ where: {} });
-    }
+      // Delete old portal users and recreate with correct mappings
+      if (portalCount > 0) {
+        console.log('🔄 Resetting portal users with correct client mappings...');
+        await ClientPortalUser.destroy({ where: {} });
+      }
 
-    console.log('🔧 Seeding client portal users...');
-    for (const acct of accounts) {
-      const client = await Client.findByPk(acct.clientId);
-      if (!client) continue;
-      await ClientPortalUser.create({ clientId: client.id, email: acct.email, password: acct.password, isActive: true });
-      console.log(`  ✅ ${acct.email} → ${client.name} (ID: ${client.id})`);
+      console.log('🔧 Seeding client portal users...');
+      for (const acct of accounts) {
+        const client = await Client.findByPk(acct.clientId);
+        if (!client) continue;
+        await ClientPortalUser.create({ clientId: client.id, email: acct.email, password: acct.password, isActive: true });
+        console.log(`  ✅ ${acct.email} → ${client.name} (ID: ${client.id})`);
+      }
+      console.log('✅ Client portal users seeded');
+    } catch (seedError) {
+      console.warn('⚠️ Portal seed skipped:', seedError.message);
     }
-    console.log('✅ Client portal users seeded');
 
     app.listen(PORT, () => {
       console.log(`🚀 Server running on port ${PORT}`);
