@@ -109,15 +109,13 @@ body {
   margin-top: auto;
   display: flex;
   flex-direction: column;
-  gap: 0;
 }
 
 .sidebar-footer-actions {
   display: flex;
   gap: 0.5rem;
-  margin-top: 1rem;
+  margin-top: auto;
   padding-top: 0.75rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .language-btn,
