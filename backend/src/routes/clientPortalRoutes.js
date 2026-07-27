@@ -4,6 +4,8 @@ const { body } = require('express-validator');
 const clientPortalController = require('../controllers/clientPortalController');
 const { auth, authorize } = require('../middleware/auth');
 const { ClientPortalUser, Client } = require('../models');
+const crypto = require('crypto');
+const { sendPortalCredentials } = require('../utils/emailService');
 
 // Public routes
 router.post('/login', [
@@ -94,6 +96,30 @@ router.post('/admin/:id/reset-password', auth, authorize('admin'), [
     res.json({ message: 'تم إعادة تعيين كلمة المرور' });
   } catch (error) {
     res.status(500).json({ error: 'خطأ في إعادة التعيين', details: error.message });
+  }
+});
+
+router.post('/admin/resend-credentials/:clientId', auth, authorize('admin', 'partner'), async (req, res) => {
+  try {
+    const client = await Client.findByPk(req.params.clientId);
+    if (!client) return res.status(404).json({ error: 'العميل غير موجود' });
+
+    const portalUser = await ClientPortalUser.findOne({ where: { clientId: client.id } });
+    if (!portalUser) return res.status(404).json({ error: 'هذا العميل ليس لديه حساب بوابة' });
+
+    if (!client.email) return res.status(400).json({ error: 'العميل ليس لديه بريد إلكتروني' });
+
+    const tempPassword = crypto.randomBytes(8).toString('base64').replace(/[^a-zA-Z0-9]/g, '').slice(0, 10) + '@1';
+    await portalUser.update({ password: tempPassword });
+
+    const result = await sendPortalCredentials(client, client.email, tempPassword);
+    if (result.sent) {
+      res.json({ message: 'تم إرسال تفاصيل الحساب للعميل', email: client.email });
+    } else {
+      res.status(500).json({ error: 'فشل إرسال البريد الإلكتروني', details: result.reason });
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'خطأ في الإرسال', details: error.message });
   }
 });
 

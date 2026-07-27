@@ -24,6 +24,8 @@ const ClientForm = () => {
   });
   const [createPortalAccount, setCreatePortalAccount] = useState(false);
   const [sendCredentials, setSendCredentials] = useState(false);
+  const [hasPortalAccount, setHasPortalAccount] = useState(false);
+  const [resending, setResending] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -49,6 +51,9 @@ const ClientForm = () => {
         firstCooperationDate: client.firstCooperationDate?.split('T')[0] || '',
         notes: client.notes || ''
       });
+      if (client.portalUser) {
+        setHasPortalAccount(true);
+      }
     } catch (error) {
       toast.error(t.errorFetchingClient || 'خطأ في جلب بيانات العميل');
       navigate('/dashboard/clients');
@@ -269,6 +274,37 @@ const ClientForm = () => {
                 Please enter the client's email address to create a portal account.
               </p>
             )}
+          </div>
+        )}
+
+        {id && hasPortalAccount && (
+          <div className="card" style={{ marginTop: '1rem' }}>
+            <h3 className="card-title">Portal Account / حساب بوابة العميل</h3>
+            <p style={{ color: '#666', fontSize: '0.85rem', marginBottom: '1rem' }}>
+              This client has a portal account. Resend credentials via email.
+            </p>
+            <button
+              type="button"
+              className="btn btn-primary"
+              disabled={resending}
+              onClick={async () => {
+                if (!formData.email) {
+                  toast.error('Client has no email address');
+                  return;
+                }
+                setResending(true);
+                try {
+                  const res = await api.post(`/portal/admin/resend-credentials/${id}`);
+                  toast.success(res.data.message || 'Credentials sent to ' + formData.email);
+                } catch (error) {
+                  toast.error(error.response?.data?.error || 'Failed to send credentials');
+                } finally {
+                  setResending(false);
+                }
+              }}
+            >
+              {resending ? 'Sending...' : 'Resend Portal Credentials to Client'}
+            </button>
           </div>
         )}
 

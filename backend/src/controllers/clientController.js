@@ -101,7 +101,8 @@ exports.getClientById = async (req, res) => {
           include: [
             { model: Payment, as: 'payments', attributes: ['id', 'amount', 'paymentDate', 'paymentMethod', 'referenceNumber'] }
           ]
-        }
+        },
+        { model: ClientPortalUser, as: 'portalUser', attributes: ['id', 'email', 'isActive', 'lastLogin'] }
       ]
     });
 
