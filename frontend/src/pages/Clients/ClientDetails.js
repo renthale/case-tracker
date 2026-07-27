@@ -66,7 +66,7 @@ const ClientDetails = () => {
       <div className="card-header">
         <h2 className="card-title">{client.name}</h2>
         <div className="actions">
-          <Link to={`/clients/${id}/edit`} className="btn btn-primary">
+          <Link to={`/dashboard/clients/${id}/edit`} className="btn btn-primary">
             <FiEdit /> {t.editClient || 'تعديل بيانات العميل'}
           </Link>
           <Link to="/dashboard/clients" className="btn btn-secondary">
