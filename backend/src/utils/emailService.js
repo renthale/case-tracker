@@ -3,20 +3,12 @@ const nodemailer = require('nodemailer');
 
 let transporter = null;
 
-const initTransporter = () => {
-  if (transporter) return transporter;
-
+const createTransporter = (port) => {
   const host = process.env.SMTP_HOST || 'mail.webtoze.com';
-  const port = parseInt(process.env.SMTP_PORT || '465');
   const user = process.env.SMTP_USER || 'support@webtoze.com';
   const pass = process.env.SMTP_PASS || 'Alaa$$0$...';
 
-  if (!host || !user || !pass) {
-    console.warn('⚠️ SMTP not configured — emails will not be sent');
-    return null;
-  }
-
-  transporter = nodemailer.createTransport({
+  return nodemailer.createTransport({
     host,
     port,
     secure: port === 465,
@@ -26,7 +18,13 @@ const initTransporter = () => {
     greetingTimeout: 5000,
     socketTimeout: 10000
   });
+};
 
+const initTransporter = () => {
+  if (transporter) return transporter;
+
+  const port = parseInt(process.env.SMTP_PORT || '465');
+  transporter = createTransporter(port);
   return transporter;
 };
 
@@ -37,26 +35,41 @@ const sendEmail = async (options) => {
     return { sent: false, reason: 'SMTP not configured' };
   }
 
-  try {
-    const sendPromise = transport.sendMail({
-      from: process.env.SMTP_FROM || `"نظام إدارة القضايا" <${process.env.SMTP_USER || 'support@webtoze.com'}>`,
-      to: options.to,
-      subject: options.subject,
-      html: options.html,
-      text: options.text
-    });
+  const mailOptions = {
+    from: process.env.SMTP_FROM || `"نظام إدارة القضايا" <${process.env.SMTP_USER || 'support@webtoze.com'}>`,
+    to: options.to,
+    subject: options.subject,
+    html: options.html,
+    text: options.text
+  };
 
+  try {
+    const sendPromise = transport.sendMail(mailOptions);
     const timeoutPromise = new Promise((_, reject) =>
       setTimeout(() => reject(new Error('SMTP timeout')), 15000)
     );
-
     const info = await Promise.race([sendPromise, timeoutPromise]);
     console.log('📧 Email sent:', info.messageId);
     return { sent: true, messageId: info.messageId };
   } catch (error) {
-    console.error('📧 Email send error:', error.message);
+    console.error('📧 Email send failed (port ' + (process.env.SMTP_PORT || '465') + '):', error.message);
     transporter = null;
-    return { sent: false, reason: error.message };
+
+    const fallbackPort = parseInt(process.env.SMTP_PORT || '465') === 465 ? 587 : 465;
+    console.log('📧 Retrying on port', fallbackPort);
+    try {
+      const fallbackTransport = createTransporter(fallbackPort);
+      const info = await Promise.race([
+        fallbackTransport.sendMail(mailOptions),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('SMTP fallback timeout')), 15000))
+      ]);
+      console.log('📧 Email sent (fallback port ' + fallbackPort + '):', info.messageId);
+      transporter = fallbackTransport;
+      return { sent: true, messageId: info.messageId };
+    } catch (fallbackError) {
+      console.error('📧 Fallback also failed (port ' + fallbackPort + '):', fallbackError.message);
+      return { sent: false, reason: fallbackError.message };
+    }
   }
 };
 

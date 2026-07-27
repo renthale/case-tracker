@@ -120,7 +120,7 @@ const ClientsList = () => {
             {clients.length > 0 ? (
               clients.map((client) => (
                 <tr key={client.id}>
-                  <td><Link to={`/clients/${client.id}`}>{client.name}</Link></td>
+                  <td><Link to={`/dashboard/clients/${client.id}`}>{client.name}</Link></td>
                   <td>{client.civilId || '-'}</td>
                   <td>{client.phone || '-'}</td>
                   <td>{client.email || '-'}</td>
@@ -133,10 +133,10 @@ const ClientsList = () => {
                   </td>
                   <td>
                     <div className="actions no-print">
-                      <Link to={`/clients/${client.id}`} className="btn btn-secondary" title={t.viewDetails}>
+                      <Link to={`/dashboard/clients/${client.id}`} className="btn btn-secondary" title={t.viewDetails}>
                         <FiEye />
                       </Link>
-                      <Link to={`/clients/${client.id}/edit`} className="btn btn-secondary" title={t.edit}>
+                      <Link to={`/dashboard/clients/${client.id}/edit`} className="btn btn-secondary" title={t.edit}>
                         <FiEdit />
                       </Link>
                       <button
