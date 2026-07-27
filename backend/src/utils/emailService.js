@@ -21,7 +21,10 @@ const initTransporter = () => {
     port,
     secure: port === 465,
     auth: { user, pass },
-    tls: { rejectUnauthorized: false }
+    tls: { rejectUnauthorized: false },
+    connectionTimeout: 10000,
+    greetingTimeout: 5000,
+    socketTimeout: 10000
   });
 
   return transporter;
@@ -35,7 +38,7 @@ const sendEmail = async (options) => {
   }
 
   try {
-    const info = await transport.sendMail({
+    const sendPromise = transport.sendMail({
       from: process.env.SMTP_FROM || `"نظام إدارة القضايا" <${process.env.SMTP_USER || 'support@webtoze.com'}>`,
       to: options.to,
       subject: options.subject,
@@ -43,10 +46,16 @@ const sendEmail = async (options) => {
       text: options.text
     });
 
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('SMTP timeout')), 15000)
+    );
+
+    const info = await Promise.race([sendPromise, timeoutPromise]);
     console.log('📧 Email sent:', info.messageId);
     return { sent: true, messageId: info.messageId };
   } catch (error) {
     console.error('📧 Email send error:', error.message);
+    transporter = null;
     return { sent: false, reason: error.message };
   }
 };

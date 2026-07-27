@@ -21,11 +21,9 @@ exports.createClient = async (req, res) => {
       });
 
       if (sendCredentials) {
-        try {
-          await sendPortalCredentials(client, client.email, tempPassword);
-        } catch (emailErr) {
+        sendPortalCredentials(client, client.email, tempPassword).catch(emailErr => {
           console.error('Failed to send portal credentials email:', emailErr.message);
-        }
+        });
       }
     }
 
