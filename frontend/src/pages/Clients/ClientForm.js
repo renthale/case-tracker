@@ -22,6 +22,8 @@ const ClientForm = () => {
     firstCooperationDate: '',
     notes: ''
   });
+  const [createPortalAccount, setCreatePortalAccount] = useState(false);
+  const [sendCredentials, setSendCredentials] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -73,8 +75,21 @@ const ClientForm = () => {
         await api.put(`/clients/${id}`, cleanedData);
         toast.success(t.clientUpdated || 'تم تحديث بيانات العميل بنجاح');
       } else {
-        await api.post('/clients', cleanedData);
-        toast.success(t.clientCreated || 'تم إنشاء العميل بنجاح');
+        const payload = { ...cleanedData };
+        if (createPortalAccount && cleanedData.email) {
+          payload.createPortalAccount = true;
+          payload.sendCredentials = sendCredentials;
+        }
+        const response = await api.post('/clients', payload);
+        const portalInfo = response.data.portalAccount;
+        if (portalInfo && !sendCredentials) {
+          toast.success(
+            `تم إنشاء العميل وحساب البوابة\nالبريد: ${portalInfo.email}\nكلمة المرور: ${portalInfo.tempPassword}`,
+            { duration: 10000 }
+          );
+        } else {
+          toast.success(t.clientCreated || 'تم إنشاء العميل بنجاح');
+        }
       }
       navigate('/dashboard/clients');
     } catch (error) {
@@ -215,6 +230,47 @@ const ClientForm = () => {
             </div>
           </div>
         </div>
+
+        {!id && (
+          <div className="card" style={{ marginTop: '1rem' }}>
+            <h3 className="card-title">Portal Account / حساب بوابة العميل</h3>
+            <p style={{ color: '#666', fontSize: '0.85rem', marginBottom: '1rem' }}>
+              Create a client portal account so the client can track their cases and invoices online.
+            </p>
+            <div className="form-group">
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={createPortalAccount}
+                  onChange={(e) => {
+                    setCreatePortalAccount(e.target.checked);
+                    if (!e.target.checked) setSendCredentials(false);
+                  }}
+                  style={{ width: '18px', height: '18px' }}
+                />
+                <span>Create portal account for this client</span>
+              </label>
+            </div>
+            {createPortalAccount && formData.email && (
+              <div className="form-group">
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                  <input
+                    type="checkbox"
+                    checked={sendCredentials}
+                    onChange={(e) => setSendCredentials(e.target.checked)}
+                    style={{ width: '18px', height: '18px' }}
+                  />
+                  <span>Send login credentials to client via email</span>
+                </label>
+              </div>
+            )}
+            {createPortalAccount && !formData.email && (
+              <p style={{ color: '#e53e3e', fontSize: '0.85rem' }}>
+                Please enter the client's email address to create a portal account.
+              </p>
+            )}
+          </div>
+        )}
 
         <div className="form-actions">
           <button type="submit" className="btn btn-primary" disabled={loading}>

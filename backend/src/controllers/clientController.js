@@ -1,10 +1,39 @@
-const { Client, Case, Invoice, Payment } = require('../models');
+const { Client, Case, Invoice, Payment, ClientPortalUser } = require('../models');
 const { Op } = require('sequelize');
+const crypto = require('crypto');
+const { sendPortalCredentials } = require('../utils/emailService');
 
 exports.createClient = async (req, res) => {
   try {
-    const client = await Client.create(req.body);
-    res.status(201).json({ message: 'تم إنشاء العميل بنجاح', client });
+    const { createPortalAccount, sendCredentials, ...clientData } = req.body;
+    const client = await Client.create(clientData);
+
+    let portalAccount = null;
+    let tempPassword = null;
+
+    if (createPortalAccount && client.email) {
+      tempPassword = crypto.randomBytes(8).toString('base64').replace(/[^a-zA-Z0-9]/g, '').slice(0, 10) + '@1';
+      portalAccount = await ClientPortalUser.create({
+        clientId: client.id,
+        email: client.email,
+        password: tempPassword,
+        isActive: true
+      });
+
+      if (sendCredentials) {
+        try {
+          await sendPortalCredentials(client, client.email, tempPassword);
+        } catch (emailErr) {
+          console.error('Failed to send portal credentials email:', emailErr.message);
+        }
+      }
+    }
+
+    res.status(201).json({
+      message: 'تم إنشاء العميل بنجاح',
+      client,
+      portalAccount: portalAccount ? { email: portalAccount.email, tempPassword: sendCredentials ? undefined : tempPassword } : null
+    });
   } catch (error) {
     console.error('Create client error:', error);
     if (error.name === 'SequelizeValidationError') {

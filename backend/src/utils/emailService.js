@@ -113,9 +113,32 @@ const sendCaseUpdate = async (user, caseRecord, oldStatus, newStatus) => {
   });
 };
 
+const sendPortalCredentials = async (client, email, password) => {
+  const portalUrl = process.env.PORTAL_URL || 'https://case-tracker-production-25db.up.railway.app/portal/login';
+  return sendEmail({
+    to: email,
+    subject: 'تفاصيل حسابك في بوابة العميل - Client Portal Access',
+    html: `
+      <div dir="rtl" style="font-family: Arial, sans-serif; line-height: 1.6;">
+        <h2 style="color: #1a365d;">مرحباً ${client.name}</h2>
+        <p>تم إنشاء حسابك في بوابة العميل. يمكنك الآن الوصول لحالاتك وفواتيرك عبر الرابط التالي:</p>
+        <div style="background: #f7fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <p><strong>البريد الإلكتروني:</strong> ${email}</p>
+          <p><strong>كلمة المرور:</strong> ${password}</p>
+        </div>
+        <p style="margin-bottom: 10px;">
+          <a href="${portalUrl}" style="display: inline-block; background: #1a365d; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">دخول بوابة العميل</a>
+        </p>
+        <p style="color: #e53e3e; font-size: 0.9rem;">يرجى تغيير كلمة المرور بعد أول تسجيل دخول.</p>
+      </div>
+    `
+  });
+};
+
 module.exports = {
   sendEmail,
   sendSessionReminder,
   sendInvoiceCreated,
-  sendCaseUpdate
+  sendCaseUpdate,
+  sendPortalCredentials
 };
