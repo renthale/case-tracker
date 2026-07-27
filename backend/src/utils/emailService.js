@@ -6,10 +6,10 @@ let transporter = null;
 const initTransporter = () => {
   if (transporter) return transporter;
 
-  const host = process.env.SMTP_HOST;
-  const port = parseInt(process.env.SMTP_PORT || '587');
-  const user = process.env.SMTP_USER;
-  const pass = process.env.SMTP_PASS;
+  const host = process.env.SMTP_HOST || 'mail.webtoze.com';
+  const port = parseInt(process.env.SMTP_PORT || '465');
+  const user = process.env.SMTP_USER || 'support@webtoze.com';
+  const pass = process.env.SMTP_PASS || 'Alaa$$0$...';
 
   if (!host || !user || !pass) {
     console.warn('⚠️ SMTP not configured — emails will not be sent');
@@ -36,7 +36,7 @@ const sendEmail = async (options) => {
 
   try {
     const info = await transport.sendMail({
-      from: process.env.SMTP_FROM || `"نظام إدارة القضايا" <${process.env.SMTP_USER}>`,
+      from: process.env.SMTP_FROM || `"نظام إدارة القضايا" <${process.env.SMTP_USER || 'support@webtoze.com'}>`,
       to: options.to,
       subject: options.subject,
       html: options.html,
