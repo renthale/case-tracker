@@ -10,6 +10,7 @@ const ClientForm = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     civilId: '',
@@ -26,6 +27,14 @@ const ClientForm = () => {
   const [sendCredentials, setSendCredentials] = useState(false);
   const [hasPortalAccount, setHasPortalAccount] = useState(false);
   const [resending, setResending] = useState(false);
+
+  useEffect(() => {
+    const mql = window.matchMedia('(max-width: 768px)');
+    setIsMobile(mql.matches);
+    const handler = (e) => setIsMobile(e.matches);
+    mql.addEventListener('change', handler);
+    return () => mql.removeEventListener('change', handler);
+  }, []);
 
   useEffect(() => {
     if (id) {
@@ -109,13 +118,13 @@ const ClientForm = () => {
   }
 
   return (
-    <div className="client-form">
+    <div className={`client-form ${isMobile ? 'client-form-mobile' : ''}`}>
       <div className="card-header">
         <h2 className="card-title">{id ? (t.editClient || 'تعديل بيانات العميل') : (t.addClient || 'إضافة عميل')}</h2>
       </div>
 
       <form onSubmit={handleSubmit}>
-        <div className="grid grid-2">
+        <div className={`grid grid-2 ${isMobile ? 'grid-mobile-stack' : ''}`}>
           <div className="card">
             <h3 className="card-title">{t.personalInformation || 'المعلومات الشخصية'}</h3>
 
@@ -217,7 +226,7 @@ const ClientForm = () => {
               <textarea
                 name="address"
                 className="form-control"
-                rows="3"
+                rows={isMobile ? 2 : 3}
                 value={formData.address}
                 onChange={handleChange}
               />
@@ -228,7 +237,7 @@ const ClientForm = () => {
               <textarea
                 name="notes"
                 className="form-control"
-                rows="3"
+                rows={isMobile ? 2 : 3}
                 value={formData.notes}
                 onChange={handleChange}
               />
@@ -237,7 +246,7 @@ const ClientForm = () => {
         </div>
 
         {!id && (
-          <div className="card" style={{ marginTop: '1rem' }}>
+          <div className="card" style={{ marginTop: isMobile ? '0.75rem' : '1rem' }}>
             <h3 className="card-title">Portal Account / حساب بوابة العميل</h3>
             <p style={{ color: '#666', fontSize: '0.85rem', marginBottom: '1rem' }}>
               Create a client portal account so the client can track their cases and invoices online.
@@ -278,7 +287,7 @@ const ClientForm = () => {
         )}
 
         {id && hasPortalAccount && (
-          <div className="card" style={{ marginTop: '1rem' }}>
+          <div className="card" style={{ marginTop: isMobile ? '0.75rem' : '1rem' }}>
             <h3 className="card-title">Portal Account / حساب بوابة العميل</h3>
             <p style={{ color: '#666', fontSize: '0.85rem', marginBottom: '1rem' }}>
               This client has a portal account. Resend credentials via email.
