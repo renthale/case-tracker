@@ -36,6 +36,15 @@ const Reports = () => {
   const [data, setData] = useState({
     cases: [], sessions: [], invoices: [], clients: []
   });
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const mql = window.matchMedia('(max-width: 768px)');
+    setIsMobile(mql.matches);
+    const handler = (e) => setIsMobile(e.matches);
+    mql.addEventListener('change', handler);
+    return () => mql.removeEventListener('change', handler);
+  }, []);
 
   useEffect(() => { fetchAllData(); }, []);
 
@@ -960,21 +969,23 @@ const Reports = () => {
       <div className="no-print">
         <div className="filters-bar" style={{ marginBottom: '1rem', display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
           <FiFilter style={{ color: '#666' }} />
-          <input type="date" value={dateRange.from} onChange={e => setDateRange({ ...dateRange, from: e.target.value })} className="form-control" style={{ maxWidth: 180 }} />
-          <span style={{ color: '#666' }}>{isArabic ? 'إلى' : 'to'}</span>
-          <input type="date" value={dateRange.to} onChange={e => setDateRange({ ...dateRange, to: e.target.value })} className="form-control" style={{ maxWidth: 180 }} />
-          {(dateRange.from || dateRange.to) && (
-            <button className="btn btn-secondary btn-sm" onClick={() => setDateRange({ from: '', to: '' })}>
-              {isArabic ? 'مسح الفلتر' : 'Clear Filter'}
-            </button>
-          )}
+          <div className="filter-inputs" style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap', flex: 1, minWidth: 0 }}>
+            <input type="date" value={dateRange.from} onChange={e => setDateRange({ ...dateRange, from: e.target.value })} className="form-control" style={{ minWidth: 0 }} />
+            <span style={{ color: '#666', whiteSpace: 'nowrap' }}>{isArabic ? 'إلى' : 'to'}</span>
+            <input type="date" value={dateRange.to} onChange={e => setDateRange({ ...dateRange, to: e.target.value })} className="form-control" style={{ minWidth: 0 }} />
+            {(dateRange.from || dateRange.to) && (
+              <button className="btn btn-secondary btn-sm" onClick={() => setDateRange({ from: '', to: '' })}>
+                {isArabic ? 'مسح الفلتر' : 'Clear Filter'}
+              </button>
+            )}
+          </div>
         </div>
 
-        <div className="report-tabs" style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
+        <div className="report-tabs" style={{ display: 'flex', gap: '0.5rem', flexWrap: 'nowrap', overflowX: 'auto', paddingBottom: '0.5rem', marginBottom: '1.5rem', WebkitOverflowScrolling: 'touch' }}>
           {reportTabs.map(tab => (
             <button key={tab.key}
               className={'btn ' + (activeTab === tab.key ? 'btn-primary' : 'btn-secondary')}
-              onClick={() => setActiveTab(tab.key)} style={{ fontSize: '0.9rem' }}>
+              onClick={() => setActiveTab(tab.key)} style={{ fontSize: '0.9rem', whiteSpace: 'nowrap', flexShrink: 0 }}>
               <tab.icon /> {isArabic ? tab.labelAr : tab.labelEn}
             </button>
           ))}
