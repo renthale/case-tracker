@@ -11,6 +11,7 @@ const CaseForm = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
   const [clients, setClients] = useState([]);
   const [users, setUsers] = useState([]);
   const [formData, setFormData] = useState({
@@ -23,6 +24,14 @@ const CaseForm = () => {
     appealDate: '', consultationFees: '', litigationFees: '', sessionFees: '',
     otherFees: '', paymentStatus: 'unpaid', notes: ''
   });
+
+  useEffect(() => {
+    const mql = window.matchMedia('(max-width: 768px)');
+    setIsMobile(mql.matches);
+    const handler = (e) => setIsMobile(e.matches);
+    mql.addEventListener('change', handler);
+    return () => mql.removeEventListener('change', handler);
+  }, []);
 
   const totalFees = useMemo(() => {
     const c = parseFloat(formData.consultationFees) || 0;
@@ -164,17 +173,17 @@ const CaseForm = () => {
   }
 
   return (
-    <div className="case-form">
+    <div className={`case-form ${isMobile ? 'case-form-mobile' : ''}`}>
       <div className="card-header">
         <h2 className="card-title">{id ? t.editCase : t.addCase}</h2>
       </div>
 
       <form onSubmit={handleSubmit}>
         {/* Section 1: Case Info */}
-        <div className="card" style={{ marginBottom: '1.5rem' }}>
+        <div className="card" style={{ marginBottom: isMobile ? '1rem' : '1.5rem' }}>
           <h3 className="card-title">{t.caseInformation}</h3>
 
-          <div className="grid grid-2">
+          <div className={`grid grid-2 ${isMobile ? 'grid-mobile-stack' : ''}`}>
             <div className="form-group">
               <label>{t.caseNumber}</label>
               <input type="text" name="caseNumber" className="form-control" value={formData.caseNumber} onChange={handleChange}
@@ -198,10 +207,10 @@ const CaseForm = () => {
 
           <div className="form-group">
             <label>{t.description}</label>
-            <textarea name="description" className="form-control" rows="3" value={formData.description} onChange={handleChange} />
+            <textarea name="description" className="form-control" rows={isMobile ? 2 : 3} value={formData.description} onChange={handleChange} />
           </div>
 
-          <div className="grid grid-3">
+          <div className={`grid grid-3 ${isMobile ? 'grid-mobile-stack' : ''}`}>
             <div className="form-group">
               <label>{t.caseType} *</label>
               <select name="type" className="form-control" value={formData.type} onChange={handleChange} required>
@@ -245,10 +254,10 @@ const CaseForm = () => {
         </div>
 
         {/* Section 2: Court Info */}
-        <div className="card" style={{ marginBottom: '1.5rem' }}>
+        <div className="card" style={{ marginBottom: isMobile ? '1rem' : '1.5rem' }}>
           <h3 className="card-title">{t.courtInformation}</h3>
 
-          <div className="grid grid-3">
+          <div className={`grid grid-3 ${isMobile ? 'grid-mobile-stack' : ''}`}>
             <div className="form-group">
               <label>{t.courtType}</label>
               <select name="courtType" className="form-control" value={formData.courtType} onChange={handleChange}>
@@ -276,7 +285,7 @@ const CaseForm = () => {
             </div>
           </div>
 
-          <div className="grid grid-2">
+          <div className={`grid grid-2 ${isMobile ? 'grid-mobile-stack' : ''}`}>
             <div className="form-group">
               <label>{t.registrationNumber}</label>
               <input type="text" name="registrationNumber" className="form-control" value={formData.registrationNumber} onChange={handleChange} />
@@ -290,7 +299,7 @@ const CaseForm = () => {
         </div>
 
         {/* Section 3: Client */}
-        <div className="card" style={{ marginBottom: '1.5rem' }}>
+        <div className="card" style={{ marginBottom: isMobile ? '1rem' : '1.5rem' }}>
           <h3 className="card-title">{t.clientSection}</h3>
 
           <div className="form-group">
@@ -303,7 +312,7 @@ const CaseForm = () => {
             </select>
           </div>
 
-          <div className="grid grid-2">
+          <div className={`grid grid-2 ${isMobile ? 'grid-mobile-stack' : ''}`}>
             <div className="form-group">
               <label>{t.clientName} *</label>
               <input type="text" name="clientName" className="form-control" value={formData.clientName} onChange={handleChange} required />
@@ -315,7 +324,7 @@ const CaseForm = () => {
             </div>
           </div>
 
-          <div className="grid grid-2">
+          <div className={`grid grid-2 ${isMobile ? 'grid-mobile-stack' : ''}`}>
             <div className="form-group">
               <label>{t.clientPhone}</label>
               <input type="tel" name="clientPhone" className="form-control" value={formData.clientPhone} onChange={handleChange} />
@@ -329,10 +338,10 @@ const CaseForm = () => {
         </div>
 
         {/* Section 4: Team Assignment */}
-        <div className="card" style={{ marginBottom: '1.5rem' }}>
+        <div className="card" style={{ marginBottom: isMobile ? '1rem' : '1.5rem' }}>
           <h3 className="card-title">{isArabic ? 'الفريق' : 'Team Assignment'}</h3>
 
-          <div className="grid grid-2">
+          <div className={`grid grid-2 ${isMobile ? 'grid-mobile-stack' : ''}`}>
             <div className="form-group">
               <label>{isArabic ? 'مندوب المحاكم' : 'Court Agent'}</label>
               <select name="courtAgentId" className="form-control" value={formData.courtAgentId} onChange={handleChange}>
@@ -346,10 +355,10 @@ const CaseForm = () => {
         </div>
 
         {/* Section 5: Opposing Party */}
-        <div className="card" style={{ marginBottom: '1.5rem' }}>
+        <div className="card" style={{ marginBottom: isMobile ? '1rem' : '1.5rem' }}>
           <h3 className="card-title">{t.opposingPartySection}</h3>
 
-          <div className="grid grid-3">
+          <div className={`grid grid-3 ${isMobile ? 'grid-mobile-stack' : ''}`}>
             <div className="form-group">
               <label>{t.opposingParty}</label>
               <input type="text" name="opposingParty" className="form-control" value={formData.opposingParty} onChange={handleChange} />
@@ -368,10 +377,10 @@ const CaseForm = () => {
         </div>
 
         {/* Section 5: Dates */}
-        <div className="card" style={{ marginBottom: '1.5rem' }}>
+        <div className="card" style={{ marginBottom: isMobile ? '1rem' : '1.5rem' }}>
           <h3 className="card-title">{t.datesSection}</h3>
 
-          <div className="grid grid-3">
+          <div className={`grid grid-3 ${isMobile ? 'grid-mobile-stack' : ''}`}>
             <div className="form-group">
               <label>{t.filingDate}</label>
               <input type="date" name="filingDate" className="form-control" value={formData.filingDate} onChange={handleChange} />
@@ -389,7 +398,7 @@ const CaseForm = () => {
             </div>
           </div>
 
-          <div className="grid grid-3">
+          <div className={`grid grid-3 ${isMobile ? 'grid-mobile-stack' : ''}`}>
             <div className="form-group">
               <label>{t.assignmentDate}</label>
               <input type="date" name="assignmentDate" className="form-control" value={formData.assignmentDate} onChange={handleChange} />
@@ -408,10 +417,10 @@ const CaseForm = () => {
         </div>
 
         {/* Section 6: Fees */}
-        <div className="card" style={{ marginBottom: '1.5rem' }}>
+        <div className="card" style={{ marginBottom: isMobile ? '1rem' : '1.5rem' }}>
           <h3 className="card-title">{t.feesSection}</h3>
 
-          <div className="grid grid-2">
+          <div className={`grid grid-2 ${isMobile ? 'grid-mobile-stack' : ''}`}>
             <div className="form-group">
               <label>{t.consultationFeesLabel}</label>
               <input type="number" name="consultationFees" className="form-control" step="0.001" min="0"
@@ -425,7 +434,7 @@ const CaseForm = () => {
             </div>
           </div>
 
-          <div className="grid grid-2">
+          <div className={`grid grid-2 ${isMobile ? 'grid-mobile-stack' : ''}`}>
             <div className="form-group">
               <label>{t.sessionFeesLabel}</label>
               <input type="number" name="sessionFees" className="form-control" step="0.001" min="0"
@@ -439,7 +448,7 @@ const CaseForm = () => {
             </div>
           </div>
 
-          <div className="grid grid-2">
+          <div className={`grid grid-2 ${isMobile ? 'grid-mobile-stack' : ''}`}>
             <div className="form-group">
               <label style={{ fontWeight: 'bold' }}>{t.totalFeesLabel}</label>
               <input type="text" className="form-control" value={totalFees} readOnly
@@ -459,17 +468,17 @@ const CaseForm = () => {
         </div>
 
         {/* Section 7: Verdict & Notes */}
-        <div className="card" style={{ marginBottom: '1.5rem' }}>
+        <div className="card" style={{ marginBottom: isMobile ? '1rem' : '1.5rem' }}>
           <h3 className="card-title">{t.verdictAndNotes}</h3>
 
           <div className="form-group">
             <label>{t.verdict}</label>
-            <textarea name="verdict" className="form-control" rows="3" value={formData.verdict} onChange={handleChange} />
+            <textarea name="verdict" className="form-control" rows={isMobile ? 2 : 3} value={formData.verdict} onChange={handleChange} />
           </div>
 
           <div className="form-group">
             <label>{t.notes}</label>
-            <textarea name="notes" className="form-control" rows="3" value={formData.notes} onChange={handleChange} />
+            <textarea name="notes" className="form-control" rows={isMobile ? 2 : 3} value={formData.notes} onChange={handleChange} />
           </div>
         </div>
 
