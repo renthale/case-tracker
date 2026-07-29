@@ -12,6 +12,7 @@ const SessionForm = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
   const [cases, setCases] = useState([]);
   const [formData, setFormData] = useState({
     caseId: searchParams.get('caseId') || '',
@@ -23,6 +24,14 @@ const SessionForm = () => {
     outcome: '',
     notes: ''
   });
+
+  useEffect(() => {
+    const mql = window.matchMedia('(max-width: 768px)');
+    setIsMobile(mql.matches);
+    const handler = (e) => setIsMobile(e.matches);
+    mql.addEventListener('change', handler);
+    return () => mql.removeEventListener('change', handler);
+  }, []);
 
   useEffect(() => {
     fetchCases();
@@ -98,14 +107,14 @@ const SessionForm = () => {
   }
 
   return (
-    <div className="session-form">
+    <div className={`session-form ${isMobile ? 'session-form-mobile' : ''}`}>
       <div className="card-header">
         <h2 className="card-title">{id ? t.editSession : t.addSession}</h2>
       </div>
 
       <form onSubmit={handleSubmit}>
         <div className="card">
-          <div className="grid grid-2">
+          <div className={`grid grid-2 ${isMobile ? 'grid-mobile-stack' : ''}`}>
             <div className="form-group">
               <label>{t.cases} *</label>
               <select
@@ -196,7 +205,7 @@ const SessionForm = () => {
               <textarea
                 name="outcome"
                 className="form-control"
-                rows="3"
+                rows={isMobile ? 2 : 3}
                 value={formData.outcome}
                 onChange={handleChange}
               />
@@ -208,7 +217,7 @@ const SessionForm = () => {
             <textarea
               name="notes"
               className="form-control"
-              rows="3"
+              rows={isMobile ? 2 : 3}
               value={formData.notes}
               onChange={handleChange}
             />
