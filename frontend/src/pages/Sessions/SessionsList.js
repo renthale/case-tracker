@@ -12,6 +12,7 @@ const SessionsList = () => {
   const isArabic = language === 'ar';
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
@@ -20,6 +21,14 @@ const SessionsList = () => {
     pages: 1,
     total: 0
   });
+
+  useEffect(() => {
+    const mql = window.matchMedia('(max-width: 768px)');
+    setIsMobile(mql.matches);
+    const handler = (e) => setIsMobile(e.matches);
+    mql.addEventListener('change', handler);
+    return () => mql.removeEventListener('change', handler);
+  }, []);
 
   useEffect(() => {
     fetchSessions();
@@ -124,8 +133,49 @@ const SessionsList = () => {
         </select>
       </div>
 
+      {isMobile ? (
+        <div className="cases-mobile-cards">
+          {filteredSessions.length > 0 ? filteredSessions.map((session) => (
+            <div key={session.id} className="case-mobile-card" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+              <div className="case-card-header">
+                <Link to={`/dashboard/sessions/${session.id}/edit`} className="case-card-number">#{session.sessionNumber}</Link>
+                {getStatusBadge(session.status)}
+              </div>
+              <Link to={`/dashboard/cases/${session.Case?.id}`} className="case-card-title">{session.Case?.title || '-'}</Link>
+              <div className="case-card-body">
+                <div className="case-card-row">
+                  <span className="case-card-label">{t.caseNumber}</span>
+                  <span className="case-card-value">{session.Case?.caseNumber || '-'}</span>
+                </div>
+                <div className="case-card-row">
+                  <span className="case-card-label">{t.sessionType}</span>
+                  <span className="case-card-value">{t[session.sessionType] || session.sessionType}</span>
+                </div>
+                <div className="case-card-row">
+                  <span className="case-card-label">{t.sessionDate}</span>
+                  <span className="case-card-value">{format(new Date(session.date), 'dd/MM/yyyy', { locale: ar })}</span>
+                </div>
+                <div className="case-card-row">
+                  <span className="case-card-label">{t.sessionTime}</span>
+                  <span className="case-card-value">{session.time || '-'}</span>
+                </div>
+                <div className="case-card-row">
+                  <span className="case-card-label">{t.sessionLocation}</span>
+                  <span className="case-card-value">{session.location || '-'}</span>
+                </div>
+              </div>
+              <div className="case-card-actions-row">
+                <Link to={`/dashboard/cases/${session.Case?.id}`} className="btn btn-secondary btn-sm"><FiCalendar /> {t.viewDetails}</Link>
+                <Link to={`/dashboard/sessions/${session.id}/edit`} className="btn btn-secondary btn-sm"><FiEdit /> {t.edit}</Link>
+              </div>
+            </div>
+          )) : (
+            <div className="no-data">{t.noSessionsFound}</div>
+          )}
+        </div>
+      ) : (
       <div className="table-container">
-        <table>
+        <table className="no-card">
           <thead>
             <tr>
               <th>{t.sessionNumber}</th>
@@ -179,6 +229,7 @@ const SessionsList = () => {
           </tbody>
         </table>
       </div>
+      )}
 
       {pagination.pages > 1 && (
         <div className="pagination">
