@@ -138,6 +138,7 @@ const DocumentForm = () => {
   const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
   const [cases, setCases] = useState([]);
   const [formData, setFormData] = useState({
     title: '',
@@ -149,6 +150,14 @@ const DocumentForm = () => {
     approvalDate: '',
     notes: ''
   });
+
+  useEffect(() => {
+    const mql = window.matchMedia('(max-width: 768px)');
+    setIsMobile(mql.matches);
+    const handler = (e) => setIsMobile(e.matches);
+    mql.addEventListener('change', handler);
+    return () => mql.removeEventListener('change', handler);
+  }, []);
 
   useEffect(() => {
     fetchCases();
@@ -237,13 +246,13 @@ const DocumentForm = () => {
   }
 
   return (
-    <div className="page-container">
+    <div className={`page-container ${isMobile ? 'document-form-mobile' : ''}`}>
       <div className="page-header">
         <h1>{id ? (isArabic ? 'تعديل المستند' : 'Edit Document') : (isArabic ? 'إضافة مستند' : 'Add Document')}</h1>
       </div>
 
       {!id && (
-        <div className="card" style={{ marginBottom: '1rem' }}>
+        <div className="card" style={{ marginBottom: isMobile ? '0.75rem' : '1rem' }}>
           <h3 className="card-title">{isArabic ? 'قوالب جاهزة' : 'Quick Templates'}</h3>
           <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
             <button type="button" className="btn btn-secondary" onClick={() => applyTemplate('consultation')}>
@@ -270,7 +279,7 @@ const DocumentForm = () => {
               onChange={handleChange} required />
           </div>
 
-          <div className="grid grid-2">
+          <div className={`grid grid-2 ${isMobile ? 'grid-mobile-stack' : ''}`}>
             <div className="form-group">
               <label>{isArabic ? 'القضية' : 'Case'}</label>
               <select name="caseId" className="form-control" value={formData.caseId} onChange={handleChange}>
@@ -295,7 +304,7 @@ const DocumentForm = () => {
             </div>
           </div>
 
-          <div className="grid grid-2">
+          <div className={`grid grid-2 ${isMobile ? 'grid-mobile-stack' : ''}`}>
             <div className="form-group">
               <label>{isArabic ? 'الحالة' : 'Status'}</label>
               <select name="status" className="form-control" value={formData.status} onChange={handleChange}>
@@ -325,14 +334,14 @@ const DocumentForm = () => {
 
           <div className="form-group">
             <label>{isArabic ? 'المحتوى' : 'Content'}</label>
-            <textarea name="content" className="form-control" rows="15" value={formData.content}
+            <textarea name="content" className="form-control" rows={isMobile ? 10 : 15} value={formData.content}
               onChange={handleChange} placeholder={isArabic ? 'أدخل محتوى المستند هنا...' : 'Enter document content here...'}
               style={{ fontFamily: 'monospace', direction: 'rtl', textAlign: 'right', lineHeight: '2' }} />
           </div>
 
           <div className="form-group">
             <label>{isArabic ? 'ملاحظات' : 'Notes'}</label>
-            <textarea name="notes" className="form-control" rows="3" value={formData.notes}
+            <textarea name="notes" className="form-control" rows={isMobile ? 2 : 3} value={formData.notes}
               onChange={handleChange} />
           </div>
         </div>
