@@ -23,7 +23,7 @@ portalApi.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem('portalToken');
-      window.location.href = '/portal/login';
+      window.location.hash = '#/portal/login';
     }
     return Promise.reject(error);
   }

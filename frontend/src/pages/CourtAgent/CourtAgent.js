@@ -153,23 +153,39 @@ const CourtAgent = () => {
   const handlePrintReport = () => {
     const printContent = reportRef.current;
     if (!printContent) return;
-    const printWindow = window.open('', '_blank');
     const dir = isArabic ? 'rtl' : 'ltr';
     const textAlign = isArabic ? 'right' : 'left';
-    printWindow.document.write(
-      '<html><head><title>Daily Report</title><style>' +
-      'body{font-family:Arial,sans-serif;direction:' + dir + ';padding:20px;}' +
-      'h2{text-align:center;font-size:16px;}' +
-      'table{width:100%;border-collapse:collapse;margin-top:15px;}' +
-      'th,td{border:1px solid #ddd;padding:8px;text-align:' + textAlign + ';font-size:12px;}' +
-      'th{background:#f5f5f5;}' +
-      '.summary{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:20px 0;}' +
-      '.summary div{text-align:center;padding:10px;border-radius:6px;}' +
-      '.sc{color:green;}.sp{color:orange;}.ss{color:blue;}.sx{color:red;}' +
-      '</style></head><body>' + printContent.innerHTML + '</body></html>'
-    );
-    printWindow.document.close();
-    printWindow.print();
+    const styles = `
+      body{font-family:Arial,sans-serif;direction:${dir};padding:20px;}
+      h2{text-align:center;font-size:16px;}
+      table{width:100%;border-collapse:collapse;margin-top:15px;}
+      th,td{border:1px solid #ddd;padding:8px;text-align:${textAlign};font-size:12px;}
+      th{background:#f5f5f5;}
+      .summary{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:20px 0;}
+      .summary div{text-align:center;padding:10px;border-radius:6px;}
+      .sc{color:green;}.sp{color:orange;}.ss{color:blue;}.sx{color:red;}
+    `;
+    const html = `<html><head><title>Daily Report</title><style>${styles}</style></head><body>${printContent.innerHTML}</body></html>`;
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(html);
+      printWindow.document.close();
+      printWindow.print();
+    } else {
+      const iframe = document.createElement('iframe');
+      iframe.style.position = 'fixed';
+      iframe.style.right = '-9999px';
+      iframe.style.top = '0';
+      iframe.style.width = '800px';
+      iframe.style.height = '600px';
+      iframe.onload = () => {
+        try { iframe.contentWindow.print(); } catch (e) { window.print(); }
+      };
+      document.body.appendChild(iframe);
+      iframe.contentWindow.document.open();
+      iframe.contentWindow.document.write(html);
+      iframe.contentWindow.document.close();
+    }
   };
 
   const getStatusBadge = (status) => {

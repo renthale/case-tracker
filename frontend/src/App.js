@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { LanguageProvider } from './context/LanguageContext';
@@ -59,7 +59,7 @@ class ErrorBoundary extends React.Component {
           <pre style={{ whiteSpace: 'pre-wrap', background: '#f5f5f5', padding: '1rem', borderRadius: '4px' }}>
             {this.state.error?.message}
           </pre>
-          <button onClick={() => { this.setState({ hasError: false }); window.location.href = '/'; }} style={{ marginTop: '1rem', padding: '0.5rem 1rem' }}>
+          <button onClick={() => { this.setState({ hasError: false }); window.location.hash = '#/'; }} style={{ marginTop: '1rem', padding: '0.5rem 1rem' }}>
             Reload App
           </button>
         </div>
