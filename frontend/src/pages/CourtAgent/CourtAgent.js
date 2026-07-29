@@ -12,6 +12,7 @@ const CourtAgent = () => {
   const { t, language } = useLanguage();
   const { user } = useAuth();
   const isArabic = language === 'ar';
+  const [isMobile, setIsMobile] = useState(false);
   const reportRef = useRef();
   const [sessions, setSessions] = useState([]);
   const [allSessions, setAllSessions] = useState([]);
@@ -26,6 +27,14 @@ const CourtAgent = () => {
   const [dailyReport, setDailyReport] = useState(null);
   const [outcomeText, setOutcomeText] = useState({});
 
+  useEffect(() => {
+    const mql = window.matchMedia('(max-width: 768px)');
+    setIsMobile(mql.matches);
+    const handler = (e) => setIsMobile(e.matches);
+    mql.addEventListener('change', handler);
+    return () => mql.removeEventListener('change', handler);
+  }, []);
+
   const stats = React.useMemo(() => {
     const today = format(new Date(), 'yyyy-MM-dd');
     const upcoming = allSessions.filter(s => s.status === 'scheduled' && format(new Date(s.date), 'yyyy-MM-dd') >= today);
@@ -39,11 +48,6 @@ const CourtAgent = () => {
       postponed: postponed.length
     };
   }, [allSessions, assignedCases]);
-
-  useEffect(() => {
-    fetchAllData();
-    setShowReport(false);
-  }, [selectedDate]);
 
   const fetchAllData = async () => {
     setLoading(true);
@@ -223,7 +227,7 @@ const CourtAgent = () => {
         </button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(auto-fit, minmax(140px, 1fr))' : 'repeat(auto-fit, minmax(160px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
         <div className="card" style={{ margin: 0, textAlign: 'center', borderTop: '3px solid #1976d2' }}>
           <div style={{ fontSize: '1.8rem', fontWeight: 'bold', color: '#1976d2' }}>{stats.totalCases}</div>
           <div style={{ fontSize: '0.85rem', color: '#666' }}>{isArabic ? 'قضايا منسوبة' : 'Assigned Cases'}</div>
@@ -277,7 +281,7 @@ const CourtAgent = () => {
               {isArabic ? 'تقرير يومي - مندوب المحاكم' : 'Daily Report - Court Agent'}
               <br />{selectedDate}
             </h2>
-            <div className="summary" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '0.5rem', textAlign: 'center', marginBottom: '1rem' }}>
+            <div className="summary" style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(5, 1fr)', gap: '0.5rem', textAlign: 'center', marginBottom: '1rem' }}>
               <div style={{ padding: '0.75rem', background: '#e3f2fd', borderRadius: 6 }}>
                 <div style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{dailyReport.summary.total}</div>
                 <div style={{ fontSize: '0.8rem', color: '#666' }}>{isArabic ? 'الإجمالي' : 'Total'}</div>
@@ -347,8 +351,8 @@ const CourtAgent = () => {
           <div style={{ padding: '2rem', textAlign: 'center', color: '#999' }}>
             <p>{isArabic ? 'لا توجد جلسات مجدولة لهذا اليوم' : 'No sessions scheduled for this date'}</p>
           </div>
-        ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))', gap: '1rem', marginTop: '1rem' }}>
+) : (
+              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(380px, 1fr))', gap: '1rem', marginTop: '1rem' }}>
             {sessions.map((session) => (
               <div key={session.id} className="card" style={{ margin: 0, borderLeft: session.status === 'completed' ? '4px solid #4caf50' : session.status === 'postponed' ? '4px solid #ff9800' : session.status === 'cancelled' ? '4px solid #f44336' : '4px solid #2196f3' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
@@ -360,7 +364,7 @@ const CourtAgent = () => {
                   {getStatusBadge(session.status)}
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', fontSize: '0.85rem', marginBottom: '0.75rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '0.5rem', fontSize: '0.85rem', marginBottom: '0.75rem' }}>
                   <div>
                     <span style={{ color: '#999' }}>{isArabic ? 'رقم القضية' : 'Case No.'}: </span>
                     <span>{session.Case?.caseNumber || '-'}</span>
@@ -434,17 +438,17 @@ const CourtAgent = () => {
                           style={{ fontSize: '0.85rem', marginBottom: '0.5rem' }}
                         />
                       </div>
-                      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'stretch' : 'center' }}>
                         <button className="btn btn-primary btn-sm"
                           onClick={() => handleStatusUpdate(session.id, 'completed')}
                           disabled={updatingId === session.id}>
                           <FiCheckCircle /> {isArabic ? 'منجزة' : 'Completed'}
                         </button>
-                        <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center' }}>
+                        <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center', width: isMobile ? '100%' : 'auto' }}>
                           <input type="date" className="form-control"
                             value={postponeDate[session.id] || ''}
                             onChange={(e) => setPostponeDate({ ...postponeDate, [session.id]: e.target.value })}
-                            style={{ fontSize: '0.8rem', maxWidth: 150, padding: '4px 8px' }} />
+                            style={{ fontSize: '0.8rem', maxWidth: isMobile ? 'none' : '150px', padding: '4px 8px' }} />
                           <button className="btn btn-secondary btn-sm"
                             onClick={() => handleStatusUpdate(session.id, 'postponed')}
                             disabled={updatingId === session.id}>
@@ -469,7 +473,7 @@ const CourtAgent = () => {
                   )}
 
                   {session.status !== 'scheduled' && (
-                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'stretch' : 'center' }}>
                       <Link to={'/dashboard/sessions/' + session.id + '/edit'} className="btn btn-secondary btn-sm">
                         {isArabic ? 'تعديل' : 'Edit'}
                       </Link>
