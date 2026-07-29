@@ -28,6 +28,7 @@ const TransactionForm = () => {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
   const isArabic = language === 'ar';
+  const [isMobile, setIsMobile] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [cases, setCases] = useState([]);
@@ -44,6 +45,14 @@ const TransactionForm = () => {
     completionDate: '',
     notes: ''
   });
+
+  useEffect(() => {
+    const mql = window.matchMedia('(max-width: 768px)');
+    setIsMobile(mql.matches);
+    const handler = (e) => setIsMobile(e.matches);
+    mql.addEventListener('change', handler);
+    return () => mql.removeEventListener('change', handler);
+  }, []);
 
   useEffect(() => {
     if (id) fetchTransaction();
@@ -127,13 +136,13 @@ const TransactionForm = () => {
   const sectionTitle = { fontSize: '1rem', fontWeight: 600, color: '#1a365d', marginBottom: '1rem', paddingBottom: '0.5rem', borderBottom: '2px solid #e2e8f0' };
 
   return (
-    <div className="page-container">
+    <div className={`page-container ${isMobile ? 'transaction-form-mobile' : ''}`}>
       <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h1 style={{ fontSize: '1.3rem', color: '#1a365d' }}>{id ? (isArabic ? 'تعديل المعاملة' : 'Edit Transaction') : (isArabic ? 'إضافة معاملة جديدة' : 'New Transaction')}</h1>
       </div>
 
       <form onSubmit={handleSubmit}>
-        <div className="card" style={{ marginBottom: '1rem' }}>
+        <div className="card" style={{ marginBottom: isMobile ? '0.75rem' : '1rem' }}>
           <div style={sectionTitle}>{isArabic ? 'معلومات المعاملة' : 'Transaction Information'}</div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div className="form-group" style={{ gridColumn: 'span 2' }}>
@@ -180,7 +189,7 @@ const TransactionForm = () => {
           </div>
         </div>
 
-        <div className="card" style={{ marginBottom: '1rem' }}>
+        <div className="card" style={{ marginBottom: isMobile ? '0.75rem' : '1rem' }}>
           <div style={sectionTitle}>{isArabic ? 'المرتبطة' : 'Related Information'}</div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div className="form-group">
@@ -209,7 +218,7 @@ const TransactionForm = () => {
           </div>
         </div>
 
-        <div className="card" style={{ marginBottom: '1rem' }}>
+        <div className="card" style={{ marginBottom: isMobile ? '0.75rem' : '1rem' }}>
           <div style={sectionTitle}>{isArabic ? 'التواريخ' : 'Dates'}</div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
             <div className="form-group">
@@ -237,10 +246,10 @@ const TransactionForm = () => {
           </div>
         </div>
 
-        <div className="card" style={{ marginBottom: '1rem' }}>
+        <div className="card" style={{ marginBottom: isMobile ? '0.75rem' : '1rem' }}>
           <div style={sectionTitle}>{isArabic ? 'ملاحظات' : 'Notes'}</div>
           <div className="form-group" style={{ margin: 0 }}>
-            <textarea name="notes" value={formData.notes} onChange={handleChange} rows="4"
+            <textarea name="notes" value={formData.notes} onChange={handleChange} rows={isMobile ? 3 : 4}
               className="form-control"
               placeholder={isArabic ? 'أضف ملاحظات...' : 'Add notes...'} />
           </div>
