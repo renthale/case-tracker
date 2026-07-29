@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -36,6 +36,25 @@ const Layout = () => {
     logout();
     navigate('/');
   };
+
+  useEffect(() => {
+    if (window.innerWidth <= 768) {
+      document.querySelectorAll('table').forEach(table => {
+        const headers = [];
+        table.querySelectorAll('thead th').forEach(th => {
+          headers.push(th.textContent.trim());
+        });
+        if (headers.length === 0) return;
+        table.querySelectorAll('tbody tr').forEach(tr => {
+          tr.querySelectorAll('td').forEach((td, i) => {
+            if (headers[i] && !td.hasAttribute('data-label')) {
+              td.setAttribute('data-label', headers[i]);
+            }
+          });
+        });
+      });
+    }
+  }, [location.pathname]);
 
   return (
     <div className="layout">

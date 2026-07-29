@@ -66,6 +66,25 @@ export const PortalLayout = ({ children }) => {
   const { client, logout } = usePortal();
   const [menuOpen, setMenuOpen] = useState(false);
 
+  useEffect(() => {
+    if (window.innerWidth <= 768) {
+      document.querySelectorAll('table').forEach(table => {
+        const headers = [];
+        table.querySelectorAll('thead th').forEach(th => {
+          headers.push(th.textContent.trim());
+        });
+        if (headers.length === 0) return;
+        table.querySelectorAll('tbody tr').forEach(tr => {
+          tr.querySelectorAll('td').forEach((td, i) => {
+            if (headers[i] && !td.hasAttribute('data-label')) {
+              td.setAttribute('data-label', headers[i]);
+            }
+          });
+        });
+      });
+    }
+  }, []);
+
   return (
     <div className="portal-layout">
       <header className="portal-header">
