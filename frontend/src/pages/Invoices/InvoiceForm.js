@@ -10,6 +10,7 @@ const InvoiceForm = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
   const [clients, setClients] = useState([]);
   const [cases, setCases] = useState([]);
   const [formData, setFormData] = useState({
@@ -22,6 +23,14 @@ const InvoiceForm = () => {
     paymentMethod: '',
     notes: ''
   });
+
+  useEffect(() => {
+    const mql = window.matchMedia('(max-width: 768px)');
+    setIsMobile(mql.matches);
+    const handler = (e) => setIsMobile(e.matches);
+    mql.addEventListener('change', handler);
+    return () => mql.removeEventListener('change', handler);
+  }, []);
 
   useEffect(() => {
     loadOptions();
@@ -101,13 +110,13 @@ const InvoiceForm = () => {
   }
 
   return (
-    <div className="invoice-form">
+    <div className={`invoice-form ${isMobile ? 'invoice-form-mobile' : ''}`}>
       <div className="card-header">
         <h2 className="card-title">{id ? 'تعديل الفاتورة' : 'إضافة فاتورة'}</h2>
       </div>
 
       <form onSubmit={handleSubmit}>
-        <div className="grid grid-2">
+        <div className={`grid grid-2 ${isMobile ? 'grid-mobile-stack' : ''}`}>
           <div className="card">
             <h3 className="card-title">بيانات الفاتورة</h3>
 
@@ -164,7 +173,7 @@ const InvoiceForm = () => {
               <textarea
                 name="description"
                 className="form-control"
-                rows="3"
+                rows={isMobile ? 2 : 3}
                 value={formData.description}
                 onChange={handleChange}
               />
@@ -215,7 +224,7 @@ const InvoiceForm = () => {
               <textarea
                 name="notes"
                 className="form-control"
-                rows="3"
+                rows={isMobile ? 2 : 3}
                 value={formData.notes}
                 onChange={handleChange}
               />
