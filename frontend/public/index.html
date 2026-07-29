@@ -9,13 +9,26 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Case Tracker" />
     <link rel="manifest" href="/manifest.json" />
-    <link rel="icon" href="/icons/icon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/icons/icon-192.png" type="image/png" sizes="192x192" />
+    <link rel="icon" href="/icons/icon-512.png" type="image/png" sizes="512x512" />
     <link rel="apple-touch-icon" href="/icons/icon-192.png" />
     <link rel="apple-touch-startup-image" href="/icons/icon-512.png" />
+    <meta name="application-name" content="Case Tracker" />
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js');
+          navigator.serviceWorker.register('/sw.js', { scope: '/' }).then((reg) => {
+            reg.onupdatefound = () => {
+              const installing = reg.installing;
+              if (installing) {
+                installing.onstatechange = () => {
+                  if (installing.state === 'installed' && navigator.serviceWorker.controller) {
+                    console.log('PWA ready for offline use');
+                  }
+                };
+              }
+            };
+          }).catch((err) => console.error('SW registration failed:', err));
         });
       }
     </script>
