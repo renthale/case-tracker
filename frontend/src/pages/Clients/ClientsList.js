@@ -13,6 +13,7 @@ const ClientsList = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
   const [filters, setFilters] = useState({
     search: searchParams.get('search') || ''
   });
@@ -21,6 +22,14 @@ const ClientsList = () => {
     pages: 1,
     total: 0
   });
+
+  useEffect(() => {
+    const mql = window.matchMedia('(max-width: 768px)');
+    setIsMobile(mql.matches);
+    const handler = (e) => setIsMobile(e.matches);
+    mql.addEventListener('change', handler);
+    return () => mql.removeEventListener('change', handler);
+  }, []);
 
   useEffect(() => {
     fetchClients();
@@ -103,8 +112,52 @@ const ClientsList = () => {
         </div>
       </div>
 
+      {isMobile ? (
+        <div className="cases-mobile-cards">
+          {clients.length > 0 ? clients.map((client) => (
+            <div key={client.id} className="case-mobile-card" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+              <div className="case-card-header">
+                <Link to={`/dashboard/clients/${client.id}`} className="case-card-number">{client.name}</Link>
+              </div>
+              <div className="case-card-body">
+                <div className="case-card-row">
+                  <span className="case-card-label">{t.civilId}</span>
+                  <span className="case-card-value">{client.civilId || '-'}</span>
+                </div>
+                <div className="case-card-row">
+                  <span className="case-card-label">{t.phone}</span>
+                  <span className="case-card-value">{client.phone || '-'}</span>
+                </div>
+                <div className="case-card-row">
+                  <span className="case-card-label">{t.email}</span>
+                  <span className="case-card-value">{client.email || '-'}</span>
+                </div>
+                <div className="case-card-row">
+                  <span className="case-card-label">{t.casesCount}</span>
+                  <span className="case-card-value">{client.casesCount ?? client.cases?.length ?? 0}</span>
+                </div>
+                <div className="case-card-row">
+                  <span className="case-card-label">{t.registrationDate}</span>
+                  <span className="case-card-value">
+                    {client.createdAt
+                      ? format(new Date(client.createdAt), 'dd/MM/yyyy', { locale: ar })
+                      : '-'}
+                  </span>
+                </div>
+              </div>
+              <div className="case-card-actions-row">
+                <Link to={`/dashboard/clients/${client.id}`} className="btn btn-secondary btn-sm"><FiEye /> {t.viewDetails}</Link>
+                <Link to={`/dashboard/clients/${client.id}/edit`} className="btn btn-secondary btn-sm"><FiEdit /> {t.edit}</Link>
+                <button className="btn btn-danger btn-sm" onClick={() => handleDelete(client.id)}><FiTrash2 /> {t.delete}</button>
+              </div>
+            </div>
+          )) : (
+            <div className="no-data">{t.noData}</div>
+          )}
+        </div>
+      ) : (
       <div className="table-container">
-        <table>
+        <table className="no-card">
           <thead>
             <tr>
               <th>{t.clientName}</th>
@@ -158,6 +211,7 @@ const ClientsList = () => {
           </tbody>
         </table>
       </div>
+      )}
 
       {pagination.pages > 1 && (
         <div className="pagination">
