@@ -13,6 +13,7 @@ const InvoicesList = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
   const [filters, setFilters] = useState({
     status: searchParams.get('status') || '',
     type: searchParams.get('type') || '',
@@ -23,6 +24,14 @@ const InvoicesList = () => {
     pages: 1,
     total: 0
   });
+
+  useEffect(() => {
+    const mql = window.matchMedia('(max-width: 768px)');
+    setIsMobile(mql.matches);
+    const handler = (e) => setIsMobile(e.matches);
+    mql.addEventListener('change', handler);
+    return () => mql.removeEventListener('change', handler);
+  }, []);
 
   useEffect(() => {
     fetchInvoices();
@@ -149,8 +158,57 @@ const InvoicesList = () => {
         </div>
       </div>
 
+      {isMobile ? (
+        <div className="cases-mobile-cards">
+          {invoices.length > 0 ? invoices.map((invoice) => (
+            <div key={invoice.id} className="case-mobile-card" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+              <div className="case-card-header">
+                <Link to={`/dashboard/invoices/${invoice.id}`} className="case-card-number">{invoice.invoiceNumber || '-'}</Link>
+                {getStatusBadge(invoice.status)}
+              </div>
+              <div className="case-card-body">
+                <div className="case-card-row">
+                  <span className="case-card-label">{t.cases}</span>
+                  <span className="case-card-value">
+                    {invoice.caseId ? (
+                      <Link to={`/dashboard/cases/${invoice.caseId}`}>{invoice.caseNumber || invoice.caseTitle || '-'}</Link>
+                    ) : '-'}
+                  </span>
+                </div>
+                <div className="case-card-row">
+                  <span className="case-card-label">{t.clientName}</span>
+                  <span className="case-card-value">{invoice.clientName || '-'}</span>
+                </div>
+                <div className="case-card-row">
+                  <span className="case-card-label">{t.invoiceType}</span>
+                  <span className="case-card-value">{t[invoice.type] || invoice.type}</span>
+                </div>
+                <div className="case-card-row">
+                  <span className="case-card-label">{t.amount}</span>
+                  <span className="case-card-value">{formatAmount(invoice.amount)}</span>
+                </div>
+                <div className="case-card-row">
+                  <span className="case-card-label">{t.dueDate}</span>
+                  <span className="case-card-value">
+                    {invoice.dueDate
+                      ? format(new Date(invoice.dueDate), 'dd/MM/yyyy', { locale: ar })
+                      : '-'}
+                  </span>
+                </div>
+              </div>
+              <div className="case-card-actions-row">
+                <Link to={`/dashboard/invoices/${invoice.id}`} className="btn btn-secondary btn-sm"><FiEye /> {t.viewDetails}</Link>
+                <Link to={`/dashboard/invoices/${invoice.id}/edit`} className="btn btn-secondary btn-sm"><FiEdit /> {t.edit}</Link>
+                <button className="btn btn-danger btn-sm" onClick={() => handleDelete(invoice.id)}><FiTrash2 /> {t.delete}</button>
+              </div>
+            </div>
+          )) : (
+            <div className="no-data">{t.noData}</div>
+          )}
+        </div>
+      ) : (
       <div className="table-container">
-        <table>
+        <table className="no-card">
           <thead>
             <tr>
               <th>{t.invoiceNumber}</th>
@@ -210,6 +268,7 @@ const InvoicesList = () => {
           </tbody>
         </table>
       </div>
+      )}
 
       {pagination.pages > 1 && (
         <div className="pagination">
