@@ -25,15 +25,24 @@ const entityTypeOptions = [
 ];
 
 const TransactionsList = () => {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const isArabic = language === 'ar';
   const navigate = useNavigate();
+  const [isMobile, setIsMobile] = useState(false);
 
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState({ page: 1, pages: 1, total: 0 });
   const [stats, setStats] = useState({ countByStatus: {}, countByEntity: {} });
   const [filters, setFilters] = useState({ status: '', entityType: '', search: '', page: 1 });
+
+  useEffect(() => {
+    const mql = window.matchMedia('(max-width: 768px)');
+    setIsMobile(mql.matches);
+    const handler = (e) => setIsMobile(e.matches);
+    mql.addEventListener('change', handler);
+    return () => mql.removeEventListener('change', handler);
+  }, []);
 
   useEffect(() => { fetchTransactions(); }, [filters]);
   useEffect(() => { fetchStats(); }, []);
@@ -182,9 +191,73 @@ const TransactionsList = () => {
         )}
       </div>
 
+      {isMobile ? (
+        <div className="cases-mobile-cards">
+          {loading ? (
+            <div className="loading">{t.loading}</div>
+          ) : transactions.length === 0 ? (
+            <div className="no-data">{isArabic ? 'لا توجد معاملات' : 'No transactions found'}</div>
+          ) : transactions.map((tx, idx) => {
+            const opt = statusOptions.find(s => s.value === tx.status);
+            const c = opt?.color || '#95a5a6';
+            return (
+              <div key={tx.id} className="case-mobile-card" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+                <div className="case-card-header">
+                  <span className="case-card-number">{tx.title}</span>
+                  <span style={{
+                    display: 'inline-block', padding: '0.25rem 0.75rem', borderRadius: 20,
+                    fontSize: '0.8rem', fontWeight: 500, background: c + '18',
+                    color: c, border: '1px solid ' + c + '30'
+                  }}>
+                    {opt?.[language] || tx.status}
+                  </span>
+                </div>
+                <div className="case-card-body">
+                  <div className="case-card-row">
+                    <span className="case-card-label">{isArabic ? 'الجهة الحكومية' : 'Entity'}</span>
+                    <span className="case-card-value">{tx.governmentEntity}</span>
+                  </div>
+                  <div className="case-card-row">
+                    <span className="case-card-label">{isArabic ? 'نوع الجهة' : 'Type'}</span>
+                    <span className="case-card-value">{(entityTypeOptions.find(e => e.value === tx.entityType))?.[language] || tx.entityType || '-'}</span>
+                  </div>
+                  <div className="case-card-row">
+                    <span className="case-card-label">{isArabic ? 'القضية' : 'Case'}</span>
+                    <span className="case-card-value">
+                      {tx.case ? (
+                        <Link to={`/dashboard/cases/${tx.case.id}`} style={{ color: '#3182ce', fontWeight: 500 }}>
+                          {tx.case.caseNumber}
+                        </Link>
+                      ) : <span style={{ color: '#999' }}>-</span>}
+                    </span>
+                  </div>
+                  <div className="case-card-row">
+                    <span className="case-card-label">{isArabic ? 'الموكل' : 'Client'}</span>
+                    <span className="case-card-value">{tx.client?.name || <span style={{ color: '#999' }}>-</span>}</span>
+                  </div>
+                  <div className="case-card-row">
+                    <span className="case-card-label">{isArabic ? 'التقديم' : 'Submitted'}</span>
+                    <span className="case-card-value">{tx.submissionDate || '-'}</span>
+                  </div>
+                  <div className="case-card-row">
+                    <span className="case-card-label">{isArabic ? 'المتوقع' : 'Expected'}</span>
+                    <span className="case-card-value" style={{ color: tx.expectedDate && new Date(tx.expectedDate) < new Date() && tx.status !== 'completed' ? '#e74c3c' : '#333' }}>
+                      {tx.expectedDate || '-'}
+                    </span>
+                  </div>
+                </div>
+                <div className="case-card-actions-row">
+                  <button className="btn btn-secondary btn-sm" onClick={() => navigate(`/transactions/${tx.id}/edit`)}><FiEdit2 /> {isArabic ? 'تعديل' : 'Edit'}</button>
+                  <button className="btn btn-danger btn-sm" onClick={() => handleDelete(tx.id)}><FiTrash2 /> {isArabic ? 'حذف' : 'Delete'}</button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
       <div className="card" style={{ margin: 0 }}>
         <div style={{ overflowX: 'auto' }}>
-          <table className="data-table" style={{ width: '100%' }}>
+          <table className="data-table no-card" style={{ width: '100%' }}>
             <thead>
               <tr>
                 <th>#</th>
@@ -243,6 +316,7 @@ const TransactionsList = () => {
           </table>
         </div>
       </div>
+      )}
 
       {pagination.pages > 1 && (
         <div className="pagination">
