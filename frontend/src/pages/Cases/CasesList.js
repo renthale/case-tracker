@@ -18,6 +18,7 @@ const CasesList = () => {
   const [cases, setCases] = useState([]);
   const [loading, setLoading] = useState(true);
   const [updatingCase, setUpdatingCase] = useState(null);
+  const [isMobile, setIsMobile] = useState(false);
   const [filters, setFilters] = useState({
     search: '',
     status: searchParams.get('status') || '',
@@ -29,6 +30,14 @@ const CasesList = () => {
     pages: 1,
     total: 0
   });
+
+  useEffect(() => {
+    const mql = window.matchMedia('(max-width: 768px)');
+    setIsMobile(mql.matches);
+    const handler = (e) => setIsMobile(e.matches);
+    mql.addEventListener('change', handler);
+    return () => mql.removeEventListener('change', handler);
+  }, []);
 
   useEffect(() => {
     fetchCases();
@@ -193,7 +202,7 @@ const CasesList = () => {
       </div>
 
       {isCourtAgent ? (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '1rem' }}>
+        <div className="cases-mobile-grid">
           {cases.length > 0 ? cases.map((caseItem) => (
             <div
               key={caseItem.id}
@@ -211,7 +220,7 @@ const CasesList = () => {
                   </div>
                   {getStatusBadge(caseItem.status)}
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', fontSize: '0.85rem', color: '#666', marginBottom: '0.75rem' }}>
+                <div className="case-card-fields">
                   <div><span style={{ color: '#999' }}>{t.caseType}:</span> {t[caseItem.type]}</div>
                   <div><span style={{ color: '#999' }}>{t.clientName}:</span> {caseItem.clientName || '-'}</div>
                   <div>
@@ -224,7 +233,7 @@ const CasesList = () => {
                 </div>
               </div>
 
-              <div style={{ borderTop: '1px solid #eee', paddingTop: '0.75rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+              <div className="case-card-actions">
                 <button
                   className="btn btn-secondary btn-sm"
                   onClick={() => navigate(`/cases/${caseItem.id}`)}
@@ -271,9 +280,54 @@ const CasesList = () => {
             <div className="no-data" style={{ gridColumn: '1 / -1' }}>{t.noData}</div>
           )}
         </div>
+      ) : isMobile ? (
+        <div className="cases-mobile-cards">
+          {cases.length > 0 ? cases.map((caseItem) => (
+            <div key={caseItem.id} className="case-mobile-card" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+              <div className="case-card-header">
+                <Link to={`/dashboard/cases/${caseItem.id}`} className="case-card-number">{caseItem.caseNumber || '-'}</Link>
+                {getStatusBadge(caseItem.status)}
+              </div>
+              <Link to={`/dashboard/cases/${caseItem.id}`} className="case-card-title">{caseItem.title}</Link>
+              <div className="case-card-body">
+                <div className="case-card-row">
+                  <span className="case-card-label">{t.caseType}</span>
+                  <span className="case-card-value">{t[caseItem.type]}</span>
+                </div>
+                <div className="case-card-row">
+                  <span className="case-card-label">{t.caseStatus}</span>
+                  <span className="case-card-value">{getStatusBadge(caseItem.status)}</span>
+                </div>
+                <div className="case-card-row">
+                  <span className="case-card-label">{t.casePriority}</span>
+                  <span className="case-card-value">{t[caseItem.priority]}</span>
+                </div>
+                <div className="case-card-row">
+                  <span className="case-card-label">{t.clientName}</span>
+                  <span className="case-card-value">{caseItem.clientName || '-'}</span>
+                </div>
+                <div className="case-card-row">
+                  <span className="case-card-label">{t.nextHearing}</span>
+                  <span className="case-card-value">
+                    {caseItem.nextHearingDate
+                      ? format(new Date(caseItem.nextHearingDate), 'dd/MM/yyyy', { locale: ar })
+                      : '-'}
+                  </span>
+                </div>
+              </div>
+              <div className="case-card-actions-row">
+                <Link to={`/dashboard/cases/${caseItem.id}`} className="btn btn-secondary btn-sm"><FiEye /> {t.viewDetails}</Link>
+                <Link to={`/dashboard/cases/${caseItem.id}/edit`} className="btn btn-secondary btn-sm"><FiEdit /> {t.edit}</Link>
+                <button className="btn btn-danger btn-sm" onClick={() => handleDelete(caseItem.id)}><FiTrash2 /> {t.delete}</button>
+              </div>
+            </div>
+          )) : (
+            <div className="no-data">{t.noData}</div>
+          )}
+        </div>
       ) : (
       <div className="table-container">
-        <table>
+        <table className="no-card">
           <thead>
             <tr>
               <th>{t.caseNumber}</th>

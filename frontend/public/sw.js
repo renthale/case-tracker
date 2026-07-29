@@ -1,4 +1,4 @@
-const CACHE = 'case-tracker-v2';
+const CACHE = 'case-tracker-v3';
 const FILES = ['/', '/manifest.json', '/icons/icon-192.png', '/icons/icon-512.png'];
 
 self.addEventListener('install', (e) => {
