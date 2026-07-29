@@ -13,6 +13,7 @@ const DocumentsList = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
   const [filters, setFilters] = useState({
     search: '',
     type: searchParams.get('type') || '',
@@ -24,6 +25,14 @@ const DocumentsList = () => {
     pages: 1,
     total: 0
   });
+
+  useEffect(() => {
+    const mql = window.matchMedia('(max-width: 768px)');
+    setIsMobile(mql.matches);
+    const handler = (e) => setIsMobile(e.matches);
+    mql.addEventListener('change', handler);
+    return () => mql.removeEventListener('change', handler);
+  }, []);
 
   useEffect(() => {
     fetchDocuments();
@@ -147,8 +156,57 @@ const DocumentsList = () => {
         </select>
       </div>
 
+      {isMobile ? (
+        <div className="cases-mobile-cards">
+          {documents.length > 0 ? documents.map((doc) => (
+            <div key={doc.id} className="case-mobile-card" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+              <div className="case-card-header">
+                <Link to={`/dashboard/documents/${doc.id}`} className="case-card-number">{doc.title}</Link>
+                {doc.status && (
+                  <span className={`badge badge-${doc.status === 'approved' ? 'won' : doc.status === 'under_review' ? 'active' : doc.status === 'draft' ? 'pending' : 'closed'}`}>
+                    {t[doc.status] || doc.status}
+                  </span>
+                )}
+              </div>
+              <div className="case-card-body">
+                <div className="case-card-row">
+                  <span className="case-card-label">{t.documentType}</span>
+                  <span className="case-card-value">{t[doc.type] || doc.type}</span>
+                </div>
+                <div className="case-card-row">
+                  <span className="case-card-label">{t.caseTitle}</span>
+                  <span className="case-card-value">
+                    {doc.case ? (
+                      <Link to={`/dashboard/cases/${doc.case.id}`}>{doc.case.title}</Link>
+                    ) : '-'}
+                  </span>
+                </div>
+                <div className="case-card-row">
+                  <span className="case-card-label">{t.author}</span>
+                  <span className="case-card-value">{doc.uploader?.fullName || '-'}</span>
+                </div>
+                <div className="case-card-row">
+                  <span className="case-card-label">{t.createdAt}</span>
+                  <span className="case-card-value">
+                    {doc.createdAt
+                      ? format(new Date(doc.createdAt), 'dd/MM/yyyy', { locale: ar })
+                      : '-'}
+                  </span>
+                </div>
+              </div>
+              <div className="case-card-actions-row">
+                <Link to={`/dashboard/documents/${doc.id}`} className="btn btn-secondary btn-sm"><FiEye /> {t.viewDetails}</Link>
+                <Link to={`/dashboard/documents/${doc.id}/edit`} className="btn btn-secondary btn-sm"><FiEdit /> {t.edit}</Link>
+                <button className="btn btn-danger btn-sm" onClick={() => handleDelete(doc.id)}><FiTrash2 /> {t.delete}</button>
+              </div>
+            </div>
+          )) : (
+            <div className="no-data">{t.noData}</div>
+          )}
+        </div>
+      ) : (
       <div className="table-container">
-        <table>
+        <table className="no-card">
           <thead>
             <tr>
               <th>{t.title}</th>
@@ -206,6 +264,7 @@ const DocumentsList = () => {
           </tbody>
         </table>
       </div>
+      )}
 
       {pagination.pages > 1 && (
         <div className="pagination">
