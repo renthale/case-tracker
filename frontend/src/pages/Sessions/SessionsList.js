@@ -6,6 +6,7 @@ import { FiPlus, FiSearch, FiEdit, FiCalendar } from 'react-icons/fi';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import toast from 'react-hot-toast';
+import './SessionsList.css';
 
 const SessionsList = () => {
   const { t, language } = useLanguage();
