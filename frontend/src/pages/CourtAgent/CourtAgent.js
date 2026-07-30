@@ -18,6 +18,7 @@ const CourtAgent = () => {
   const [allSessions, setAllSessions] = useState([]);
   const [assignedCases, setAssignedCases] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(null);
   const [selectedDate, setSelectedDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [updatingId, setUpdatingId] = useState(null);
   const [postponeDate, setPostponeDate] = useState({});
@@ -35,6 +36,8 @@ const CourtAgent = () => {
     return () => mql.removeEventListener('change', handler);
   }, []);
 
+  useEffect(() => { fetchAllData(); }, []);
+
   const stats = React.useMemo(() => {
     const today = format(new Date(), 'yyyy-MM-dd');
     const upcoming = allSessions.filter(s => s.status === 'scheduled' && format(new Date(s.date), 'yyyy-MM-dd') >= today);
@@ -51,18 +54,25 @@ const CourtAgent = () => {
 
   const fetchAllData = async () => {
     setLoading(true);
+    setFetchError(null);
+    let timedOut = false;
+    const timer = setTimeout(() => { timedOut = true; }, 15000);
     try {
       const [sessionsRes, casesRes] = await Promise.all([
         api.get('/sessions', { params: { page: 1, limit: 500 } }),
         api.get('/cases', { params: { page: 1, limit: 200 } })
       ]);
+      if (timedOut) return;
 
+      const isAdminOrPartner = user?.role === 'admin' || user?.role === 'partner';
       const agentSessions = (sessionsRes.data.sessions || []).filter(
-        s => user && s.Case && s.Case.courtAgentId === user.id
+        s => isAdminOrPartner || (user && s.Case && s.Case.courtAgentId === user.id)
       );
       setAllSessions(agentSessions);
 
-      const agentCases = (casesRes.data.cases || []);
+      const agentCases = (casesRes.data.cases || []).filter(
+        c => isAdminOrPartner || c.courtAgentId === user?.id
+      );
       setAssignedCases(agentCases);
 
       const filtered = agentSessions.filter(s => {
@@ -70,10 +80,14 @@ const CourtAgent = () => {
         return sessionDate === selectedDate;
       });
       setSessions(filtered);
+      setFetchError(null);
     } catch (error) {
-      toast.error(isArabic ? 'خطأ في جلب البيانات' : 'Error loading data');
+      if (!timedOut) {
+        setFetchError(error.message || (isArabic ? 'فشل تحميل بيانات مندوب المحاكم' : 'Failed to load court agent data'));
+      }
     } finally {
-      setLoading(false);
+      clearTimeout(timer);
+      if (!timedOut) setLoading(false);
     }
   };
 
@@ -209,6 +223,18 @@ const CourtAgent = () => {
 
   if (loading) {
     return <div className="loading">{isArabic ? 'جاري التحميل...' : 'Loading...'}</div>;
+  }
+  if (fetchError) {
+    return (
+      <div className="page-container">
+        <div className="card" style={{ textAlign: 'center', padding: '2rem' }}>
+          <p style={{ color: '#dc2626', marginBottom: '1rem', fontWeight: 600 }}>{fetchError}</p>
+          <button className="btn btn-primary" onClick={fetchAllData}>
+            {isArabic ? 'إعادة المحاولة' : 'Retry'}
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (
