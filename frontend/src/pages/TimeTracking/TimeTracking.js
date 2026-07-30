@@ -9,6 +9,7 @@ const TimeTracking = () => {
   const { language, t } = useLanguage();
   const { user } = useAuth();
   const isArabic = language === 'ar';
+  const [isMobile, setIsMobile] = useState(false);
   const [loading, setLoading] = useState(true);
   const [entries, setEntries] = useState([]);
   const [cases, setCases] = useState([]);
@@ -25,6 +26,14 @@ const TimeTracking = () => {
     category: 'general',
     notes: ''
   });
+
+  useEffect(() => {
+    const mql = window.matchMedia('(max-width: 768px)');
+    setIsMobile(mql.matches);
+    const handler = (e) => setIsMobile(e.matches);
+    mql.addEventListener('change', handler);
+    return () => mql.removeEventListener('change', handler);
+  }, []);
 
   useEffect(() => { fetchData(); }, []);
 
@@ -129,7 +138,7 @@ const TimeTracking = () => {
       </div>
 
       {stats && stats.summary && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(170px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(auto-fill, minmax(150px, 1fr))' : 'repeat(auto-fill, minmax(170px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
           <div style={kpiStyle('#3498db')}>
             <div style={kpiNum('#3498db')}>{stats.summary.totalHours}</div>
             <div style={kpiLabel()}>{isArabic ? 'إجمالي الساعات' : 'Total Hours'}</div>
@@ -157,7 +166,7 @@ const TimeTracking = () => {
         <div className="card" style={{ marginBottom: '1.5rem' }}>
           <h3 className="card-title">{isArabic ? 'إضافة سجل وقت جديد' : 'Add New Time Entry'}</h3>
           <form onSubmit={handleSubmit}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '1rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(250px, 1fr))', gap: '1rem' }}>
               <div className="form-group">
                 <label>{isArabic ? 'القضية' : 'Case'} *</label>
                 <select className="form-control" value={formData.caseId} onChange={e => setFormData({ ...formData, caseId: e.target.value })} required>
@@ -212,18 +221,18 @@ const TimeTracking = () => {
       )}
 
       <div className="card" style={{ marginBottom: '1rem' }}>
-        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'stretch' : 'center' }}>
           <FiFilter style={{ color: '#666' }} />
-          <select className="form-control" style={{ maxWidth: 200 }} value={filters.caseId} onChange={e => setFilters({ ...filters, caseId: e.target.value })}>
+          <select className="form-control" style={{ maxWidth: isMobile ? 'none' : 200, width: isMobile ? '100%' : 'auto' }} value={filters.caseId} onChange={e => setFilters({ ...filters, caseId: e.target.value })}>
             <option value="">{isArabic ? 'جميع القضايا' : 'All Cases'}</option>
             {cases.map(c => (
               <option key={c.id} value={c.id}>{c.caseNumber}</option>
             ))}
           </select>
-          <input type="date" className="form-control" style={{ maxWidth: 160 }} value={filters.startDate} onChange={e => setFilters({ ...filters, startDate: e.target.value })} />
+          <input type="date" className="form-control" style={{ maxWidth: isMobile ? 'none' : 160, width: isMobile ? '100%' : 'auto' }} value={filters.startDate} onChange={e => setFilters({ ...filters, startDate: e.target.value })} />
           <span>{isArabic ? 'إلى' : 'to'}</span>
-          <input type="date" className="form-control" style={{ maxWidth: 160 }} value={filters.endDate} onChange={e => setFilters({ ...filters, endDate: e.target.value })} />
-          <button className="btn btn-primary btn-sm" onClick={() => fetchEntries(1)}>
+          <input type="date" className="form-control" style={{ maxWidth: isMobile ? 'none' : 160, width: isMobile ? '100%' : 'auto' }} value={filters.endDate} onChange={e => setFilters({ ...filters, endDate: e.target.value })} />
+          <button className="btn btn-primary btn-sm" onClick={() => fetchEntries(1)} style={{ width: isMobile ? '100%' : 'auto' }}>
             {isArabic ? 'بحث' : 'Search'}
           </button>
         </div>
@@ -231,8 +240,8 @@ const TimeTracking = () => {
 
       <div className="card">
         <h3 className="card-title">{isArabic ? 'سجلات الوقت' : 'Time Entries'}</h3>
-        <div style={{ overflowX: 'auto' }}>
-          <table className="data-table" style={{ width: '100%' }}>
+        <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+          <table className="data-table" style={{ width: '100%', minWidth: isMobile ? '700px' : 'auto' }}>
             <thead>
               <tr>
                 <th>{isArabic ? 'التاريخ' : 'Date'}</th>
