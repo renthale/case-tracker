@@ -5,9 +5,18 @@ import api from '../../services/portalApi';
 
 const PortalDashboard = () => {
   const { client } = usePortal();
+  const [isMobile, setIsMobile] = useState(false);
   const [cases, setCases] = useState([]);
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const mql = window.matchMedia('(max-width: 768px)');
+    setIsMobile(mql.matches);
+    const handler = (e) => setIsMobile(e.matches);
+    mql.addEventListener('change', handler);
+    return () => mql.removeEventListener('change', handler);
+  }, []);
 
   useEffect(() => {
     fetchData();
@@ -57,7 +66,7 @@ const PortalDashboard = () => {
         </div>
       </div>
 
-      <div className="portal-grid">
+      <div className="portal-grid portal-grid-mobile">
         <div className="portal-card">
           <h3>Recent Cases</h3>
           {cases.slice(0, 5).map(c => (

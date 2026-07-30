@@ -364,4 +364,133 @@
   .portal-cases-grid {
     grid-template-columns: 1fr;
   }
+  
+  /* Portal KPI Grid - stack to 2 cols on mobile, 1 on extra small */
+  .portal-kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+  .portal-kpi {
+    padding: 1rem;
+  }
+  .portal-kpi-num {
+    font-size: 1.3rem;
+  }
+  .portal-kpi-label {
+    font-size: 0.8rem;
+  }
+  
+  /* Portal Grid - stack to 1 column */
+  .portal-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  /* Portal Cards - reduced padding */
+  .portal-card {
+    padding: 1rem;
+  }
+  
+  /* Tables - horizontal scroll with touch */
+  .portal-table-container, .portal-invoices .card, .portal-cases .card {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .portal-table {
+    min-width: 700px;
+  }
+  .portal-table th, .portal-table td {
+    padding: 0.5rem;
+    font-size: 0.85rem;
+  }
+  
+  /* Portal Cases Grid - single column */
+  .portal-cases-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  /* Portal Case Card - stack header */
+  .portal-case-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  /* Portal Info Grid - single column */
+  .portal-info-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  /* Portal Sessions/Invoices List - stack */
+  .portal-session-item, .portal-invoice-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    text-align: right;
+  }
+  .portal-session-item > div, .portal-invoice-item > div {
+    width: 100%;
+  }
+  
+  /* KPI Grid - 2 columns on mobile */
+  .portal-kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+  .portal-kpi {
+    padding: 1rem;
+  }
+  .portal-kpi-num {
+    font-size: 1.2rem;
+  }
+  .portal-kpi-label {
+    font-size: 0.8rem;
+  }
+  
+  /* Portal Main padding */
+  .portal-main {
+    padding: 1rem;
+  }
+  
+  /* Portal Card header */
+  .portal-card h3 {
+    font-size: 1rem;
+  }
+  
+  /* Portal Case/Invoice items */
+  .portal-case-item, .portal-invoice-item {
+    padding: 0.75rem 0;
+  }
+  
+  /* Portal KPI Grid - 2 columns on mobile, 1 on extra small */
+  .portal-kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  /* Portal Case Card */
+  .portal-case-card {
+    padding: 1rem;
+  }
+  
+  /* Portal Login card */
+  .portal-login-card {
+    margin: 1rem;
+    padding: 1.5rem;
+  }
+}
+
+/* Extra small mobile */
+@media (max-width: 374px) {
+  .portal-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+  .portal-kpi-num {
+    font-size: 1.1rem;
+  }
+}
+
+/* Tablet */
+@media (min-width: 431px) and (max-width: 768px) {
+  .portal-kpi-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }

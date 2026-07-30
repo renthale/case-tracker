@@ -3,12 +3,19 @@ import { Link } from 'react-router-dom';
 import api from '../../services/portalApi';
 
 const PortalCases = () => {
+  const [isMobile, setIsMobile] = useState(false);
   const [cases, setCases] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchCases();
+    const mql = window.matchMedia('(max-width: 768px)');
+    setIsMobile(mql.matches);
+    const handler = (e) => setIsMobile(e.matches);
+    mql.addEventListener('change', handler);
+    return () => mql.removeEventListener('change', handler);
   }, []);
+
+  useEffect(() => { fetchCases(); }, []);
 
   const fetchCases = async () => {
     try {
@@ -26,7 +33,7 @@ const PortalCases = () => {
   return (
     <div className="portal-cases">
       <h2>My Cases</h2>
-      <div className="portal-cases-grid">
+      <div className="portal-cases-grid portal-cases-grid-mobile">
         {cases.map(c => (
           <Link key={c.id} to={`/portal/cases/${c.id}`} className="portal-case-card">
             <div className="portal-case-header">

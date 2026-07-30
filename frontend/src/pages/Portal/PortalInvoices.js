@@ -2,12 +2,19 @@ import React, { useState, useEffect } from 'react';
 import api from '../../services/portalApi';
 
 const PortalInvoices = () => {
+  const [isMobile, setIsMobile] = useState(false);
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchInvoices();
+    const mql = window.matchMedia('(max-width: 768px)');
+    setIsMobile(mql.matches);
+    const handler = (e) => setIsMobile(e.matches);
+    mql.addEventListener('change', handler);
+    return () => mql.removeEventListener('change', handler);
   }, []);
+
+  useEffect(() => { fetchInvoices(); }, []);
 
   const fetchInvoices = async () => {
     try {
@@ -30,7 +37,7 @@ const PortalInvoices = () => {
     <div className="portal-invoices">
       <h2>My Invoices</h2>
 
-      <div className="portal-kpi-grid">
+      <div className="portal-kpi-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))' }}>
         <div className="portal-kpi" style={{ borderLeft: '4px solid #3498db' }}>
           <div className="portal-kpi-num">{invoices.length}</div>
           <div className="portal-kpi-label">Total Invoices</div>
@@ -45,8 +52,8 @@ const PortalInvoices = () => {
         </div>
       </div>
 
-      <div className="portal-card">
-        <table className="portal-table">
+      <div className="portal-card" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+        <table className="portal-table" style={{ minWidth: isMobile ? '700px' : 'auto' }}>
           <thead>
             <tr>
               <th>Invoice #</th>

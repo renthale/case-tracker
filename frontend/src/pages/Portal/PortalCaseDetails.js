@@ -4,12 +4,19 @@ import api from '../../services/portalApi';
 
 const PortalCaseDetails = () => {
   const { id } = useParams();
+  const [isMobile, setIsMobile] = useState(false);
   const [caseData, setCaseData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchCase();
-  }, [id]);
+    const mql = window.matchMedia('(max-width: 768px)');
+    setIsMobile(mql.matches);
+    const handler = (e) => setIsMobile(e.matches);
+    mql.addEventListener('change', handler);
+    return () => mql.removeEventListener('change', handler);
+  }, []);
+
+  useEffect(() => { fetchCase(); }, [id]);
 
   const fetchCase = async () => {
     try {
@@ -34,7 +41,7 @@ const PortalCaseDetails = () => {
         <span className={`portal-badge portal-badge-${caseData.status}`}>{caseData.status}</span>
       </div>
 
-      <div className="portal-info-grid">
+      <div className="portal-info-grid portal-info-grid-mobile">
         <div className="portal-info-item">
           <label>Case Number</label>
           <span>{caseData.caseNumber}</span>
