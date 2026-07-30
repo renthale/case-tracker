@@ -292,15 +292,20 @@ const CasesList = () => {
 
               <Link to={`/dashboard/cases/${caseItem.id}`} className="mc-title">{caseItem.title || '—'}</Link>
 
-              <div className="mc-session">
-                <span className="mc-session-lbl">{t.nextHearing}</span>
-                <span className="mc-session-val">
-                  <FiCalendar size={14} />
-                  {caseItem.nextHearingDate
-                    ? format(new Date(caseItem.nextHearingDate), 'dd/MM/yyyy', { locale: ar })
-                    : '—'}
-                </span>
-              </div>
+              {caseItem.nextHearingDate ? (
+                <div className="mc-session">
+                  <span className="mc-session-lbl">{t.nextHearing}</span>
+                  <span className="mc-session-val">
+                    <FiCalendar size={14} />
+                    {format(new Date(caseItem.nextHearingDate), 'dd/MM/yyyy', { locale: ar })}
+                  </span>
+                </div>
+              ) : (
+                <div className="mc-session-none">
+                  <FiCalendar size={13} />
+                  <span>{isArabic ? 'لا توجد جلسة قادمة' : 'No upcoming session'}</span>
+                </div>
+              )}
 
               <div className="mc-chips">
                 <div className="mc-chip">
@@ -318,7 +323,7 @@ const CasesList = () => {
               </div>
 
               <div className="mc-acts">
-                <Link to={`/dashboard/cases/${caseItem.id}`} className="mc-btn">
+                <Link to={`/dashboard/cases/${caseItem.id}`} className="mc-btn mc-btn-primary">
                   <FiEye size={16} /> {t.viewDetails}
                 </Link>
                 <Link to={`/dashboard/cases/${caseItem.id}/edit`} className="mc-btn">
