@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import api from '../../services/api';
-import { FiCheck, FiCheckSquare, FiTrash2, FiBell } from 'react-icons/fi';
+import { FiCheck, FiCheckSquare, FiTrash2, FiBell, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import toast from 'react-hot-toast';
@@ -17,10 +17,15 @@ const Notifications = () => {
     pages: 1,
     total: 0
   });
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    fetchNotifications();
-  }, [filter, pagination.page]);
+    const mql = window.matchMedia('(max-width: 768px)');
+    setIsMobile(mql.matches);
+    const handler = (e) => setIsMobile(e.matches);
+    mql.addEventListener('change', handler);
+    return () => mql.removeEventListener('change', handler);
+  }, []);
 
   const fetchNotifications = async () => {
     try {
@@ -97,22 +102,24 @@ const Notifications = () => {
   }
 
   return (
-    <div className="notifications-page">
+    <div className={`notifications-page ${isMobile ? 'notifications-page-mobile' : ''}`}>
       <div className="card-header">
-        <h2 className="card-title">
-          <FiBell /> {t.notifications}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexDirection: isMobile ? 'column' : 'row', gap: '0.5rem', alignItems: isMobile ? 'flex-start' : 'center' }}>
+          <h2 className="card-title">
+            <FiBell /> {t.notifications}
+            {unreadCount > 0 && (
+              <span className="notification-count">{unreadCount}</span>
+            )}
+          </h2>
           {unreadCount > 0 && (
-            <span className="notification-count">{unreadCount}</span>
+            <button className="btn btn-secondary" onClick={markAllAsRead}>
+              <FiCheckSquare /> {t.markAllRead}
+            </button>
           )}
-        </h2>
-        {unreadCount > 0 && (
-          <button className="btn btn-secondary" onClick={markAllAsRead}>
-            <FiCheckSquare /> {t.markAllRead}
-          </button>
-        )}
+        </div>
       </div>
 
-      <div className="filter-tabs">
+      <div className={`filter-tabs ${isMobile ? 'filter-tabs-mobile' : ''}`}>
         <button 
           className={`filter-tab ${filter === 'all' ? 'active' : ''}`}
           onClick={() => setFilter('all')}
@@ -132,7 +139,7 @@ const Notifications = () => {
           {notifications.map((notification) => (
             <div 
               key={notification.id} 
-              className={`notification-item ${!notification.isRead ? 'unread' : ''}`}
+              className={`notification-item ${!notification.isRead ? 'unread' : ''} ${isMobile ? 'notification-item-mobile' : ''}`}
             >
               <div className="notification-icon">
                 {getNotificationIcon(notification.type)}
@@ -151,7 +158,7 @@ const Notifications = () => {
                 )}
               </div>
               
-              <div className="notification-actions">
+              <div className={`notification-actions ${isMobile ? 'notification-actions-mobile' : ''}`}>
                 {!notification.isRead && (
                   <button 
                     className="btn btn-secondary"
@@ -159,6 +166,7 @@ const Notifications = () => {
                     title={t.markAsRead}
                   >
                     <FiCheck />
+                    <span style={{ display: isMobile ? 'inline' : 'none' }}>{t.markAsRead}</span>
                   </button>
                 )}
                 <button 
@@ -167,6 +175,7 @@ const Notifications = () => {
                   title={t.delete}
                 >
                   <FiTrash2 />
+                  <span style={{ display: isMobile ? 'inline' : 'none' }}>{t.delete}</span>
                 </button>
               </div>
             </div>
@@ -180,13 +189,13 @@ const Notifications = () => {
       )}
 
       {pagination.pages > 1 && (
-        <div className="pagination">
+        <div className={`pagination ${isMobile ? 'pagination-mobile' : ''}`}>
           <button 
             className="btn btn-secondary"
             disabled={pagination.page === 1}
             onClick={() => setPagination({ ...pagination, page: pagination.page - 1 })}
           >
-            {t.previous}
+            <FiChevronLeft /> {t.previous}
           </button>
           <span>{t.page} {pagination.page} {t.of} {pagination.pages}</span>
           <button 
@@ -194,7 +203,7 @@ const Notifications = () => {
             disabled={pagination.page === pagination.pages}
             onClick={() => setPagination({ ...pagination, page: pagination.page + 1 })}
           >
-            {t.next}
+            {t.next} <FiChevronRight />
           </button>
         </div>
       )}
