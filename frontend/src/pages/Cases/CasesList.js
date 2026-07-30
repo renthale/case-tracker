@@ -7,6 +7,7 @@ import { FiPlus, FiSearch, FiEye, FiEdit, FiTrash2, FiCalendar, FiCheckCircle, F
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import toast from 'react-hot-toast';
+import './CasesList.css';
 
 const CasesList = () => {
   const { t, language } = useLanguage();
@@ -281,44 +282,51 @@ const CasesList = () => {
           )}
         </div>
       ) : isMobile ? (
-        <div className="cases-mobile-cards">
+        <div className="mc-list">
           {cases.length > 0 ? cases.map((caseItem) => (
-            <div key={caseItem.id} className="case-mobile-card" dir={language === 'ar' ? 'rtl' : 'ltr'}>
-              <div className="case-card-header">
-                <Link to={`/dashboard/cases/${caseItem.id}`} className="case-card-number">{caseItem.caseNumber || '-'}</Link>
+            <div key={caseItem.id} className="mc-card" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+              <div className="mc-head">
+                <Link to={`/dashboard/cases/${caseItem.id}`} className="mc-num">{caseItem.caseNumber || '—'}</Link>
                 {getStatusBadge(caseItem.status)}
               </div>
-              <Link to={`/dashboard/cases/${caseItem.id}`} className="case-card-title">{caseItem.title}</Link>
-              <div className="case-card-body">
-                <div className="case-card-row">
-                  <span className="case-card-label">{t.caseType}</span>
-                  <span className="case-card-value">{t[caseItem.type]}</span>
+
+              <Link to={`/dashboard/cases/${caseItem.id}`} className="mc-title">{caseItem.title || '—'}</Link>
+
+              <div className="mc-session">
+                <span className="mc-session-lbl">{t.nextHearing}</span>
+                <span className="mc-session-val">
+                  <FiCalendar size={14} />
+                  {caseItem.nextHearingDate
+                    ? format(new Date(caseItem.nextHearingDate), 'dd/MM/yyyy', { locale: ar })
+                    : '—'}
+                </span>
+              </div>
+
+              <div className="mc-chips">
+                <div className="mc-chip">
+                  <span className="mc-chip-lbl">{t.caseType}</span>
+                  <span className="mc-chip-val">{t[caseItem.type] || '—'}</span>
                 </div>
-                <div className="case-card-row">
-                  <span className="case-card-label">{t.caseStatus}</span>
-                  <span className="case-card-value">{getStatusBadge(caseItem.status)}</span>
+                <div className="mc-chip">
+                  <span className="mc-chip-lbl">{t.casePriority}</span>
+                  <span className="mc-chip-val">{t[caseItem.priority] || '—'}</span>
                 </div>
-                <div className="case-card-row">
-                  <span className="case-card-label">{t.casePriority}</span>
-                  <span className="case-card-value">{t[caseItem.priority]}</span>
-                </div>
-                <div className="case-card-row">
-                  <span className="case-card-label">{t.clientName}</span>
-                  <span className="case-card-value">{caseItem.clientName || '-'}</span>
-                </div>
-                <div className="case-card-row">
-                  <span className="case-card-label">{t.nextHearing}</span>
-                  <span className="case-card-value">
-                    {caseItem.nextHearingDate
-                      ? format(new Date(caseItem.nextHearingDate), 'dd/MM/yyyy', { locale: ar })
-                      : '-'}
-                  </span>
+                <div className="mc-chip">
+                  <span className="mc-chip-lbl">{t.clientName}</span>
+                  <span className="mc-chip-val">{caseItem.clientName || '—'}</span>
                 </div>
               </div>
-              <div className="case-card-actions-row">
-                <Link to={`/dashboard/cases/${caseItem.id}`} className="btn btn-secondary btn-sm"><FiEye /> {t.viewDetails}</Link>
-                <Link to={`/dashboard/cases/${caseItem.id}/edit`} className="btn btn-secondary btn-sm"><FiEdit /> {t.edit}</Link>
-                <button className="btn btn-danger btn-sm" onClick={() => handleDelete(caseItem.id)}><FiTrash2 /> {t.delete}</button>
+
+              <div className="mc-acts">
+                <Link to={`/dashboard/cases/${caseItem.id}`} className="mc-btn">
+                  <FiEye size={16} /> {t.viewDetails}
+                </Link>
+                <Link to={`/dashboard/cases/${caseItem.id}/edit`} className="mc-btn">
+                  <FiEdit size={16} /> {t.edit}
+                </Link>
+                <button className="mc-btn mc-btn-del" onClick={() => handleDelete(caseItem.id)}>
+                  <FiTrash2 size={16} /> {t.delete}
+                </button>
               </div>
             </div>
           )) : (
