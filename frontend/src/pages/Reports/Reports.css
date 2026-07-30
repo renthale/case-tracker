@@ -1,0 +1,140 @@
+/* ============ REPORTS PAGE MOBILE ============ */
+@media (max-width: 768px) {
+  .report-tabs {
+    justify-content: flex-start;
+    -webkit-overflow-scrolling: touch;
+  }
+  .report-tabs .btn {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.8rem;
+  }
+  .filters-bar .filter-inputs {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.4rem;
+  }
+  .filters-bar .filter-inputs input[type="date"],
+  .filters-bar .filter-inputs select {
+    width: 100%;
+  }
+  .filters-bar .filter-inputs span {
+    text-align: center;
+    padding: 0.25rem 0;
+  }
+
+  /* KPI grids - stack to 2 columns on small, 1 on extra small */
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+  .stat-card {
+    padding: 0.75rem;
+  }
+  .stat-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 1.1rem;
+  }
+  .stat-info h3 {
+    font-size: 1.2rem;
+  }
+  .stat-info p {
+    font-size: 0.75rem;
+  }
+
+  /* Report page KPI grids */
+  .page-container > div[style*="gridTemplateColumns"] {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
+  /* Card padding on mobile */
+  .card {
+    padding: 1rem;
+  }
+
+  /* Tab bar improvements */
+  .report-tabs {
+    padding-bottom: 0.5rem;
+  }
+  .report-tabs .btn {
+    padding: 0.35rem 0.65rem;
+    font-size: 0.8rem;
+    white-space: nowrap;
+  }
+
+  /* Tables with horizontal scroll */
+  .table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .data-table {
+    min-width: 600px;
+  }
+
+  /* Filter bar */
+  .filters-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+  .filters-bar > * {
+    width: 100%;
+  }
+  .filters-bar .filter-inputs {
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .filters-bar .filter-inputs input,
+  .filters-bar .filter-inputs select {
+    width: 100%;
+  }
+
+  /* Form actions */
+  .form-actions {
+    flex-direction: column;
+  }
+  .form-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Report cards grid */
+  .page-container > div[style*="gridTemplateColumns"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Audit log filters */
+  .card > div[style*="display: flex"] {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .card > div[style*="display: flex"] > * {
+    width: 100%;
+    max-width: none !important;
+  }
+}
+
+/* Extra small mobile */
+@media (max-width: 374px) {
+  .page-container > div[style*="gridTemplateColumns"] {
+    grid-template-columns: 1fr !important;
+  }
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  .report-tabs .btn {
+    padding: 0.3rem 0.5rem;
+    font-size: 0.75rem;
+  }
+}
+
+/* Tablet */
+@media (min-width: 431px) and (max-width: 768px) {
+  .sidebar {
+    width: 300px;
+  }
+  .stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

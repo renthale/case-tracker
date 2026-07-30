@@ -1,0 +1,145 @@
+/* ============ COURT AGENT GRID (used on all screens) ============ */
+.cases-mobile-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 1rem;
+}
+.case-card-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 0.75rem;
+}
+.case-card-actions {
+  border-top: 1px solid #eee;
+  padding-top: 0.75rem;
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* ============ MOBILE CASE CARDS (JSX-rendered, max-width 768px) ============ */
+@media (max-width: 768px) {
+  .cases-mobile-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    direction: rtl;
+  }
+
+  .case-mobile-card {
+    width: 100%;
+    padding: 16px;
+    background: #fff;
+    border-radius: 16px;
+    box-sizing: border-box;
+    direction: rtl;
+    text-align: right;
+  }
+
+  .case-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .case-card-number {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: #1a365d;
+    text-decoration: none;
+  }
+  .case-card-title {
+    font-size: 0.95rem;
+    color: #2d3748;
+    text-decoration: none;
+    line-height: 1.4;
+    display: block;
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+  .case-card-body {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .case-card-row {
+    display: grid;
+    grid-template-columns: minmax(105px, 38%) minmax(0, 1fr);
+    align-items: center;
+    gap: 12px;
+    min-height: 48px;
+    border-bottom: 1px solid #e5e7eb;
+    direction: rtl;
+  }
+
+  .case-card-label {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    color: #64748b !important;
+    font-weight: 600;
+    text-align: right;
+    white-space: normal;
+    background: #fff3cd !important;
+  }
+
+  .case-card-value {
+    display: block;
+    min-width: 0;
+    color: #0f172a;
+    text-align: right;
+    overflow-wrap: anywhere;
+    background: #e8f4ff !important;
+  }
+
+  .case-card-actions-row {
+    display: flex;
+    justify-content: flex-start;
+    gap: 8px;
+    margin-top: 14px;
+    direction: rtl;
+  }
+  .case-card-actions-row .btn {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.5rem;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+}
+
+/* Court agent KPI grid responsive */
+@media (max-width: 768px) {
+  .cases-mobile-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+  .case-card-fields {
+    grid-template-columns: 1fr;
+  }
+  .case-card-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .case-card-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Court Agent report summary grid */
+@media (max-width: 768px) {
+  .court-agent-summary-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+}
+@media (max-width: 374px) {
+  .court-agent-summary-grid {
+    grid-template-columns: 1fr;
+  }
+}
