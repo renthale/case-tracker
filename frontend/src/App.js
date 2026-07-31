@@ -36,6 +36,11 @@ import PortalDashboard from './pages/Portal/PortalDashboard';
 import PortalCases from './pages/Portal/PortalCases';
 import PortalCaseDetails from './pages/Portal/PortalCaseDetails';
 import PortalInvoices from './pages/Portal/PortalInvoices';
+import PortalSessions from './pages/Portal/PortalSessions';
+import PortalDocuments from './pages/Portal/PortalDocuments';
+import PortalPayments from './pages/Portal/PortalPayments';
+import PortalProfile from './pages/Portal/PortalProfile';
+import PortalNotifications from './pages/Portal/PortalNotifications';
 import './styles/App.css';
 import './pages/Portal/Portal.css';
 import './pages/Landing/Landing.css';
@@ -93,10 +98,15 @@ function App() {
 
             <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
 
-            <Route path="/portal/login" element={<PortalProvider><Toaster position="top-right" /><PortalLogin /></PortalProvider>} />
+            <Route path="/portal/login" element={<PortalProvider><PortalLogin /></PortalProvider>} />
             <Route path="/portal/cases/:id" element={<PortalProvider><ProtectedPortal><PortalLayout><PortalCaseDetails /></PortalLayout></ProtectedPortal></PortalProvider>} />
             <Route path="/portal/cases" element={<PortalProvider><ProtectedPortal><PortalLayout><PortalCases /></PortalLayout></ProtectedPortal></PortalProvider>} />
+            <Route path="/portal/sessions" element={<PortalProvider><ProtectedPortal><PortalLayout><PortalSessions /></PortalLayout></ProtectedPortal></PortalProvider>} />
             <Route path="/portal/invoices" element={<PortalProvider><ProtectedPortal><PortalLayout><PortalInvoices /></PortalLayout></ProtectedPortal></PortalProvider>} />
+            <Route path="/portal/documents" element={<PortalProvider><ProtectedPortal><PortalLayout><PortalDocuments /></PortalLayout></ProtectedPortal></PortalProvider>} />
+            <Route path="/portal/payments" element={<PortalProvider><ProtectedPortal><PortalLayout><PortalPayments /></PortalLayout></ProtectedPortal></PortalProvider>} />
+            <Route path="/portal/profile" element={<PortalProvider><ProtectedPortal><PortalLayout><PortalProfile /></PortalLayout></ProtectedPortal></PortalProvider>} />
+            <Route path="/portal/notifications" element={<PortalProvider><ProtectedPortal><PortalLayout><PortalNotifications /></PortalLayout></ProtectedPortal></PortalProvider>} />
             <Route path="/portal" element={<PortalProvider><ProtectedPortal><PortalLayout><PortalDashboard /></PortalLayout></ProtectedPortal></PortalProvider>} />
 
             <Route path="/dashboard" element={<PrivateRoute><Layout /></PrivateRoute>}>

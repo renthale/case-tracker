@@ -65,6 +65,11 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date() });
 });
 
+// JSON 404 for unknown API endpoints (prevent SPA fallback from masking API mistakes)
+app.use('/api', (req, res) => {
+  res.status(404).json({ error: 'Endpoint not found' });
+});
+
 // Serve React app for all non-API routes with strong no-cache
 app.get('*', (req, res) => {
   res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');

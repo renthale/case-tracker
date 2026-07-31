@@ -131,5 +131,8 @@ router.get('/profile', clientPortalController.getMyProfile);
 router.get('/cases', clientPortalController.getMyCases);
 router.get('/cases/:id', clientPortalController.getMyCaseDetails);
 router.get('/invoices', clientPortalController.getMyInvoices);
+router.get('/sessions', clientPortalController.getMySessions);
+router.get('/documents', clientPortalController.getMyDocuments);
+router.get('/payments', clientPortalController.getMyPayments);
 
 module.exports = router;

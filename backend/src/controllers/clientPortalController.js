@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { ClientPortalUser, Client, Case, Session, Invoice } = require('../models');
+const { ClientPortalUser, Client, Case, Session, Invoice, Payment, LegalDocument } = require('../models');
 const { Op } = require('sequelize');
 
 const generatePortalToken = (id) => {
@@ -100,7 +100,13 @@ exports.getMyCaseDetails = async (req, res) => {
       where: { id: req.params.id, clientId: req.client.id },
       include: [
         { model: Session, as: 'sessions', attributes: ['id', 'sessionNumber', 'date', 'time', 'location', 'status', 'outcome'] },
-        { model: Invoice, as: 'invoices', attributes: ['id', 'invoiceNumber', 'totalAmount', 'paidAmount', 'status', 'dueDate'] }
+        {
+          model: Invoice,
+          as: 'invoices',
+          attributes: ['id', 'invoiceNumber', 'totalAmount', 'paidAmount', 'status', 'dueDate'],
+          include: [{ model: Payment, as: 'payments', attributes: ['id', 'amount', 'paymentDate', 'paymentMethod', 'referenceNumber'] }]
+        },
+        { model: LegalDocument, as: 'legalDocuments', attributes: ['id', 'title', 'type', 'status', 'fileUrl', 'createdAt'] }
       ]
     });
 
@@ -118,7 +124,8 @@ exports.getMyInvoices = async (req, res) => {
   try {
     const invoices = await Invoice.findAll({
       where: { clientId: req.client.id },
-      attributes: ['id', 'invoiceNumber', 'totalAmount', 'paidAmount', 'status', 'dueDate', 'createdAt'],
+      attributes: ['id', 'invoiceNumber', 'totalAmount', 'paidAmount', 'status', 'dueDate', 'issuedDate', 'createdAt'],
+      include: [{ model: Payment, as: 'payments', attributes: ['id', 'amount', 'paymentDate', 'paymentMethod', 'referenceNumber'] }],
       order: [['createdAt', 'DESC']]
     });
 
@@ -128,9 +135,86 @@ exports.getMyInvoices = async (req, res) => {
   }
 };
 
+exports.getMySessions = async (req, res) => {
+  try {
+    const clientCases = await Case.findAll({
+      where: { clientId: req.client.id },
+      attributes: ['id']
+    });
+    const caseIds = clientCases.map(c => c.id);
+
+    const sessions = caseIds.length > 0
+      ? await Session.findAll({
+          where: { caseId: { [Op.in]: caseIds } },
+          include: [{ model: Case, as: 'case', attributes: ['id', 'caseNumber', 'title'] }],
+          order: [['date', 'DESC']]
+        })
+      : [];
+
+    res.json({ sessions });
+  } catch (error) {
+    res.status(500).json({ error: 'خطأ في جلب الجلسات', details: error.message });
+  }
+};
+
+exports.getMyDocuments = async (req, res) => {
+  try {
+    const clientCases = await Case.findAll({
+      where: { clientId: req.client.id },
+      attributes: ['id']
+    });
+    const caseIds = clientCases.map(c => c.id);
+
+    const documents = caseIds.length > 0
+      ? await LegalDocument.findAll({
+          where: { caseId: { [Op.in]: caseIds } },
+          include: [{ model: Case, as: 'case', attributes: ['id', 'caseNumber', 'title'] }],
+          order: [['createdAt', 'DESC']]
+        })
+      : [];
+
+    res.json({ documents });
+  } catch (error) {
+    res.status(500).json({ error: 'خطأ في جلب المستندات', details: error.message });
+  }
+};
+
+exports.getMyPayments = async (req, res) => {
+  try {
+    const clientInvoices = await Invoice.findAll({
+      where: { clientId: req.client.id },
+      attributes: ['id']
+    });
+    const invoiceIds = clientInvoices.map(i => i.id);
+
+    const payments = invoiceIds.length > 0
+      ? await Payment.findAll({
+          where: { invoiceId: { [Op.in]: invoiceIds } },
+          include: [{ model: Invoice, as: 'invoice', attributes: ['id', 'invoiceNumber'] }],
+          order: [['paymentDate', 'DESC']]
+        })
+      : [];
+
+    res.json({ payments });
+  } catch (error) {
+    res.status(500).json({ error: 'خطأ في جلب الدفعات', details: error.message });
+  }
+};
+
 exports.getMyProfile = async (req, res) => {
   try {
-    res.json({ client: req.client });
+    const safeAttributes = [
+      'id', 'name', 'email', 'phone', 'civilId', 'passportNumber',
+      'nationality', 'address', 'dateOfBirth', 'firstCooperationDate', 'isActive'
+    ];
+    const clientData = {};
+    safeAttributes.forEach(attr => {
+      clientData[attr] = req.client[attr];
+    });
+    clientData.portalEmail = req.portalUser.email;
+    clientData.lastLogin = req.portalUser.lastLogin;
+
+    res.json({ client: clientData });
   } catch (error) {
     res.status(500).json({ error: 'خطأ في جلب البيانات' });
   }
