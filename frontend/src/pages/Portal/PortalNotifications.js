@@ -35,7 +35,7 @@ const PortalNotifications = () => {
               color: '#2b6cb0',
               bg: '#ebf4ff',
               title: t.upcomingHearingNote,
-              body: `${s.case?.caseNumber || ''} · ${formatDate(s.date, language)}`,
+              body: `${s.Case?.caseNumber || ''} · ${formatDate(s.date, language)}`,
               link: `/portal/cases/${s.caseId}`,
               days
             });

@@ -146,7 +146,7 @@ exports.getMySessions = async (req, res) => {
     const sessions = caseIds.length > 0
       ? await Session.findAll({
           where: { caseId: { [Op.in]: caseIds } },
-          include: [{ model: Case, as: 'case', attributes: ['id', 'caseNumber', 'title'] }],
+          include: [{ model: Case, as: 'Case', attributes: ['id', 'caseNumber', 'title'] }],
           order: [['date', 'DESC']]
         })
       : [];

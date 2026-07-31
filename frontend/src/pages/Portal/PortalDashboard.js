@@ -146,8 +146,8 @@ const PortalDashboard = () => {
             {upcomingSessions.slice(0, 5).map((s) => (
               <Link key={s.id} to={`/portal/cases/${s.caseId}`} className="portal-item">
                 <div className="portal-item-main">
-                  <span className="portal-item-title">{s.case?.caseNumber || `#${s.sessionNumber}`}</span>
-                  <span className="portal-item-sub">{s.case?.title}</span>
+                  <span className="portal-item-title">{s.Case?.caseNumber || `#${s.sessionNumber}`}</span>
+                  <span className="portal-item-sub">{s.Case?.title}</span>
                 </div>
                 <div className="portal-item-side">
                   <span className="portal-item-amount">{formatDate(s.date, language)}</span>

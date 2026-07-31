@@ -72,7 +72,7 @@ const PortalSessions = () => {
             <tr key={s.id}>
               <td data-label={t.sessionNumber}>{s.sessionNumber}</td>
               <td data-label={t.caseNumber}>
-                <Link to={`/portal/cases/${s.caseId}`}>{s.case?.caseNumber || '-'}</Link>
+                <Link to={`/portal/cases/${s.caseId}`}>{s.Case?.caseNumber || '-'}</Link>
               </td>
               <td data-label={t.date}>{formatDate(s.date, language)}</td>
               <td data-label={t.time}>{s.time || '-'}</td>
@@ -93,8 +93,8 @@ const PortalSessions = () => {
       {list.map((s) => (
         <Link key={s.id} to={`/portal/cases/${s.caseId}`} className="portal-item portal-session-item">
           <div className="portal-item-main">
-            <span className="portal-item-title">{s.case?.caseNumber || `#${s.sessionNumber}`} · {t.sessionNumber} {s.sessionNumber}</span>
-            <span className="portal-item-sub">{s.case?.title}</span>
+            <span className="portal-item-title">{s.Case?.caseNumber || `#${s.sessionNumber}`} · {t.sessionNumber} {s.sessionNumber}</span>
+            <span className="portal-item-sub">{s.Case?.title}</span>
             <span className="portal-item-sub">
               {t.sessionLocation}: {s.location || '-'}
             </span>
