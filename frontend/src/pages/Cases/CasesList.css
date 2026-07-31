@@ -193,7 +193,7 @@
   }
 }
 
-/* Court agent mobile grid (used on all screens) — UNCHANGED */
+/* Court agent mobile cards (used only within mobile/tablet layout) */
 .cases-mobile-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));

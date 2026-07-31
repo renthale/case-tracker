@@ -216,7 +216,8 @@ const CasesList = () => {
         </select>
       </div>
 
-      {isCourtAgent ? (
+      {isMobile ? (
+        isCourtAgent ? (
         <div className="cases-mobile-grid">
           {cases.length > 0 ? cases.map((caseItem) => (
             <div
@@ -226,7 +227,7 @@ const CasesList = () => {
             >
               <div
                 style={{ cursor: 'pointer' }}
-                onClick={() => navigate(`/cases/${caseItem.id}`)}
+                onClick={() => navigate(`/dashboard/cases/${caseItem.id}`)}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
                   <div>
@@ -251,7 +252,7 @@ const CasesList = () => {
               <div className="case-card-actions">
                 <button
                   className="btn btn-secondary btn-sm"
-                  onClick={() => navigate(`/cases/${caseItem.id}`)}
+                  onClick={() => navigate(`/dashboard/cases/${caseItem.id}`)}
                   title={t.viewDetails}
                 >
                   <FiEye /> {isArabic ? 'عرض' : 'View'}
@@ -295,7 +296,7 @@ const CasesList = () => {
             <div className="no-data" style={{ gridColumn: '1 / -1' }}>{t.noData}</div>
           )}
         </div>
-      ) : isMobile ? (
+        ) : (
         <div className="mc-list">
           {cases.length > 0 ? cases.map((caseItem) => (
             <div key={caseItem.id} className="mc-card" dir={language === 'ar' ? 'rtl' : 'ltr'}>
@@ -352,7 +353,7 @@ const CasesList = () => {
             <div className="no-data">{t.noData}</div>
           )}
         </div>
-      ) : (
+      )) : (
       <div className="table-container">
         <table className="no-card">
           <thead>
@@ -384,21 +385,65 @@ const CasesList = () => {
                     }
                   </td>
                   <td>
-                    <div className="actions no-print">
-                      <Link to={`/dashboard/cases/${caseItem.id}`} className="btn btn-secondary" title={t.viewDetails}>
-                        <FiEye />
-                      </Link>
-                      <Link to={`/dashboard/cases/${caseItem.id}/edit`} className="btn btn-secondary" title={t.edit}>
-                        <FiEdit />
-                      </Link>
-                      <button 
-                        className="btn btn-danger" 
-                        title={t.delete}
-                        onClick={() => handleDelete(caseItem.id)}
-                      >
-                        <FiTrash2 />
-                      </button>
-                    </div>
+                    {isCourtAgent ? (
+                      <div className="actions no-print">
+                        <Link to={`/dashboard/cases/${caseItem.id}`} className="btn btn-secondary" title={t.viewDetails}>
+                          <FiEye />
+                        </Link>
+                        {caseItem.status !== 'closed' && caseItem.status !== 'won' && caseItem.status !== 'lost' && (
+                          <>
+                            <button
+                              className="btn btn-primary"
+                              title={isArabic ? 'إغلاق' : 'Close'}
+                              disabled={updatingCase === caseItem.id}
+                              onClick={() => handleStatusUpdate(caseItem.id, 'closed')}
+                            >
+                              <FiCheckCircle />
+                            </button>
+                            <button
+                              className="btn btn-secondary"
+                              title={isArabic ? 'تأجيل' : 'Postpone'}
+                              disabled={updatingCase === caseItem.id}
+                              onClick={() => handleStatusUpdate(caseItem.id, 'pending')}
+                            >
+                              <FiClock />
+                            </button>
+                            <button
+                              className="btn btn-primary"
+                              title={isArabic ? 'فوز' : 'Won'}
+                              disabled={updatingCase === caseItem.id}
+                              onClick={() => handleStatusUpdate(caseItem.id, 'won')}
+                            >
+                              <FiCheckCircle />
+                            </button>
+                            <button
+                              className="btn btn-danger"
+                              title={isArabic ? 'خسارة' : 'Lost'}
+                              disabled={updatingCase === caseItem.id}
+                              onClick={() => handleStatusUpdate(caseItem.id, 'lost')}
+                            >
+                              <FiXCircle />
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="actions no-print">
+                        <Link to={`/dashboard/cases/${caseItem.id}`} className="btn btn-secondary" title={t.viewDetails}>
+                          <FiEye />
+                        </Link>
+                        <Link to={`/dashboard/cases/${caseItem.id}/edit`} className="btn btn-secondary" title={t.edit}>
+                          <FiEdit />
+                        </Link>
+                        <button 
+                          className="btn btn-danger" 
+                          title={t.delete}
+                          onClick={() => handleDelete(caseItem.id)}
+                        >
+                          <FiTrash2 />
+                        </button>
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))

@@ -10,7 +10,8 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isArabic = language === 'ar';
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -22,7 +23,13 @@ const Login = () => {
       toast.success(t.loginSuccess);
       navigate('/dashboard');
     } catch (error) {
-      toast.error(error.response?.data?.error || t.invalidCredentials);
+      if (error.response?.data?.error) {
+        toast.error(error.response.data.error);
+      } else if (error.response?.status && error.response.status >= 500) {
+        toast.error(isArabic ? 'خطأ في الخادم - يرجى المحاولة لاحقاً' : 'Server error - please try again later');
+      } else {
+        toast.error(isArabic ? 'تعذر الاتصال بالخادم - يرجى المحاولة مرة أخرى' : 'Could not reach the server - please try again');
+      }
     } finally {
       setLoading(false);
     }
