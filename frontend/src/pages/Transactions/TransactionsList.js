@@ -4,6 +4,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import { FiPlus, FiEdit2, FiTrash2, FiMapPin, FiSearch, FiFilter, FiPrinter, FiEye } from 'react-icons/fi';
+import './TransactionsList.css';
 
 const statusOptions = [
   { value: 'submitted', ar: 'مقدمة', en: 'Submitted', color: '#3498db' },
@@ -32,6 +33,7 @@ const TransactionsList = () => {
 
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
   const [pagination, setPagination] = useState({ page: 1, pages: 1, total: 0 });
   const [stats, setStats] = useState({ countByStatus: {}, countByEntity: {} });
   const [filters, setFilters] = useState({ status: '', entityType: '', search: '', page: 1 });
@@ -49,6 +51,7 @@ const TransactionsList = () => {
 
   const fetchTransactions = async () => {
     try {
+      setFetchError(false);
       setLoading(true);
       const params = new URLSearchParams();
       Object.entries(filters).forEach(([key, value]) => {
@@ -60,6 +63,7 @@ const TransactionsList = () => {
       setPagination(data.pagination || { page: 1, pages: 1, total: 0 });
     } catch (error) {
       toast.error(isArabic ? 'خطأ في جلب المعاملات' : 'Error loading transactions');
+      setFetchError(true);
     } finally {
       setLoading(false);
     }
@@ -114,6 +118,17 @@ const TransactionsList = () => {
   const pendingTx = stats.countByStatus?.pending || 0;
   const rejectedTx = stats.countByStatus?.rejected || 0;
   const submittedTx = stats.countByStatus?.submitted || 0;
+
+  if (fetchError) {
+    return (
+      <div className="error-state" style={{ textAlign: 'center', padding: '3rem' }}>
+        <p style={{ color: '#e53e3e', marginBottom: '1rem' }}>{isArabic ? 'فشل تحميل البيانات' : 'Failed to load data'}</p>
+        <button className="btn btn-primary" onClick={() => { setFetchError(false); setLoading(true); fetchTransactions(); }}>
+          {isArabic ? 'إعادة المحاولة' : 'Retry'}
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="page-container print-page">
@@ -192,63 +207,63 @@ const TransactionsList = () => {
       </div>
 
       {isMobile ? (
-        <div className="cases-mobile-cards">
+        <div className="tx-list">
           {loading ? (
             <div className="loading">{t.loading}</div>
           ) : transactions.length === 0 ? (
             <div className="no-data">{isArabic ? 'لا توجد معاملات' : 'No transactions found'}</div>
-          ) : transactions.map((tx, idx) => {
+          ) : transactions.map((tx) => {
             const opt = statusOptions.find(s => s.value === tx.status);
             const c = opt?.color || '#95a5a6';
             return (
-              <div key={tx.id} className="case-mobile-card" dir={language === 'ar' ? 'rtl' : 'ltr'}>
-                <div className="case-card-header">
-                  <span className="case-card-number">{tx.title}</span>
-                  <span style={{
-                    display: 'inline-block', padding: '0.25rem 0.75rem', borderRadius: 20,
-                    fontSize: '0.8rem', fontWeight: 500, background: c + '18',
-                    color: c, border: '1px solid ' + c + '30'
-                  }}>
+              <div key={tx.id} className="tx-card" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+                <div className="tx-head">
+                  <span className="tx-title">{tx.title}</span>
+                  <span className="tx-badge" style={{ background: c + '18', color: c, borderColor: c + '30' }}>
                     {opt?.[language] || tx.status}
                   </span>
                 </div>
-                <div className="case-card-body">
-                  <div className="case-card-row">
-                    <span className="case-card-label">{isArabic ? 'الجهة الحكومية' : 'Entity'}</span>
-                    <span className="case-card-value">{tx.governmentEntity}</span>
+
+                <div className="tx-body">
+                  <div className="tx-row">
+                    <span className="tx-lbl">{isArabic ? 'الجهة الحكومية' : 'Entity'}</span>
+                    <span className="tx-val">{tx.governmentEntity}</span>
                   </div>
-                  <div className="case-card-row">
-                    <span className="case-card-label">{isArabic ? 'نوع الجهة' : 'Type'}</span>
-                    <span className="case-card-value">{(entityTypeOptions.find(e => e.value === tx.entityType))?.[language] || tx.entityType || '-'}</span>
+                  <div className="tx-row">
+                    <span className="tx-lbl">{isArabic ? 'نوع الجهة' : 'Type'}</span>
+                    <span className="tx-val">{(entityTypeOptions.find(e => e.value === tx.entityType))?.[language] || tx.entityType || '—'}</span>
                   </div>
-                  <div className="case-card-row">
-                    <span className="case-card-label">{isArabic ? 'القضية' : 'Case'}</span>
-                    <span className="case-card-value">
+                  <div className="tx-row">
+                    <span className="tx-lbl">{isArabic ? 'القضية' : 'Case'}</span>
+                    <span className="tx-val">
                       {tx.case ? (
-                        <Link to={`/dashboard/cases/${tx.case.id}`} style={{ color: '#3182ce', fontWeight: 500 }}>
-                          {tx.case.caseNumber}
-                        </Link>
-                      ) : <span style={{ color: '#999' }}>-</span>}
+                        <Link to={`/dashboard/cases/${tx.case.id}`}>{tx.case.caseNumber}</Link>
+                      ) : '—'}
                     </span>
                   </div>
-                  <div className="case-card-row">
-                    <span className="case-card-label">{isArabic ? 'الموكل' : 'Client'}</span>
-                    <span className="case-card-value">{tx.client?.name || <span style={{ color: '#999' }}>-</span>}</span>
+                  <div className="tx-row">
+                    <span className="tx-lbl">{isArabic ? 'الموكل' : 'Client'}</span>
+                    <span className="tx-val">{tx.client?.name || '—'}</span>
                   </div>
-                  <div className="case-card-row">
-                    <span className="case-card-label">{isArabic ? 'التقديم' : 'Submitted'}</span>
-                    <span className="case-card-value">{tx.submissionDate || '-'}</span>
+                  <div className="tx-row">
+                    <span className="tx-lbl">{isArabic ? 'التقديم' : 'Submitted'}</span>
+                    <span className="tx-val">{tx.submissionDate || '—'}</span>
                   </div>
-                  <div className="case-card-row">
-                    <span className="case-card-label">{isArabic ? 'المتوقع' : 'Expected'}</span>
-                    <span className="case-card-value" style={{ color: tx.expectedDate && new Date(tx.expectedDate) < new Date() && tx.status !== 'completed' ? '#e74c3c' : '#333' }}>
-                      {tx.expectedDate || '-'}
+                  <div className="tx-row">
+                    <span className="tx-lbl">{isArabic ? 'المتوقع' : 'Expected'}</span>
+                    <span className="tx-val" data-overdue={tx.expectedDate && new Date(tx.expectedDate) < new Date() && tx.status !== 'completed' ? 'true' : 'false'}>
+                      {tx.expectedDate || '—'}
                     </span>
                   </div>
                 </div>
-                <div className="case-card-actions-row">
-                  <button className="btn btn-secondary btn-sm" onClick={() => navigate(`/transactions/${tx.id}/edit`)}><FiEdit2 /> {isArabic ? 'تعديل' : 'Edit'}</button>
-                  <button className="btn btn-danger btn-sm" onClick={() => handleDelete(tx.id)}><FiTrash2 /> {isArabic ? 'حذف' : 'Delete'}</button>
+
+                <div className="tx-acts">
+                  <button className="tx-btn" onClick={() => navigate(`/transactions/${tx.id}/edit`)}>
+                    <FiEdit2 size={16} /> {isArabic ? 'تعديل' : 'Edit'}
+                  </button>
+                  <button className="tx-btn tx-btn-del" onClick={() => handleDelete(tx.id)}>
+                    <FiTrash2 size={16} /> {isArabic ? 'حذف' : 'Delete'}
+                  </button>
                 </div>
               </div>
             );

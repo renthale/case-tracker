@@ -1130,6 +1130,7 @@ tr:hover {
   .main-content {
     margin-right: 0 !important;
     margin-left: 0 !important;
+    min-width: 0 !important;
   }
   .top-bar {
     padding: 0.75rem 1rem;
@@ -1143,6 +1144,7 @@ tr:hover {
   .content {
     padding: 1rem;
     overflow-x: hidden;
+    min-width: 0 !important;
   }
 
   /* Sidebar nav items smaller on mobile */

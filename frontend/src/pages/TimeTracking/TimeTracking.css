@@ -1,42 +1,62 @@
-/* ============ TIME TRACKING MOBILE ============ */
 @media (max-width: 768px) {
-  .time-tracking-mobile .card {
-    padding: 1rem;
+  .page-container .page-header { flex-wrap: wrap; gap: 0.5rem; }
+  .page-container .page-header h1 { font-size: 1.1rem; }
+
+  .tt-list {
+    display: flex; flex-direction: column; gap: 16px; padding: 0 0 12px;
   }
-  .time-tracking-mobile .form-group {
-    margin-bottom: 0.75rem;
+  .tt-card {
+    background: #fff; border-radius: 18px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.04), 0 6px 20px rgba(0,0,0,.06);
+    border: 1px solid #edf2f7; padding: 14px 16px 12px;
+    display: flex; flex-direction: column; gap: 0;
   }
-  .time-tracking-mobile .form-control {
-    font-size: 16px !important;
-    padding: 0.55rem 0.75rem;
+  .tt-head {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 8px; gap: 8px;
   }
-  .time-tracking-mobile label {
-    font-size: 0.8rem;
-    margin-bottom: 0.3rem;
+  .tt-date {
+    font-size: .95rem; font-weight: 600; color: #0f172a;
   }
-  .time-tracking-mobile .form-actions {
-    flex-direction: column;
-    gap: 0.5rem;
+  .tt-hours {
+    font-size: 1.1rem; font-weight: 800; color: #1a365d;
+    white-space: nowrap;
   }
-  .time-tracking-mobile .form-actions .btn {
-    width: 100%;
-    justify-content: center;
-    padding: 0.6rem 1rem;
-    font-size: 0.9rem;
+  .tt-desc {
+    font-size: .88rem; font-weight: 500; color: #334155;
+    line-height: 1.5; margin-bottom: 10px; padding-bottom: 10px;
+    border-bottom: 1px solid #f1f5f9;
+    overflow-wrap: anywhere; word-break: break-word;
   }
-  .time-tracking-mobile .filter-bar {
-    flex-direction: column;
-    align-items: stretch;
+  .tt-body {
+    margin-bottom: 4px; border-radius: 12px;
+    background: #fafbfc; border: 1px solid #eef2f6; overflow: hidden;
   }
-  .time-tracking-mobile .filter-bar > * {
-    width: 100%;
+  .tt-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 9px 14px; border-bottom: 1px solid #f1f3f5; gap: 12px;
   }
-  .time-tracking-mobile .filter-bar .form-control {
-    max-width: none !important;
-    width: 100%;
+  .tt-row:last-child { border-bottom: none; }
+  .tt-lbl {
+    font-size: .78rem; font-weight: 600; color: #94a3b8;
+    white-space: nowrap; flex-shrink: 0;
   }
-  .time-tracking-mobile .btn-sm {
-    width: 100%;
-    justify-content: center;
+  .tt-val {
+    font-size: .85rem; font-weight: 500; color: #0f172a;
+    overflow-wrap: anywhere; word-break: break-word; max-width: 60%;
   }
+  .tt-amount { font-weight: 700; color: #059669; }
+
+  .tt-acts {
+    display: flex; gap: 8px; padding-top: 10px; border-top: 1px solid #f1f5f9;
+  }
+  .tt-btn {
+    flex: 1; min-height: 48px; display: inline-flex; align-items: center;
+    justify-content: center; gap: 5px; font-size: .82rem; font-weight: 600;
+    border-radius: 12px; cursor: pointer; padding: 0 4px;
+    border: none; transition: all .12s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .tt-btn-del { background: #fef2f2; color: #dc2626; }
+  .tt-btn-del:active { background: #fee2e2; }
 }

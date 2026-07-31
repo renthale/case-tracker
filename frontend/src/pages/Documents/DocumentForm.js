@@ -218,6 +218,16 @@ const DocumentForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!formData.title.trim()) {
+      toast.error(isArabic ? 'العنوان مطلوب' : 'Title is required');
+      return;
+    }
+    if (!formData.type) {
+      toast.error(isArabic ? 'النوع مطلوب' : 'Document type is required');
+      return;
+    }
+
     setLoading(true);
 
     const cleanedData = { ...formData };

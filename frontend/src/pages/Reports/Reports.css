@@ -1,140 +1,102 @@
-/* ============ REPORTS PAGE MOBILE ============ */
 @media (max-width: 768px) {
-  .report-tabs {
-    justify-content: flex-start;
-    -webkit-overflow-scrolling: touch;
-  }
-  .report-tabs .btn {
-    padding: 0.4rem 0.75rem;
-    font-size: 0.8rem;
-  }
-  .filters-bar .filter-inputs {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.4rem;
-  }
-  .filters-bar .filter-inputs input[type="date"],
-  .filters-bar .filter-inputs select {
+  .print-page {
     width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    overflow-x: hidden;
   }
-  .filters-bar .filter-inputs span {
-    text-align: center;
-    padding: 0.25rem 0;
+  .print-page > * {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  .print-page .card {
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    margin-left: 0;
+    margin-right: 0;
+  }
+  .print-page .card-title {
+    font-size: 0.95rem;
   }
 
-  /* KPI grids - stack to 2 columns on small, 1 on extra small */
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.75rem;
+  .page-header {
+    flex-wrap: wrap !important;
+    gap: 0.5rem !important;
   }
-  .stat-card {
-    padding: 0.75rem;
-  }
-  .stat-icon {
-    width: 36px;
-    height: 36px;
+  .page-header h1 {
     font-size: 1.1rem;
   }
-  .stat-info h3 {
-    font-size: 1.2rem;
-  }
-  .stat-info p {
-    font-size: 0.75rem;
-  }
 
-  /* Report page KPI grids */
-  .page-container > div[style*="gridTemplateColumns"] {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.75rem;
-  }
-
-  /* Card padding on mobile */
-  .card {
-    padding: 1rem;
-  }
-
-  /* Tab bar improvements */
   .report-tabs {
-    padding-bottom: 0.5rem;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    flex-wrap: nowrap !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .report-tabs::-webkit-scrollbar {
+    height: 3px;
+  }
+  .report-tabs::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 3px;
   }
   .report-tabs .btn {
-    padding: 0.35rem 0.65rem;
-    font-size: 0.8rem;
-    white-space: nowrap;
+    font-size: 0.82rem;
+    padding: 0.4rem 0.65rem;
   }
 
-  /* Tables with horizontal scroll */
-  .table-container {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-  .data-table {
-    min-width: 600px;
-  }
-
-  /* Filter bar */
   .filters-bar {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.5rem;
-  }
-  .filters-bar > * {
-    width: 100%;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.5rem !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
   }
   .filters-bar .filter-inputs {
-    flex-direction: column;
-    gap: 0.4rem;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.4rem !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
   }
-  .filters-bar .filter-inputs input,
-  .filters-bar .filter-inputs select {
-    width: 100%;
-  }
-
-  /* Form actions */
-  .form-actions {
-    flex-direction: column;
-  }
-  .form-actions .btn {
-    width: 100%;
-    justify-content: center;
-  }
-
-  /* Report cards grid */
-  .page-container > div[style*="gridTemplateColumns"] {
-    grid-template-columns: 1fr !important;
-  }
-
-  /* Audit log filters */
-  .card > div[style*="display: flex"] {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  .card > div[style*="display: flex"] > * {
-    width: 100%;
+  .filters-bar .filter-inputs > input,
+  .filters-bar .filter-inputs > select,
+  .filters-bar .filter-inputs > .btn,
+  .filters-bar .filter-inputs > span {
+    width: 100% !important;
     max-width: none !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  .print-page .data-table {
+    min-width: 450px;
+  }
+
+  .no-print .card > div[style*="display: flex"] {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    max-width: 100% !important;
+  }
+  .no-print .card > div[style*="display: flex"] > * {
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
   }
 }
 
-/* Extra small mobile */
 @media (max-width: 374px) {
-  .page-container > div[style*="gridTemplateColumns"] {
-    grid-template-columns: 1fr !important;
-  }
-  .stats-grid {
-    grid-template-columns: 1fr;
-  }
   .report-tabs .btn {
-    padding: 0.3rem 0.5rem;
     font-size: 0.75rem;
-  }
-}
-
-/* Tablet */
-@media (min-width: 431px) and (max-width: 768px) {
-  .sidebar {
-    width: 300px;
-  }
-  .stats-grid {
-    grid-template-columns: repeat(3, 1fr);
+    padding: 0.35rem 0.5rem;
   }
 }

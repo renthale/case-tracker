@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
-import { FiPlus, FiEdit2, FiTrash2, FiShield, FiKey, FiUser, FiCheck, FiX } from 'react-icons/fi';
+import { FiPlus, FiEdit2, FiTrash2, FiShield, FiKey, FiUser, FiCheck, FiX, FiEye } from 'react-icons/fi';
+import './UsersList.css';
 
 const roles = [
   { value: 'admin', labelAr: 'مدير النظام', labelEn: 'Admin', color: '#e74c3c' },
@@ -20,6 +21,7 @@ const UsersList = () => {
   const isArabic = language === 'ar';
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
@@ -27,6 +29,15 @@ const UsersList = () => {
   const [saving, setSaving] = useState(false);
   const [search, setSearch] = useState('');
   const [filterRole, setFilterRole] = useState('');
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const mql = window.matchMedia('(max-width: 768px)');
+    setIsMobile(mql.matches);
+    const handler = (e) => setIsMobile(e.matches);
+    mql.addEventListener('change', handler);
+    return () => mql.removeEventListener('change', handler);
+  }, []);
 
   const [formData, setFormData] = useState({
     username: '',
@@ -44,10 +55,12 @@ const UsersList = () => {
 
   const fetchUsers = async () => {
     try {
+      setFetchError(false);
       const { data } = await api.get('/auth/users');
       setUsers(data.users || []);
     } catch (error) {
       toast.error(isArabic ? 'خطأ في جلب المستخدمين' : 'Error loading users');
+      setFetchError(true);
     } finally {
       setLoading(false);
     }
@@ -168,6 +181,17 @@ const UsersList = () => {
     return <div className="loading">{isArabic ? 'جاري التحميل...' : 'Loading...'}</div>;
   }
 
+  if (fetchError) {
+    return (
+      <div className="error-state" style={{ textAlign: 'center', padding: '3rem' }}>
+        <p style={{ color: '#e53e3e', marginBottom: '1rem' }}>{isArabic ? 'فشل تحميل البيانات' : 'Failed to load data'}</p>
+        <button className="btn btn-primary" onClick={() => { setFetchError(false); setLoading(true); fetchUsers(); }}>
+          {isArabic ? 'إعادة المحاولة' : 'Retry'}
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="page-container">
       <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -193,6 +217,54 @@ const UsersList = () => {
         </div>
       </div>
 
+      {isMobile ? (
+        <div className="usr-list">
+          {filteredUsers.length > 0 ? filteredUsers.map(user => (
+            <div key={user.id} className="usr-card" dir={language === 'ar' ? 'rtl' : 'ltr'} style={{ opacity: user.isActive ? 1 : 0.55 }}>
+              <div className="usr-head">
+                <span className="usr-name">{user.fullName}</span>
+                <span className="usr-role" style={{ background: getRoleColor(user.role) }}>
+                  {getRoleLabel(user.role)}
+                </span>
+              </div>
+              <div className="usr-body">
+                <div className="usr-row">
+                  <span className="usr-lbl">{isArabic ? 'المستخدم' : 'Username'}</span>
+                  <span className="usr-val">{user.username}</span>
+                </div>
+                <div className="usr-row">
+                  <span className="usr-lbl">{isArabic ? 'البريد' : 'Email'}</span>
+                  <span className="usr-val">{user.email}</span>
+                </div>
+                <div className="usr-row">
+                  <span className="usr-lbl">{isArabic ? 'الجوال' : 'Phone'}</span>
+                  <span className="usr-val">{user.phone || '—'}</span>
+                </div>
+                <div className="usr-row">
+                  <span className="usr-lbl">{isArabic ? 'الحالة' : 'Status'}</span>
+                  <span className="usr-val" style={{ color: user.isActive ? '#059669' : '#dc2626', fontWeight: 600 }}>
+                    {user.isActive ? (isArabic ? 'نشط' : 'Active') : (isArabic ? 'معطّل' : 'Inactive')}
+                  </span>
+                </div>
+              </div>
+              <div className="usr-acts">
+                <button className="usr-btn" onClick={() => openEditModal(user)}>
+                  <FiEdit2 size={16} /> {isArabic ? 'تعديل' : 'Edit'}
+                </button>
+                <button className="usr-btn" onClick={() => openPasswordModal(user.id)}>
+                  <FiKey size={16} /> {isArabic ? 'كلمة المرور' : 'Password'}
+                </button>
+                <button className={'usr-btn ' + (user.isActive ? 'usr-btn-del' : 'usr-btn-ok')} onClick={() => handleToggleActive(user)}>
+                  {user.isActive ? <FiX size={16} /> : <FiCheck size={16} />}
+                  {user.isActive ? (isArabic ? 'تعطيل' : 'Deactivate') : (isArabic ? 'تفعيل' : 'Activate')}
+                </button>
+              </div>
+            </div>
+          )) : (
+            <div className="no-data">{isArabic ? 'لا يوجد مستخدمين' : 'No users found'}</div>
+          )}
+        </div>
+      ) : (
       <div className="table-container">
         <table className="data-table">
           <thead>
@@ -256,6 +328,7 @@ const UsersList = () => {
           </tbody>
         </table>
       </div>
+      )}
 
       {/* Create/Edit Modal */}
       {showModal && (

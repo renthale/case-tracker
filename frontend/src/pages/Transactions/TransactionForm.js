@@ -31,6 +31,7 @@ const TransactionForm = () => {
   const [isMobile, setIsMobile] = useState(false);
 
   const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(true);
   const [cases, setCases] = useState([]);
   const [clients, setClients] = useState([]);
   const [formData, setFormData] = useState({
@@ -56,7 +57,7 @@ const TransactionForm = () => {
 
   useEffect(() => {
     if (id) fetchTransaction();
-    fetchCasesAndClients();
+    fetchCasesAndClients().finally(() => setFetching(false));
   }, [id]);
 
   const fetchTransaction = async () => {
@@ -131,6 +132,10 @@ const TransactionForm = () => {
       setLoading(false);
     }
   };
+
+  if (fetching) {
+    return <div className="loading">{isArabic ? 'جاري التحميل...' : 'Loading...'}</div>;
+  }
 
   const sectionStyle = { marginBottom: '1.5rem' };
   const sectionTitle = { fontSize: '1rem', fontWeight: 600, color: '#1a365d', marginBottom: '1rem', paddingBottom: '0.5rem', borderBottom: '2px solid #e2e8f0' };

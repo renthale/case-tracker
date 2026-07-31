@@ -14,18 +14,21 @@ const CaseDetails = () => {
   const navigate = useNavigate();
   const [caseData, setCaseData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
 
   useEffect(() => {
     fetchCaseDetails();
   }, [id]);
 
   const fetchCaseDetails = async () => {
+    setFetchError(false);
+    setLoading(true);
     try {
       const response = await api.get(`/cases/${id}`);
       setCaseData(response.data.case);
     } catch (error) {
       toast.error(t.errorFetchingCase);
-      navigate('/dashboard/cases');
+      setFetchError(true);
     } finally {
       setLoading(false);
     }
@@ -44,6 +47,15 @@ const CaseDetails = () => {
 
   if (loading) {
     return <div className="loading">{t.loading}</div>;
+  }
+
+  if (fetchError) {
+    return (
+      <div className="error-state">
+        <p>{t.errorFetchingCase}</p>
+        <button className="btn btn-primary" onClick={fetchCaseDetails}>{t.retry || (isArabic ? 'إعادة المحاولة' : 'Retry')}</button>
+      </div>
+    );
   }
 
   if (!caseData) {
@@ -192,7 +204,7 @@ const CaseDetails = () => {
               <tbody>
                 {caseData.sessions.map((session) => (
                   <tr key={session.id}>
-                    <td>{session.sessionNumber}</td>
+                    <td>{session.hearingNumber}</td>
                     <td>{format(new Date(session.date), 'dd/MM/yyyy', { locale: ar })}</td>
                     <td>{session.time || '-'}</td>
                     <td>{session.location || '-'}</td>

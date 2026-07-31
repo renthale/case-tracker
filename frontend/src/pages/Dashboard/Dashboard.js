@@ -11,17 +11,21 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
 
   useEffect(() => {
     fetchStats();
   }, []);
 
   const fetchStats = async () => {
+    setFetchError(false);
+    setLoading(true);
     try {
       const response = await api.get('/cases/stats');
       setStats(response.data);
     } catch (error) {
       console.error('Error fetching stats:', error);
+      setFetchError(true);
     } finally {
       setLoading(false);
     }
@@ -29,6 +33,15 @@ const Dashboard = () => {
 
   if (loading) {
     return <div className="loading">{t.loading}</div>;
+  }
+
+  if (fetchError) {
+    return (
+      <div className="error-state">
+        <p>{t.errorFetchingData || (language === 'ar' ? 'خطأ في جلب البيانات' : 'Error fetching data')}</p>
+        <button className="btn btn-primary" onClick={fetchStats}>{t.retry || (language === 'ar' ? 'إعادة المحاولة' : 'Retry')}</button>
+      </div>
+    );
   }
 
   const statCards = [
@@ -117,7 +130,7 @@ const Dashboard = () => {
                 <div 
                   key={session.id} 
                   className="session-item clickable"
-                  onClick={() => navigate(`/cases/${session.Case?.id}`)}
+                  onClick={() => navigate(`/dashboard/cases/${session.Case?.id}`)}
                   role="button"
                   tabIndex={0}
                 >
@@ -155,7 +168,7 @@ const Dashboard = () => {
                   <div 
                     key={index} 
                     className="chart-bar-item clickable"
-                    onClick={() => navigate(`/cases?type=${item.type}`)}
+                    onClick={() => navigate(`/dashboard/cases?type=${item.type}`)}
                     role="button"
                     tabIndex={0}
                   >
@@ -187,7 +200,7 @@ const Dashboard = () => {
               <div 
                 key={index} 
                 className="priority-bar-item clickable"
-                onClick={() => navigate(`/cases?priority=${item.priority}`)}
+                onClick={() => navigate(`/dashboard/cases?priority=${item.priority}`)}
                 role="button"
                 tabIndex={0}
               >

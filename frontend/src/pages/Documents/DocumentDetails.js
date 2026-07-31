@@ -14,6 +14,7 @@ const DocumentDetails = () => {
   const navigate = useNavigate();
   const [document, setDocument] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
   const [statusLoading, setStatusLoading] = useState(false);
 
   useEffect(() => {
@@ -21,12 +22,14 @@ const DocumentDetails = () => {
   }, [id]);
 
   const fetchDocumentDetails = async () => {
+    setFetchError(false);
+    setLoading(true);
     try {
       const response = await api.get(`/documents/${id}`);
       setDocument(response.data.document);
     } catch (error) {
       toast.error(isArabic ? 'خطأ في جلب المستند' : 'Error loading document');
-      navigate('/dashboard/documents');
+      setFetchError(true);
     } finally {
       setLoading(false);
     }
@@ -82,6 +85,15 @@ const DocumentDetails = () => {
 
   if (loading) {
     return <div className="loading">{t.loading}</div>;
+  }
+
+  if (fetchError) {
+    return (
+      <div className="error-state">
+        <p>{isArabic ? 'خطأ في جلب المستند' : 'Error loading document'}</p>
+        <button className="btn btn-primary" onClick={fetchDocumentDetails}>{t.retry || (isArabic ? 'إعادة المحاولة' : 'Retry')}</button>
+      </div>
+    );
   }
 
   if (!document) {

@@ -6,7 +6,8 @@ import toast from 'react-hot-toast';
 
 const InvoiceForm = () => {
   const { id } = useParams();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isArabic = language === 'ar';
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
@@ -50,7 +51,7 @@ const InvoiceForm = () => {
       setClients(clientsRes.data.clients || clientsRes.data);
       setCases(casesRes.data.cases || casesRes.data);
     } catch (error) {
-      // non-blocking
+      toast.error(isArabic ? 'خطأ في تحميل البيانات' : 'Error loading data');
     }
   };
 
@@ -69,7 +70,7 @@ const InvoiceForm = () => {
         notes: invoice.notes || ''
       });
     } catch (error) {
-      toast.error('خطأ في جلب بيانات الفاتورة');
+      toast.error(isArabic ? 'خطأ في جلب بيانات الفاتورة' : 'Error fetching invoice data');
       navigate('/dashboard/invoices');
     } finally {
       setFetching(false);
@@ -82,6 +83,20 @@ const InvoiceForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!formData.clientId) {
+      toast.error(isArabic ? 'الموكل مطلوب' : 'Client is required');
+      return;
+    }
+    if (!formData.type) {
+      toast.error(isArabic ? 'نوع الفاتورة مطلوب' : 'Invoice type is required');
+      return;
+    }
+    if (!formData.amount || parseFloat(formData.amount) <= 0) {
+      toast.error(isArabic ? 'المبلغ مطلوب' : 'Amount is required');
+      return;
+    }
+
     setLoading(true);
 
     const cleanedData = { ...formData };
@@ -92,14 +107,14 @@ const InvoiceForm = () => {
     try {
       if (id) {
         await api.put(`/invoices/${id}`, cleanedData);
-        toast.success('تم تحديث الفاتورة بنجاح');
+        toast.success(isArabic ? 'تم تحديث الفاتورة بنجاح' : 'Invoice updated successfully');
       } else {
         await api.post('/invoices', cleanedData);
-        toast.success('تم إنشاء الفاتورة بنجاح');
+        toast.success(isArabic ? 'تم إنشاء الفاتورة بنجاح' : 'Invoice created successfully');
       }
       navigate('/dashboard/invoices');
     } catch (error) {
-      toast.error(error.response?.data?.details || error.response?.data?.error || 'خطأ في حفظ الفاتورة');
+      toast.error(error.response?.data?.details || error.response?.data?.error || (isArabic ? 'خطأ في حفظ الفاتورة' : 'Error saving invoice'));
     } finally {
       setLoading(false);
     }
@@ -110,18 +125,18 @@ const InvoiceForm = () => {
   }
 
   return (
-    <div className={`invoice-form ${isMobile ? 'invoice-form-mobile' : ''}`}>
+      <div className={`invoice-form ${isMobile ? 'invoice-form-mobile' : ''}`}>
       <div className="card-header">
-        <h2 className="card-title">{id ? 'تعديل الفاتورة' : 'إضافة فاتورة'}</h2>
+        <h2 className="card-title">{id ? t.editInvoice : t.addInvoice}</h2>
       </div>
 
       <form onSubmit={handleSubmit}>
         <div className={`grid grid-2 ${isMobile ? 'grid-mobile-stack' : ''}`}>
           <div className="card">
-            <h3 className="card-title">بيانات الفاتورة</h3>
+            <h3 className="card-title">{t.invoiceFormSection}</h3>
 
             <div className="form-group">
-              <label>الموكل *</label>
+              <label>{t.client} *</label>
               <select
                 name="clientId"
                 className="form-control"
@@ -129,7 +144,7 @@ const InvoiceForm = () => {
                 onChange={handleChange}
                 required
               >
-                <option value="">اختر الموكل</option>
+                <option value="">{t.selectClient}</option>
                 {clients.map(client => (
                   <option key={client.id} value={client.id}>{client.name}</option>
                 ))}
@@ -137,14 +152,14 @@ const InvoiceForm = () => {
             </div>
 
             <div className="form-group">
-              <label>القضية</label>
+              <label>{t.caseLabel}</label>
               <select
                 name="caseId"
                 className="form-control"
                 value={formData.caseId}
                 onChange={handleChange}
               >
-                <option value="">اختر القضية (اختياري)</option>
+                <option value="">{t.selectCaseOptional}</option>
                 {cases.map(c => (
                   <option key={c.id} value={c.id}>{c.caseNumber || c.title} - {c.title}</option>
                 ))}
@@ -152,7 +167,7 @@ const InvoiceForm = () => {
             </div>
 
             <div className="form-group">
-              <label>النوع *</label>
+              <label>{t.invoiceType} *</label>
               <select
                 name="type"
                 className="form-control"
@@ -160,16 +175,16 @@ const InvoiceForm = () => {
                 onChange={handleChange}
                 required
               >
-                <option value="consultation">استشارة</option>
-                <option value="litigation">تقاضي</option>
-                <option value="session">جلسة</option>
-                <option value="documents">مستندات</option>
-                <option value="other">أخرى</option>
+                <option value="consultation">{t.consultation}</option>
+                <option value="litigation">{t.litigation}</option>
+                <option value="session">{t.sessionLabel}</option>
+                <option value="documents">{t.documentsLabel}</option>
+                <option value="other">{t.other}</option>
               </select>
             </div>
 
             <div className="form-group">
-              <label>الوصف</label>
+              <label>{t.description}</label>
               <textarea
                 name="description"
                 className="form-control"
@@ -180,7 +195,7 @@ const InvoiceForm = () => {
             </div>
 
             <div className="form-group">
-              <label>المبلغ (د.ك) *</label>
+              <label>{t.amount} (د.ك) *</label>
               <input
                 type="number"
                 name="amount"
@@ -194,7 +209,7 @@ const InvoiceForm = () => {
             </div>
 
             <div className="form-group">
-              <label>تاريخ الاستحقاق</label>
+              <label>{t.dueDate}</label>
               <input
                 type="date"
                 name="dueDate"
@@ -205,17 +220,17 @@ const InvoiceForm = () => {
             </div>
 
             <div className="form-group">
-              <label>طريقة الدفع</label>
+              <label>{t.paymentMethod}</label>
               <select
                 name="paymentMethod"
                 className="form-control"
                 value={formData.paymentMethod}
                 onChange={handleChange}
               >
-                <option value="">اختر طريقة الدفع</option>
-                <option value="cash">نقداً</option>
-                <option value="bank_transfer">تحويل بنكي</option>
-                <option value="cheque">شيك</option>
+                <option value="">{t.selectPaymentMethod}</option>
+                <option value="cash">{t.cash}</option>
+                <option value="bank_transfer">{t.bankTransfer}</option>
+                <option value="cheque">{t.cheque}</option>
               </select>
             </div>
 

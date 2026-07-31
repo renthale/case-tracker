@@ -8,7 +8,8 @@ const SessionForm = () => {
   const { id } = useParams();
   const [searchParams] = useSearchParams();
   const caseId = searchParams.get('caseId');
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isArabic = language === 'ar';
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
@@ -79,6 +80,16 @@ const SessionForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!formData.caseId) {
+      toast.error(isArabic ? 'القضية مطلوبة' : 'Case is required');
+      return;
+    }
+    if (!formData.date) {
+      toast.error(isArabic ? 'تاريخ الجلسة مطلوب' : 'Session date is required');
+      return;
+    }
+
     setLoading(true);
 
     const cleanedData = { ...formData };
@@ -125,7 +136,7 @@ const SessionForm = () => {
                 required
                 disabled={!!id || !!searchParams.get('caseId')}
               >
-                <option value="">اختر القضية</option>
+                <option value="">{isArabic ? 'اختر القضية' : 'Select Case'}</option>
                 {cases.map((caseItem) => (
                   <option key={caseItem.id} value={caseItem.id}>
                     {caseItem.caseNumber} - {caseItem.title}
@@ -135,7 +146,7 @@ const SessionForm = () => {
             </div>
 
             <div className="form-group">
-              <label>{t.sessionType || 'نوع الجلسة'}</label>
+              <label>{t.sessionType || (isArabic ? 'نوع الجلسة' : 'Session Type')}</label>
               <select
                 name="sessionType"
                 className="form-control"
@@ -181,7 +192,7 @@ const SessionForm = () => {
                 className="form-control"
                 value={formData.location}
                 onChange={handleChange}
-                placeholder="قاعة الجلسة"
+                placeholder={isArabic ? 'قاعة الجلسة' : 'Courtroom'}
               />
             </div>
 
@@ -201,7 +212,7 @@ const SessionForm = () => {
             </div>
 
             <div className="form-group">
-              <label>{t.sessionOutcome || 'نتيجة الجلسة'}</label>
+              <label>{t.sessionOutcome || (isArabic ? 'نتيجة الجلسة' : 'Session Outcome')}</label>
               <textarea
                 name="outcome"
                 className="form-control"

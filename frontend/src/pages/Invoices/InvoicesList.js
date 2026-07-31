@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
 import api from '../../services/api';
 import { FiPlus, FiSearch, FiEye, FiEdit, FiTrash2 } from 'react-icons/fi';
+import './InvoicesList.css';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import toast from 'react-hot-toast';
@@ -13,6 +14,7 @@ const InvoicesList = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [filters, setFilters] = useState({
     status: searchParams.get('status') || '',
@@ -39,6 +41,7 @@ const InvoicesList = () => {
 
   const fetchInvoices = async () => {
     try {
+      setFetchError(false);
       const params = {
         ...filters,
         page: pagination.page,
@@ -54,6 +57,7 @@ const InvoicesList = () => {
       setPagination(response.data.pagination);
     } catch (error) {
       toast.error(isArabic ? 'خطأ في جلب الفواتير' : 'Error loading invoices');
+      setFetchError(true);
     } finally {
       setLoading(false);
     }
@@ -100,6 +104,17 @@ const InvoicesList = () => {
 
   if (loading) {
     return <div className="loading">{t.loading}</div>;
+  }
+
+  if (fetchError) {
+    return (
+      <div className="error-state" style={{ textAlign: 'center', padding: '3rem' }}>
+        <p style={{ color: '#e53e3e', marginBottom: '1rem' }}>{isArabic ? 'فشل تحميل البيانات' : 'Failed to load data'}</p>
+        <button className="btn btn-primary" onClick={() => { setFetchError(false); setLoading(true); fetchInvoices(); }}>
+          {isArabic ? 'إعادة المحاولة' : 'Retry'}
+        </button>
+      </div>
+    );
   }
 
   return (
@@ -159,47 +174,50 @@ const InvoicesList = () => {
       </div>
 
       {isMobile ? (
-        <div className="cases-mobile-cards">
+        <div className="inv-list">
           {invoices.length > 0 ? invoices.map((invoice) => (
-            <div key={invoice.id} className="case-mobile-card" dir={language === 'ar' ? 'rtl' : 'ltr'}>
-              <div className="case-card-header">
-                <Link to={`/dashboard/invoices/${invoice.id}`} className="case-card-number">{invoice.invoiceNumber || '-'}</Link>
+            <div key={invoice.id} className="inv-card" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+              <div className="inv-head">
+                <Link to={`/dashboard/invoices/${invoice.id}`} className="inv-num">{invoice.invoiceNumber || '—'}</Link>
                 {getStatusBadge(invoice.status)}
               </div>
-              <div className="case-card-body">
-                <div className="case-card-row">
-                  <span className="case-card-label">{t.cases}</span>
-                  <span className="case-card-value">
+
+              <div className="inv-client">{invoice.clientName || '—'}</div>
+
+              <div className="inv-highlight">
+                <div className="inv-amount">{formatAmount(invoice.amount)}</div>
+                <div className="inv-due">
+                  {invoice.dueDate
+                    ? format(new Date(invoice.dueDate), 'dd/MM/yyyy', { locale: ar })
+                    : '—'}
+                </div>
+              </div>
+
+              <div className="inv-body">
+                <div className="inv-row">
+                  <span className="inv-lbl">{t.invoiceType}</span>
+                  <span className="inv-val">{t[invoice.type] || invoice.type}</span>
+                </div>
+                <div className="inv-row">
+                  <span className="inv-lbl">{t.cases}</span>
+                  <span className="inv-val">
                     {invoice.caseId ? (
-                      <Link to={`/dashboard/cases/${invoice.caseId}`}>{invoice.caseNumber || invoice.caseTitle || '-'}</Link>
-                    ) : '-'}
-                  </span>
-                </div>
-                <div className="case-card-row">
-                  <span className="case-card-label">{t.clientName}</span>
-                  <span className="case-card-value">{invoice.clientName || '-'}</span>
-                </div>
-                <div className="case-card-row">
-                  <span className="case-card-label">{t.invoiceType}</span>
-                  <span className="case-card-value">{t[invoice.type] || invoice.type}</span>
-                </div>
-                <div className="case-card-row">
-                  <span className="case-card-label">{t.amount}</span>
-                  <span className="case-card-value">{formatAmount(invoice.amount)}</span>
-                </div>
-                <div className="case-card-row">
-                  <span className="case-card-label">{t.dueDate}</span>
-                  <span className="case-card-value">
-                    {invoice.dueDate
-                      ? format(new Date(invoice.dueDate), 'dd/MM/yyyy', { locale: ar })
-                      : '-'}
+                      <Link to={`/dashboard/cases/${invoice.caseId}`}>{invoice.caseNumber || invoice.caseTitle || '—'}</Link>
+                    ) : '—'}
                   </span>
                 </div>
               </div>
-              <div className="case-card-actions-row">
-                <Link to={`/dashboard/invoices/${invoice.id}`} className="btn btn-secondary btn-sm"><FiEye /> {t.viewDetails}</Link>
-                <Link to={`/dashboard/invoices/${invoice.id}/edit`} className="btn btn-secondary btn-sm"><FiEdit /> {t.edit}</Link>
-                <button className="btn btn-danger btn-sm" onClick={() => handleDelete(invoice.id)}><FiTrash2 /> {t.delete}</button>
+
+              <div className="inv-acts">
+                <Link to={`/dashboard/invoices/${invoice.id}`} className="inv-btn inv-btn-primary">
+                  <FiEye size={16} /> {t.viewDetails}
+                </Link>
+                <Link to={`/dashboard/invoices/${invoice.id}/edit`} className="inv-btn">
+                  <FiEdit size={16} /> {t.edit}
+                </Link>
+                <button className="inv-btn inv-btn-del" onClick={() => handleDelete(invoice.id)}>
+                  <FiTrash2 size={16} /> {t.delete}
+                </button>
               </div>
             </div>
           )) : (

@@ -1,12 +1,26 @@
 import React, { useState, useEffect } from 'react';
+import { useLanguage } from '../../context/LanguageContext';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import { FiUserPlus, FiToggleLeft, FiToggleRight, FiTrash2, FiKey } from 'react-icons/fi';
+import './PortalUsers.css';
 
 const PortalUsers = () => {
+  const { language } = useLanguage();
+  const isArabic = language === 'ar';
   const [portalUsers, setPortalUsers] = useState([]);
   const [availableClients, setAvailableClients] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const mql = window.matchMedia('(max-width: 768px)');
+    setIsMobile(mql.matches);
+    const handler = (e) => setIsMobile(e.matches);
+    mql.addEventListener('change', handler);
+    return () => mql.removeEventListener('change', handler);
+  }, []);
   const [showCreate, setShowCreate] = useState(false);
   const [form, setForm] = useState({ clientId: '', email: '', password: '' });
   const [resetId, setResetId] = useState(null);
@@ -16,6 +30,7 @@ const PortalUsers = () => {
 
   const fetchData = async () => {
     try {
+      setFetchError(false);
       const [usersRes, clientsRes] = await Promise.all([
         api.get('/api/portal/admin/list'),
         api.get('/api/portal/admin/available-clients')
@@ -24,6 +39,7 @@ const PortalUsers = () => {
       setAvailableClients(clientsRes.data.clients || []);
     } catch (error) {
       toast.error('Error loading data');
+      setFetchError(true);
     } finally {
       setLoading(false);
     }
@@ -77,6 +93,17 @@ const PortalUsers = () => {
 
   if (loading) return <div className="loading">Loading...</div>;
 
+  if (fetchError) {
+    return (
+      <div className="error-state" style={{ textAlign: 'center', padding: '3rem' }}>
+        <p style={{ color: '#e53e3e', marginBottom: '1rem' }}>{isArabic ? 'فشل تحميل البيانات' : 'Failed to load data'}</p>
+        <button className="btn btn-primary" onClick={() => { setFetchError(false); setLoading(true); fetchData(); }}>
+          {isArabic ? 'إعادة المحاولة' : 'Retry'}
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div style={{ padding: '0' }}>
       <div className="card-header">
@@ -129,6 +156,55 @@ const PortalUsers = () => {
         </div>
       )}
 
+      {isMobile ? (
+        <div className="pu-list">
+          {portalUsers.length > 0 ? portalUsers.map(pu => (
+            <div key={pu.id} className="pu-card" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+              <div className="pu-head">
+                <span className="pu-name">{pu.client?.name || 'N/A'}</span>
+                <span className="pu-badge" style={{
+                  background: pu.isActive ? '#d4edda' : '#f8d7da',
+                  color: pu.isActive ? '#155724' : '#721c24'
+                }}>
+                  {pu.isActive ? 'Active' : 'Disabled'}
+                </span>
+              </div>
+              <div className="pu-body">
+                <div className="pu-row">
+                  <span className="pu-lbl">Email</span>
+                  <span className="pu-val">{pu.client?.email || '-'}</span>
+                </div>
+                <div className="pu-row">
+                  <span className="pu-lbl">Portal Email</span>
+                  <span className="pu-val">{pu.email}</span>
+                </div>
+                <div className="pu-row">
+                  <span className="pu-lbl">Last Login</span>
+                  <span className="pu-val">{pu.lastLogin ? new Date(pu.lastLogin).toLocaleString() : 'Never'}</span>
+                </div>
+                <div className="pu-row">
+                  <span className="pu-lbl">Created</span>
+                  <span className="pu-val">{pu.createdAt ? new Date(pu.createdAt).toLocaleDateString() : '—'}</span>
+                </div>
+              </div>
+              <div className="pu-acts">
+                <button className="pu-btn" onClick={() => handleToggle(pu.id)}>
+                  {pu.isActive ? <FiToggleRight size={16} /> : <FiToggleLeft size={16} />}
+                  Toggle
+                </button>
+                <button className="pu-btn" onClick={() => setResetId(pu.id)}>
+                  <FiKey size={16} /> Password
+                </button>
+                <button className="pu-btn pu-btn-del" onClick={() => handleDelete(pu.id)}>
+                  <FiTrash2 size={16} /> Delete
+                </button>
+              </div>
+            </div>
+          )) : (
+            <div className="no-data">No portal users found</div>
+          )}
+        </div>
+      ) : (
       <div className="table-container">
         <table>
           <thead>
@@ -180,6 +256,7 @@ const PortalUsers = () => {
           </tbody>
         </table>
       </div>
+      )}
 
       <div style={{ marginTop: '1.5rem', padding: '1rem', background: '#e8f4fd', borderRadius: '8px', fontSize: '0.9rem' }}>
         <strong>How it works:</strong> Create a portal account for a client → they receive login credentials → they log in at <code>/portal</code> → they can view their cases, sessions, and invoices.

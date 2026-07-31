@@ -239,6 +239,15 @@ export const ar = {
   totalPaid: 'إجمالي المدفوع',
   remaining: 'المتبقي',
   noInvoices: 'لا توجد فواتير',
+  invoiceFormSection: 'بيانات الفاتورة',
+  client: 'الموكل',
+  caseLabel: 'القضية',
+  selectClient: 'اختر الموكل',
+  selectCaseOptional: 'اختر القضية (اختياري)',
+  selectPaymentMethod: 'اختر طريقة الدفع',
+  litigation: 'تقاضي',
+  sessionLabel: 'جلسة',
+  documentsLabel: 'مستندات',
 
   // Legal Documents
   legalDocuments: 'المذكرات والعقود',
@@ -679,6 +688,15 @@ export const en = {
   totalPaid: 'Total Paid',
   remaining: 'Remaining',
   noInvoices: 'No invoices',
+  invoiceFormSection: 'Invoice Information',
+  client: 'Client',
+  caseLabel: 'Case',
+  selectClient: 'Select Client',
+  selectCaseOptional: 'Select Case (optional)',
+  selectPaymentMethod: 'Select Payment Method',
+  litigation: 'Litigation',
+  sessionLabel: 'Session',
+  documentsLabel: 'Documents',
 
   // Legal Documents
   legalDocuments: 'Legal Documents',

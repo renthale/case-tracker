@@ -145,6 +145,20 @@ const CaseForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!formData.title.trim()) {
+      toast.error(isArabic ? 'عنوان القضية مطلوب' : 'Case title is required');
+      return;
+    }
+    if (!formData.type) {
+      toast.error(isArabic ? 'نوع القضية مطلوب' : 'Case type is required');
+      return;
+    }
+    if (!formData.clientName.trim()) {
+      toast.error(isArabic ? 'اسم الموكل مطلوب' : 'Client name is required');
+      return;
+    }
+
     setLoading(true);
 
     const cleanedData = { ...formData, totalFees: parseFloat(totalFees) };

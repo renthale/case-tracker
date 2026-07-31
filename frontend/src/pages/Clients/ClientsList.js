@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
 import api from '../../services/api';
 import { FiPlus, FiSearch, FiEye, FiEdit, FiTrash2 } from 'react-icons/fi';
+import './ClientsList.css';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import toast from 'react-hot-toast';
@@ -13,6 +14,7 @@ const ClientsList = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [filters, setFilters] = useState({
     search: searchParams.get('search') || ''
@@ -37,6 +39,7 @@ const ClientsList = () => {
 
   const fetchClients = async () => {
     try {
+      setFetchError(false);
       const params = {
         search: filters.search,
         page: pagination.page,
@@ -52,6 +55,7 @@ const ClientsList = () => {
       setPagination(response.data.pagination);
     } catch (error) {
       toast.error(isArabic ? 'خطأ في جلب العملاء' : 'Error loading clients');
+      setFetchError(true);
     } finally {
       setLoading(false);
     }
@@ -81,6 +85,17 @@ const ClientsList = () => {
 
   if (loading) {
     return <div className="loading">{t.loading}</div>;
+  }
+
+  if (fetchError) {
+    return (
+      <div className="error-state" style={{ textAlign: 'center', padding: '3rem' }}>
+        <p style={{ color: '#e53e3e', marginBottom: '1rem' }}>{isArabic ? 'فشل تحميل البيانات' : 'Failed to load data'}</p>
+        <button className="btn btn-primary" onClick={() => { setFetchError(false); setLoading(true); fetchClients(); }}>
+          {isArabic ? 'إعادة المحاولة' : 'Retry'}
+        </button>
+      </div>
+    );
   }
 
   return (
@@ -113,42 +128,47 @@ const ClientsList = () => {
       </div>
 
       {isMobile ? (
-        <div className="cases-mobile-cards">
+        <div className="cl-list">
           {clients.length > 0 ? clients.map((client) => (
-            <div key={client.id} className="case-mobile-card" dir={language === 'ar' ? 'rtl' : 'ltr'}>
-              <div className="case-card-header">
-                <Link to={`/dashboard/clients/${client.id}`} className="case-card-number">{client.name}</Link>
+            <div key={client.id} className="cl-card" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+              <div className="cl-head">
+                <Link to={`/dashboard/clients/${client.id}`} className="cl-name">{client.name}</Link>
+                <span className="cl-badge">{client.casesCount ?? client.cases?.length ?? 0} {t.cases || t.casesCount || ''}</span>
               </div>
-              <div className="case-card-body">
-                <div className="case-card-row">
-                  <span className="case-card-label">{t.civilId}</span>
-                  <span className="case-card-value">{client.civilId || '-'}</span>
+
+              <div className="cl-body">
+                <div className="cl-row">
+                  <span className="cl-lbl">{t.civilId}</span>
+                  <span className="cl-val">{client.civilId || '—'}</span>
                 </div>
-                <div className="case-card-row">
-                  <span className="case-card-label">{t.phone}</span>
-                  <span className="case-card-value">{client.phone || '-'}</span>
+                <div className="cl-row">
+                  <span className="cl-lbl">{t.phone}</span>
+                  <span className="cl-val">{client.phone || '—'}</span>
                 </div>
-                <div className="case-card-row">
-                  <span className="case-card-label">{t.email}</span>
-                  <span className="case-card-value">{client.email || '-'}</span>
+                <div className="cl-row">
+                  <span className="cl-lbl">{t.email}</span>
+                  <span className="cl-val">{client.email || '—'}</span>
                 </div>
-                <div className="case-card-row">
-                  <span className="case-card-label">{t.casesCount}</span>
-                  <span className="case-card-value">{client.casesCount ?? client.cases?.length ?? 0}</span>
-                </div>
-                <div className="case-card-row">
-                  <span className="case-card-label">{t.registrationDate}</span>
-                  <span className="case-card-value">
+                <div className="cl-row">
+                  <span className="cl-lbl">{t.registrationDate}</span>
+                  <span className="cl-val">
                     {client.createdAt
                       ? format(new Date(client.createdAt), 'dd/MM/yyyy', { locale: ar })
-                      : '-'}
+                      : '—'}
                   </span>
                 </div>
               </div>
-              <div className="case-card-actions-row">
-                <Link to={`/dashboard/clients/${client.id}`} className="btn btn-secondary btn-sm"><FiEye /> {t.viewDetails}</Link>
-                <Link to={`/dashboard/clients/${client.id}/edit`} className="btn btn-secondary btn-sm"><FiEdit /> {t.edit}</Link>
-                <button className="btn btn-danger btn-sm" onClick={() => handleDelete(client.id)}><FiTrash2 /> {t.delete}</button>
+
+              <div className="cl-acts">
+                <Link to={`/dashboard/clients/${client.id}`} className="cl-btn cl-btn-primary">
+                  <FiEye size={16} /> {t.viewDetails}
+                </Link>
+                <Link to={`/dashboard/clients/${client.id}/edit`} className="cl-btn">
+                  <FiEdit size={16} /> {t.edit}
+                </Link>
+                <button className="cl-btn cl-btn-del" onClick={() => handleDelete(client.id)}>
+                  <FiTrash2 size={16} /> {t.delete}
+                </button>
               </div>
             </div>
           )) : (

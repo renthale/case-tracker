@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import { FiClock, FiPlus, FiTrash2, FiPrinter, FiFilter } from 'react-icons/fi';
+import './TimeTracking.css';
 
 const TimeTracking = () => {
   const { language, t } = useLanguage();
@@ -11,6 +12,7 @@ const TimeTracking = () => {
   const isArabic = language === 'ar';
   const [isMobile, setIsMobile] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [fetchingEntries, setFetchingEntries] = useState(false);
   const [entries, setEntries] = useState([]);
   const [cases, setCases] = useState([]);
   const [stats, setStats] = useState(null);
@@ -47,7 +49,7 @@ const TimeTracking = () => {
       await fetchEntries();
       await fetchStats();
     } catch (error) {
-      console.error('Error:', error);
+      toast.error(isArabic ? 'خطأ في تحميل بيانات الوقت' : 'Error loading time data');
     } finally {
       setLoading(false);
     }
@@ -55,6 +57,7 @@ const TimeTracking = () => {
 
   const fetchEntries = async (page = 1) => {
     try {
+      setFetchingEntries(true);
       const params = new URLSearchParams({ page, limit: 50 });
       if (filters.caseId) params.append('caseId', filters.caseId);
       if (filters.startDate) params.append('startDate', filters.startDate);
@@ -64,7 +67,9 @@ const TimeTracking = () => {
       const res = await api.get(`/time-entries?${params}`);
       setEntries(res.data.entries || []);
     } catch (error) {
-      console.error('Error:', error);
+      toast.error(isArabic ? 'خطأ في جلب سجلات الوقت' : 'Error fetching time entries');
+    } finally {
+      setFetchingEntries(false);
     }
   };
 
@@ -73,7 +78,7 @@ const TimeTracking = () => {
       const res = await api.get('/time-entries/stats');
       setStats(res.data);
     } catch (error) {
-      console.error('Error:', error);
+      toast.error(isArabic ? 'خطأ في تحميل إحصائيات الوقت' : 'Error loading time stats');
     }
   };
 
@@ -152,7 +157,7 @@ const TimeTracking = () => {
             <div style={kpiLabel()}>{isArabic ? 'ساعات غير قابلة' : 'Non-Billable'}</div>
           </div>
           <div style={kpiStyle('#9b59b6')}>
-            <div style={kpiNum('#9b59b6')}>{parseFloat(stats.summary.totalAmount).toFixed(3)}</div>
+            <div style={kpiNum('#9b59b6')}>{stats.summary.totalAmount != null ? parseFloat(stats.summary.totalAmount).toFixed(3) : '0.000'}</div>
             <div style={kpiLabel()}>{isArabic ? 'المبلغ الإجمالي (د.ك)' : 'Total Amount (KWD)'}</div>
           </div>
           <div style={kpiStyle('#f39c12')}>
@@ -240,6 +245,53 @@ const TimeTracking = () => {
 
       <div className="card">
         <h3 className="card-title">{isArabic ? 'سجلات الوقت' : 'Time Entries'}</h3>
+        {fetchingEntries && <div className="loading" style={{ padding: '1rem' }}>{isArabic ? 'جاري التحميل...' : 'Loading...'}</div>}
+        {!fetchingEntries && (isMobile ? (
+          <div className="tt-list">
+            {entries.length > 0 ? entries.map(entry => (
+              <div key={entry.id} className="tt-card" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+                <div className="tt-head">
+                  <span className="tt-date">{new Date(entry.date).toLocaleDateString('ar-KW')}</span>
+                  <span className="tt-hours">{entry.hours} {isArabic ? 'س' : 'hrs'}</span>
+                </div>
+                <div className="tt-desc">{entry.description}</div>
+                <div className="tt-body">
+                  <div className="tt-row">
+                    <span className="tt-lbl">{isArabic ? 'القضية' : 'Case'}</span>
+                    <span className="tt-val">{entry.case?.caseNumber || '—'}</span>
+                  </div>
+                  <div className="tt-row">
+                    <span className="tt-lbl">{isArabic ? 'الفئة' : 'Category'}</span>
+                    <span className="tt-val">{categories.find(c => c.value === entry.category)?.[isArabic ? 'labelAr' : 'labelEn'] || entry.category}</span>
+                  </div>
+                  <div className="tt-row">
+                    <span className="tt-lbl">{isArabic ? 'قابل للفوترة' : 'Billable'}</span>
+                    <span className="tt-val" style={{ color: entry.billable ? '#059669' : '#dc2626' }}>
+                      {entry.billable ? (isArabic ? 'نعم' : 'Yes') : (isArabic ? 'لا' : 'No')}
+                    </span>
+                  </div>
+                  <div className="tt-row">
+                    <span className="tt-lbl">{isArabic ? 'المعدل' : 'Rate'}</span>
+                    <span className="tt-val">{entry.rate != null ? parseFloat(entry.rate).toFixed(3) : '0.000'} {isArabic ? 'د.ك' : 'KWD'}</span>
+                  </div>
+                  <div className="tt-row">
+                    <span className="tt-lbl">{isArabic ? 'المبلغ' : 'Amount'}</span>
+                    <span className="tt-val tt-amount">{entry.totalAmount != null ? parseFloat(entry.totalAmount).toFixed(3) : '0.000'} {isArabic ? 'د.ك' : 'KWD'}</span>
+                  </div>
+                </div>
+                <div className="tt-acts">
+                  {(entry.userId === user?.id || ['admin', 'partner'].includes(user?.role)) && (
+                    <button className="tt-btn tt-btn-del" onClick={() => handleDelete(entry.id)}>
+                      <FiTrash2 size={16} /> {isArabic ? 'حذف' : 'Delete'}
+                    </button>
+                  )}
+                </div>
+              </div>
+            )) : (
+              <div className="no-data">{isArabic ? 'لا توجد سجلات وقت' : 'No time entries'}</div>
+            )}
+          </div>
+        ) : (
         <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
           <table className="data-table" style={{ width: '100%', minWidth: isMobile ? '700px' : 'auto' }}>
             <thead>
@@ -272,8 +324,8 @@ const TimeTracking = () => {
                       {entry.billable ? (isArabic ? 'نعم' : 'Yes') : (isArabic ? 'لا' : 'No')}
                     </span>
                   </td>
-                  <td>{parseFloat(entry.rate).toFixed(3)} {isArabic ? 'د.ك' : 'KWD'}</td>
-                  <td style={{ fontWeight: 'bold' }}>{parseFloat(entry.totalAmount).toFixed(3)} {isArabic ? 'د.ك' : 'KWD'}</td>
+                  <td>{entry.rate != null ? parseFloat(entry.rate).toFixed(3) : '0.000'} {isArabic ? 'د.ك' : 'KWD'}</td>
+                  <td style={{ fontWeight: 'bold' }}>{entry.totalAmount != null ? parseFloat(entry.totalAmount).toFixed(3) : '0.000'} {isArabic ? 'د.ك' : 'KWD'}</td>
                   <td>
                     {(entry.userId === user?.id || ['admin', 'partner'].includes(user?.role)) && (
                       <button className="btn btn-danger btn-sm" onClick={() => handleDelete(entry.id)} style={{ padding: '2px 8px' }}>
@@ -289,6 +341,7 @@ const TimeTracking = () => {
             </tbody>
           </table>
         </div>
+        ))}
       </div>
     </div>
   );

@@ -5,7 +5,8 @@ import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 
 const PaymentForm = ({ invoiceId, onSuccess }) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isArabic = language === 'ar';
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     amount: '',
@@ -29,8 +30,8 @@ const PaymentForm = ({ invoiceId, onSuccess }) => {
     });
 
     try {
-      await api.post('/payments', { invoiceId, ...cleanedData });
-      toast.success('تم إضافة الدفعة بنجاح');
+      await api.post(`/payments/invoice/${invoiceId}`, cleanedData);
+      toast.success(isArabic ? 'تم إضافة الدفعة بنجاح' : 'Payment added successfully');
       setFormData({
         amount: '',
         paymentDate: format(new Date(), 'yyyy-MM-dd'),
@@ -40,7 +41,7 @@ const PaymentForm = ({ invoiceId, onSuccess }) => {
       });
       if (onSuccess) onSuccess();
     } catch (error) {
-      toast.error(error.response?.data?.details || error.response?.data?.error || 'خطأ في إضافة الدفعة');
+      toast.error(error.response?.data?.details || error.response?.data?.error || (isArabic ? 'خطأ في إضافة الدفعة' : 'Error adding payment'));
     } finally {
       setLoading(false);
     }
@@ -50,7 +51,7 @@ const PaymentForm = ({ invoiceId, onSuccess }) => {
     <form onSubmit={handleSubmit}>
       <div className="grid grid-3">
         <div className="form-group">
-          <label>المبلغ (د.ك) *</label>
+          <label>{isArabic ? 'المبلغ (د.ك)' : 'Amount (KWD)'} *</label>
           <input
             type="number"
             name="amount"
@@ -63,7 +64,7 @@ const PaymentForm = ({ invoiceId, onSuccess }) => {
           />
         </div>
         <div className="form-group">
-          <label>تاريخ الدفع *</label>
+          <label>{isArabic ? 'تاريخ الدفع' : 'Payment Date'} *</label>
           <input
             type="date"
             name="paymentDate"
@@ -74,7 +75,7 @@ const PaymentForm = ({ invoiceId, onSuccess }) => {
           />
         </div>
         <div className="form-group">
-          <label>طريقة الدفع *</label>
+          <label>{isArabic ? 'طريقة الدفع' : 'Payment Method'} *</label>
           <select
             name="paymentMethod"
             className="form-control"
@@ -82,13 +83,13 @@ const PaymentForm = ({ invoiceId, onSuccess }) => {
             onChange={handleChange}
             required
           >
-            <option value="cash">نقداً</option>
-            <option value="bank_transfer">تحويل بنكي</option>
-            <option value="cheque">شيك</option>
+            <option value="cash">{isArabic ? 'نقداً' : 'Cash'}</option>
+            <option value="bank_transfer">{isArabic ? 'تحويل بنكي' : 'Bank Transfer'}</option>
+            <option value="cheque">{isArabic ? 'شيك' : 'Cheque'}</option>
           </select>
         </div>
         <div className="form-group">
-          <label>المرجع</label>
+          <label>{isArabic ? 'المرجع' : 'Reference'}</label>
           <input
             type="text"
             name="reference"
@@ -109,7 +110,7 @@ const PaymentForm = ({ invoiceId, onSuccess }) => {
         </div>
         <div className="form-group" style={{ display: 'flex', alignItems: 'flex-end' }}>
           <button type="submit" className="btn btn-primary" disabled={loading}>
-            {loading ? t.loading : 'إضافة دفعة'}
+            {loading ? t.loading : (isArabic ? 'إضافة دفعة' : 'Add Payment')}
           </button>
         </div>
       </div>

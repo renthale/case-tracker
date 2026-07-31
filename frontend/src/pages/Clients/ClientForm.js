@@ -77,6 +77,16 @@ const ClientForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!formData.name.trim()) {
+      toast.error(t.clientNameRequired || 'اسم الموكل مطلوب');
+      return;
+    }
+    if (createPortalAccount && !formData.email.trim()) {
+      toast.error(t.portalEmailRequired || 'يرجى إدخال البريد الإلكتروني لإنشاء حساب البوابة');
+      return;
+    }
+
     setLoading(true);
 
     const cleanedData = { ...formData };

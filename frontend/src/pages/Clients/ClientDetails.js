@@ -9,22 +9,26 @@ import toast from 'react-hot-toast';
 
 const ClientDetails = () => {
   const { id } = useParams();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isArabic = language === 'ar';
   const navigate = useNavigate();
   const [client, setClient] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
 
   useEffect(() => {
     fetchClientDetails();
   }, [id]);
 
   const fetchClientDetails = async () => {
+    setFetchError(false);
+    setLoading(true);
     try {
       const response = await api.get(`/clients/${id}`);
       setClient(response.data.client);
     } catch (error) {
-      toast.error(t.errorFetchingClient || 'خطأ في جلب بيانات العميل');
-      navigate('/dashboard/clients');
+      toast.error(t.errorFetchingClient || (isArabic ? 'خطأ في جلب بيانات العميل' : 'Error fetching client'));
+      setFetchError(true);
     } finally {
       setLoading(false);
     }
@@ -57,8 +61,17 @@ const ClientDetails = () => {
     return <div className="loading">{t.loading}</div>;
   }
 
+  if (fetchError) {
+    return (
+      <div className="error-state">
+        <p>{t.errorFetchingClient || (isArabic ? 'خطأ في جلب بيانات العميل' : 'Error fetching client')}</p>
+        <button className="btn btn-primary" onClick={fetchClientDetails}>{t.retry || (isArabic ? 'إعادة المحاولة' : 'Retry')}</button>
+      </div>
+    );
+  }
+
   if (!client) {
-    return <div className="no-data">{t.clientNotFound || 'العميل غير موجود'}</div>;
+    return <div className="no-data">{t.clientNotFound || (isArabic ? 'العميل غير موجود' : 'Client not found')}</div>;
   }
 
   return (
@@ -67,36 +80,36 @@ const ClientDetails = () => {
         <h2 className="card-title">{client.name}</h2>
         <div className="actions">
           <Link to={`/dashboard/clients/${id}/edit`} className="btn btn-primary">
-            <FiEdit /> {t.editClient || 'تعديل بيانات العميل'}
+            <FiEdit /> {t.editClient || (isArabic ? 'تعديل بيانات العميل' : 'Edit Client')}
           </Link>
           <Link to="/dashboard/clients" className="btn btn-secondary">
-            <FiArrowRight /> {t.backToClients || 'العودة لقائمة العملاء'}
+            <FiArrowRight /> {t.backToClients || (isArabic ? 'العودة لقائمة العملاء' : 'Back to Clients')}
           </Link>
         </div>
       </div>
 
       <div className="grid grid-2">
         <div className="card">
-          <h3 className="card-title">{t.personalInformation || 'المعلومات الشخصية'}</h3>
+          <h3 className="card-title">{t.personalInformation || (isArabic ? 'المعلومات الشخصية' : 'Personal Information')}</h3>
           <div className="details-grid">
             <div className="detail-item">
-              <label>{t.clientName || 'الاسم'}</label>
+              <label>{t.clientName || (isArabic ? 'الاسم' : 'Name')}</label>
               <span>{client.name || '-'}</span>
             </div>
             <div className="detail-item">
-              <label>{t.civilId || 'الرقم المدني'}</label>
+              <label>{t.civilId || (isArabic ? 'الرقم المدني' : 'Civil ID')}</label>
               <span>{client.civilId || '-'}</span>
             </div>
             <div className="detail-item">
-              <label>{t.passportNumber || 'رقم الجواز'}</label>
+              <label>{t.passportNumber || (isArabic ? 'رقم الجواز' : 'Passport No.')}</label>
               <span>{client.passportNumber || '-'}</span>
             </div>
             <div className="detail-item">
-              <label>{t.nationality || 'الجنسية'}</label>
+              <label>{t.nationality || (isArabic ? 'الجنسية' : 'Nationality')}</label>
               <span>{client.nationality || '-'}</span>
             </div>
             <div className="detail-item">
-              <label>{t.dateOfBirth || 'تاريخ الميلاد'}</label>
+              <label>{t.dateOfBirth || (isArabic ? 'تاريخ الميلاد' : 'Date of Birth')}</label>
               <span>
                 {client.dateOfBirth
                   ? format(new Date(client.dateOfBirth), 'dd/MM/yyyy', { locale: ar })
@@ -105,7 +118,7 @@ const ClientDetails = () => {
               </span>
             </div>
             <div className="detail-item">
-              <label>{t.registrationDate || 'تاريخ التسجيل'}</label>
+              <label>{t.registrationDate || (isArabic ? 'تاريخ التسجيل' : 'Registration Date')}</label>
               <span>
                 {client.createdAt
                   ? format(new Date(client.createdAt), 'dd/MM/yyyy', { locale: ar })
@@ -117,18 +130,18 @@ const ClientDetails = () => {
         </div>
 
         <div className="card">
-          <h3 className="card-title">{t.contactInformation || 'معلومات الاتصال'}</h3>
+          <h3 className="card-title">{t.contactInformation || (isArabic ? 'معلومات الاتصال' : 'Contact Information')}</h3>
           <div className="details-grid">
             <div className="detail-item">
-              <label>{t.phone || 'الجوال'}</label>
+              <label>{t.phone || (isArabic ? 'الجوال' : 'Phone')}</label>
               <span>{client.phone || '-'}</span>
             </div>
             <div className="detail-item">
-              <label>{t.email || 'البريد الإلكتروني'}</label>
+              <label>{t.email || (isArabic ? 'البريد الإلكتروني' : 'Email')}</label>
               <span>{client.email || '-'}</span>
             </div>
             <div className="detail-item">
-              <label>{t.address || 'العنوان'}</label>
+              <label>{t.address || (isArabic ? 'العنوان' : 'Address')}</label>
               <span>{client.address || '-'}</span>
             </div>
           </div>
@@ -137,16 +150,16 @@ const ClientDetails = () => {
 
       {client.notes && (
         <div className="card">
-          <h3 className="card-title">{t.notes || 'ملاحظات'}</h3>
+          <h3 className="card-title">{t.notes || (isArabic ? 'ملاحظات' : 'Notes')}</h3>
           <p>{client.notes}</p>
         </div>
       )}
 
       <div className="card">
         <div className="card-header">
-          <h3 className="card-title">{t.linkedCases || 'القضايا المرتبطة'}</h3>
+          <h3 className="card-title">{t.linkedCases || (isArabic ? 'القضايا المرتبطة' : 'Linked Cases')}</h3>
           <Link to={`/dashboard/cases/new?clientId=${id}`} className="btn btn-primary">
-            <FiPlus /> {t.addCase || 'إضافة قضية'}
+            <FiPlus /> {t.addCase || (isArabic ? 'إضافة قضية' : 'Add Case')}
           </Link>
         </div>
 
@@ -155,11 +168,11 @@ const ClientDetails = () => {
             <table>
               <thead>
                 <tr>
-                  <th>{t.caseNumber || 'رقم القضية'}</th>
-                  <th>{t.caseTitle || 'عنوان القضية'}</th>
-                  <th>{t.caseType || 'نوع القضية'}</th>
-                  <th>{t.caseStatus || 'الحالة'}</th>
-                  <th>{t.actions || 'إجراءات'}</th>
+                  <th>{t.caseNumber || (isArabic ? 'رقم القضية' : 'Case No.')}</th>
+                  <th>{t.caseTitle || (isArabic ? 'عنوان القضية' : 'Case Title')}</th>
+                  <th>{t.caseType || (isArabic ? 'نوع القضية' : 'Case Type')}</th>
+                  <th>{t.caseStatus || (isArabic ? 'الحالة' : 'Status')}</th>
+                  <th>{t.actions || (isArabic ? 'إجراءات' : 'Actions')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -180,30 +193,30 @@ const ClientDetails = () => {
             </table>
           </div>
         ) : (
-          <p className="no-data">{t.noCases || 'لا توجد قضايا مرتبطة'}</p>
+          <p className="no-data">{t.noCases || (isArabic ? 'لا توجد قضايا مرتبطة' : 'No linked cases')}</p>
         )}
       </div>
 
       {client.invoices?.length > 0 && (
         <div className="card">
-          <h3 className="card-title">{t.invoices || 'الفواتير'}</h3>
+          <h3 className="card-title">{t.invoices || (isArabic ? 'الفواتير' : 'Invoices')}</h3>
           <div className="table-container">
             <table>
               <thead>
                 <tr>
-                  <th>{t.invoiceNumber || 'رقم الفاتورة'}</th>
-                  <th>{t.totalAmount || 'المبلغ الإجمالي'}</th>
-                  <th>{t.paidAmount || 'المبلغ المدفوع'}</th>
-                  <th>{t.status || 'الحالة'}</th>
-                  <th>{t.dueDate || 'تاريخ الاستحقاق'}</th>
+                  <th>{t.invoiceNumber || (isArabic ? 'رقم الفاتورة' : 'Invoice No.')}</th>
+                  <th>{t.totalAmount || (isArabic ? 'المبلغ الإجمالي' : 'Total Amount')}</th>
+                  <th>{t.paidAmount || (isArabic ? 'المبلغ المدفوع' : 'Paid Amount')}</th>
+                  <th>{t.status || (isArabic ? 'الحالة' : 'Status')}</th>
+                  <th>{t.dueDate || (isArabic ? 'تاريخ الاستحقاق' : 'Due Date')}</th>
                 </tr>
               </thead>
               <tbody>
                 {client.invoices.map((invoice) => (
                   <tr key={invoice.id}>
                     <td>{invoice.invoiceNumber}</td>
-                    <td>{invoice.totalAmount} {t.currency || 'د.ك'}</td>
-                    <td>{invoice.paidAmount} {t.currency || 'د.ك'}</td>
+                    <td>{invoice.totalAmount} {t.currency || (isArabic ? 'د.ك' : 'KWD')}</td>
+                    <td>{invoice.paidAmount} {t.currency || (isArabic ? 'د.ك' : 'KWD')}</td>
                     <td>{getInvoiceStatusBadge(invoice.status)}</td>
                     <td>
                       {invoice.dueDate

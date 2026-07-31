@@ -13,6 +13,7 @@ const SessionsList = () => {
   const isArabic = language === 'ar';
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
@@ -37,6 +38,7 @@ const SessionsList = () => {
 
   const fetchSessions = async () => {
     try {
+      setFetchError(false);
       const params = {
         page: pagination.page,
         limit: 50
@@ -48,6 +50,7 @@ const SessionsList = () => {
       setPagination(response.data.pagination);
     } catch (error) {
       toast.error(t.errorFetchingSessions);
+      setFetchError(true);
     } finally {
       setLoading(false);
     }
@@ -79,6 +82,17 @@ const SessionsList = () => {
 
   if (loading) {
     return <div className="loading">{t.loading}</div>;
+  }
+
+  if (fetchError) {
+    return (
+      <div className="error-state" style={{ textAlign: 'center', padding: '3rem' }}>
+        <p style={{ color: '#e53e3e', marginBottom: '1rem' }}>{isArabic ? 'فشل تحميل البيانات' : 'Failed to load data'}</p>
+        <button className="btn btn-primary" onClick={() => { setFetchError(false); setLoading(true); fetchSessions(); }}>
+          {isArabic ? 'إعادة المحاولة' : 'Retry'}
+        </button>
+      </div>
+    );
   }
 
   return (
@@ -135,39 +149,46 @@ const SessionsList = () => {
       </div>
 
       {isMobile ? (
-        <div className="cases-mobile-cards">
+        <div className="ses-list">
           {filteredSessions.length > 0 ? filteredSessions.map((session) => (
-            <div key={session.id} className="case-mobile-card" dir={language === 'ar' ? 'rtl' : 'ltr'}>
-              <div className="case-card-header">
-                <Link to={`/dashboard/sessions/${session.id}/edit`} className="case-card-number">#{session.sessionNumber}</Link>
+            <div key={session.id} className="ses-card" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+              <div className="ses-head">
+                <Link to={`/dashboard/sessions/${session.id}/edit`} className="ses-num">#{session.sessionNumber}</Link>
                 {getStatusBadge(session.status)}
               </div>
-              <Link to={`/dashboard/cases/${session.Case?.id}`} className="case-card-title">{session.Case?.title || '-'}</Link>
-              <div className="case-card-body">
-                <div className="case-card-row">
-                  <span className="case-card-label">{t.caseNumber}</span>
-                  <span className="case-card-value">{session.Case?.caseNumber || '-'}</span>
+
+              <Link to={`/dashboard/cases/${session.Case?.id}`} className="ses-case">{session.Case?.title || '-'}</Link>
+
+              <div className="ses-highlight">
+                <div className="ses-date">
+                  <FiCalendar size={14} />
+                  {session.date ? format(new Date(session.date), 'dd/MM/yyyy', { locale: ar }) : '—'}
                 </div>
-                <div className="case-card-row">
-                  <span className="case-card-label">{t.sessionType}</span>
-                  <span className="case-card-value">{t[session.sessionType] || session.sessionType}</span>
+                <div className="ses-time">{session.time || '—'}</div>
+              </div>
+
+              <div className="ses-body">
+                <div className="ses-row">
+                  <span className="ses-lbl">{t.caseNumber}</span>
+                  <span className="ses-val">{session.Case?.caseNumber || '—'}</span>
                 </div>
-                <div className="case-card-row">
-                  <span className="case-card-label">{t.sessionDate}</span>
-                  <span className="case-card-value">{format(new Date(session.date), 'dd/MM/yyyy', { locale: ar })}</span>
+                <div className="ses-row">
+                  <span className="ses-lbl">{t.sessionType}</span>
+                  <span className="ses-val">{t[session.sessionType] || session.sessionType}</span>
                 </div>
-                <div className="case-card-row">
-                  <span className="case-card-label">{t.sessionTime}</span>
-                  <span className="case-card-value">{session.time || '-'}</span>
-                </div>
-                <div className="case-card-row">
-                  <span className="case-card-label">{t.sessionLocation}</span>
-                  <span className="case-card-value">{session.location || '-'}</span>
+                <div className="ses-row">
+                  <span className="ses-lbl">{t.sessionLocation}</span>
+                  <span className="ses-val">{session.location || '—'}</span>
                 </div>
               </div>
-              <div className="case-card-actions-row">
-                <Link to={`/dashboard/cases/${session.Case?.id}`} className="btn btn-secondary btn-sm"><FiCalendar /> {t.viewDetails}</Link>
-                <Link to={`/dashboard/sessions/${session.id}/edit`} className="btn btn-secondary btn-sm"><FiEdit /> {t.edit}</Link>
+
+              <div className="ses-acts">
+                <Link to={`/dashboard/cases/${session.Case?.id}`} className="ses-btn ses-btn-primary">
+                  <FiCalendar size={16} /> {t.viewDetails}
+                </Link>
+                <Link to={`/dashboard/sessions/${session.id}/edit`} className="ses-btn">
+                  <FiEdit size={16} /> {t.edit}
+                </Link>
               </div>
             </div>
           )) : (
@@ -206,7 +227,7 @@ const SessionsList = () => {
                     </Link>
                   </td>
                   <td>{t[session.sessionType] || session.sessionType}</td>
-                  <td>{format(new Date(session.date), 'dd/MM/yyyy', { locale: ar })}</td>
+                  <td>{session.date ? format(new Date(session.date), 'dd/MM/yyyy', { locale: ar }) : '—'}</td>
                   <td>{session.time || '-'}</td>
                   <td>{session.location || '-'}</td>
                   <td>{getStatusBadge(session.status)}</td>

@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
 import api from '../../services/api';
 import { FiPlus, FiSearch, FiEye, FiEdit, FiTrash2 } from 'react-icons/fi';
+import './DocumentsList.css';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import toast from 'react-hot-toast';
@@ -13,6 +14,7 @@ const DocumentsList = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [filters, setFilters] = useState({
     search: '',
@@ -40,6 +42,7 @@ const DocumentsList = () => {
 
   const fetchDocuments = async () => {
     try {
+      setFetchError(false);
       const params = {
         ...filters,
         page: pagination.page,
@@ -55,6 +58,7 @@ const DocumentsList = () => {
       setPagination(response.data.pagination);
     } catch (error) {
       toast.error(isArabic ? 'خطأ في جلب المستندات' : 'Error loading documents');
+      setFetchError(true);
     } finally {
       setLoading(false);
     }
@@ -96,6 +100,17 @@ const DocumentsList = () => {
 
   if (loading) {
     return <div className="loading">{t.loading}</div>;
+  }
+
+  if (fetchError) {
+    return (
+      <div className="error-state" style={{ textAlign: 'center', padding: '3rem' }}>
+        <p style={{ color: '#e53e3e', marginBottom: '1rem' }}>{isArabic ? 'فشل تحميل البيانات' : 'Failed to load data'}</p>
+        <button className="btn btn-primary" onClick={() => { setFetchError(false); setLoading(true); fetchDocuments(); }}>
+          {isArabic ? 'إعادة المحاولة' : 'Retry'}
+        </button>
+      </div>
+    );
   }
 
   return (
@@ -157,47 +172,51 @@ const DocumentsList = () => {
       </div>
 
       {isMobile ? (
-        <div className="cases-mobile-cards">
+        <div className="doc-list">
           {documents.length > 0 ? documents.map((doc) => (
-            <div key={doc.id} className="case-mobile-card" dir={language === 'ar' ? 'rtl' : 'ltr'}>
-              <div className="case-card-header">
-                <Link to={`/dashboard/documents/${doc.id}`} className="case-card-number">{doc.title}</Link>
-                {doc.status && (
-                  <span className={`badge badge-${doc.status === 'approved' ? 'won' : doc.status === 'under_review' ? 'active' : doc.status === 'draft' ? 'pending' : 'closed'}`}>
-                    {t[doc.status] || doc.status}
-                  </span>
-                )}
+            <div key={doc.id} className="doc-card" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+              <div className="doc-head">
+                <Link to={`/dashboard/documents/${doc.id}`} className="doc-title">{doc.title}</Link>
+                {getStatusBadge(doc.status)}
               </div>
-              <div className="case-card-body">
-                <div className="case-card-row">
-                  <span className="case-card-label">{t.documentType}</span>
-                  <span className="case-card-value">{t[doc.type] || doc.type}</span>
+
+              <div className="doc-body">
+                <div className="doc-row">
+                  <span className="doc-lbl">{t.documentType}</span>
+                  <span className="doc-val">{t[doc.type] || doc.type}</span>
                 </div>
-                <div className="case-card-row">
-                  <span className="case-card-label">{t.caseTitle}</span>
-                  <span className="case-card-value">
+                <div className="doc-row">
+                  <span className="doc-lbl">{t.caseTitle}</span>
+                  <span className="doc-val">
                     {doc.case ? (
                       <Link to={`/dashboard/cases/${doc.case.id}`}>{doc.case.title}</Link>
-                    ) : '-'}
+                    ) : '—'}
                   </span>
                 </div>
-                <div className="case-card-row">
-                  <span className="case-card-label">{t.author}</span>
-                  <span className="case-card-value">{doc.uploader?.fullName || '-'}</span>
+                <div className="doc-row">
+                  <span className="doc-lbl">{t.author}</span>
+                  <span className="doc-val">{doc.uploader?.fullName || '—'}</span>
                 </div>
-                <div className="case-card-row">
-                  <span className="case-card-label">{t.createdAt}</span>
-                  <span className="case-card-value">
+                <div className="doc-row">
+                  <span className="doc-lbl">{t.createdAt}</span>
+                  <span className="doc-val">
                     {doc.createdAt
                       ? format(new Date(doc.createdAt), 'dd/MM/yyyy', { locale: ar })
-                      : '-'}
+                      : '—'}
                   </span>
                 </div>
               </div>
-              <div className="case-card-actions-row">
-                <Link to={`/dashboard/documents/${doc.id}`} className="btn btn-secondary btn-sm"><FiEye /> {t.viewDetails}</Link>
-                <Link to={`/dashboard/documents/${doc.id}/edit`} className="btn btn-secondary btn-sm"><FiEdit /> {t.edit}</Link>
-                <button className="btn btn-danger btn-sm" onClick={() => handleDelete(doc.id)}><FiTrash2 /> {t.delete}</button>
+
+              <div className="doc-acts">
+                <Link to={`/dashboard/documents/${doc.id}`} className="doc-btn doc-btn-primary">
+                  <FiEye size={16} /> {t.viewDetails}
+                </Link>
+                <Link to={`/dashboard/documents/${doc.id}/edit`} className="doc-btn">
+                  <FiEdit size={16} /> {t.edit}
+                </Link>
+                <button className="doc-btn doc-btn-del" onClick={() => handleDelete(doc.id)}>
+                  <FiTrash2 size={16} /> {t.delete}
+                </button>
               </div>
             </div>
           )) : (

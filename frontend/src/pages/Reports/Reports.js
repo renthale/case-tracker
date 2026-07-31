@@ -37,6 +37,7 @@ const Reports = () => {
     cases: [], sessions: [], invoices: [], clients: []
   });
   const [isMobile, setIsMobile] = useState(false);
+  const [fetchError, setFetchError] = useState(null);
 
   useEffect(() => {
     const mql = window.matchMedia('(max-width: 768px)');
@@ -46,11 +47,17 @@ const Reports = () => {
     return () => mql.removeEventListener('change', handler);
   }, []);
 
+  const kpiCols = isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fill, minmax(170px, 1fr))';
+  const kpiColsWide = isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fill, minmax(180px, 1fr))';
+  const reportCols = isMobile ? '1fr' : 'repeat(auto-fill, minmax(340px, 1fr))';
+  const twoCol = isMobile ? '1fr' : '1fr 1fr';
+
   useEffect(() => { fetchAllData(); }, []);
 
   const fetchAllData = async () => {
     try {
       setLoading(true);
+      setFetchError(null);
       const [casesRes, sessionsRes, invoicesRes, clientsRes] = await Promise.all([
         api.get('/cases?limit=500'),
         api.get('/sessions?limit=500'),
@@ -69,8 +76,10 @@ const Reports = () => {
       } catch (e) {
         console.error('Fee report error:', e);
       }
+      setFetchError(null);
     } catch (error) {
       console.error('Error:', error);
+      setFetchError(error.message || isArabic ? 'فشل تحميل البيانات' : 'Failed to load data');
     } finally {
       setLoading(false);
     }
@@ -215,7 +224,7 @@ const Reports = () => {
   // ──────────────── OVERVIEW ────────────────
   const renderOverview = () => (
     <div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(170px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: kpiCols, gap: '1rem', marginBottom: '1.5rem' }}>
         <div style={kpi('#3498db')}>
           <div style={kpiNum('#3498db')}>{totalCases}</div>
           <div style={kpiLabel()}>{isArabic ? 'إجمالي القضايا' : 'Total Cases'}</div>
@@ -250,7 +259,7 @@ const Reports = () => {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '1rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: reportCols, gap: '1rem' }}>
         <div className="card" style={{ margin: 0 }}>
           <h3 className="card-title">{isArabic ? 'القضايا حسب النوع' : 'Cases by Type'}</h3>
           {Object.entries(filteredCases.reduce((acc, c) => { acc[c.type] = (acc[c.type] || 0) + 1; return acc; }, {}))
@@ -322,7 +331,7 @@ const Reports = () => {
 
     return (
       <div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(170px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: kpiCols, gap: '1rem', marginBottom: '1.5rem' }}>
           <div style={kpi('#3498db')}><div style={kpiNum('#3498db')}>{totalCases}</div><div style={kpiLabel()}>{isArabic ? 'إجمالي' : 'Total'}</div></div>
           <div style={kpi('#2ecc71')}><div style={kpiNum('#2ecc71')}>{activeCases}</div><div style={kpiLabel()}>{isArabic ? 'نشطة' : 'Active'}</div></div>
           <div style={kpi('#27ae60')}><div style={kpiNum('#27ae60')}>{wonCases}</div><div style={kpiLabel()}>{isArabic ? 'مكتسبة' : 'Won'}</div></div>
@@ -331,7 +340,7 @@ const Reports = () => {
           <div style={kpi('#2ecc71')}><div style={kpiNum('#2ecc71')}>{paidFees.toFixed(3)}</div><div style={kpiLabel()}>{isArabic ? 'محصّل (د.ك)' : 'Collected (KWD)'}</div></div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: twoCol, gap: '1rem', marginBottom: '1.5rem' }}>
           <div className="card" style={{ margin: 0 }}>
             <h3 className="card-title">{isArabic ? 'حسب النوع' : 'By Type'}</h3>
             {Object.entries(typeBreakdown).sort((a, b) => b[1].count - a[1].count).map(([type, stats]) => (
@@ -391,7 +400,7 @@ const Reports = () => {
   // ──────────────── SESSIONS ────────────────
   const renderSessions = () => (
     <div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(170px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: kpiCols, gap: '1rem', marginBottom: '1.5rem' }}>
         <div style={kpi('#3498db')}><div style={kpiNum('#3498db')}>{filteredSessions.length}</div><div style={kpiLabel()}>{isArabic ? 'إجمالي' : 'Total'}</div></div>
         <div style={kpi('#2ecc71')}><div style={kpiNum('#2ecc71')}>{upcomingSessions.length}</div><div style={kpiLabel()}>{isArabic ? 'قادمة' : 'Upcoming'}</div></div>
         <div style={kpi('#e74c3c')}><div style={kpiNum('#e74c3c')}>{thisWeekSessions.length}</div><div style={kpiLabel()}>{isArabic ? 'هذا الأسبوع' : 'This Week'}</div></div>
@@ -476,7 +485,7 @@ const Reports = () => {
         </button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: kpiColsWide, gap: '1rem', marginBottom: '1.5rem' }}>
         <div style={kpi('#2ecc71')}><div style={kpiNum('#2ecc71')}>{totalPaid.toFixed(3)}</div><div style={kpiLabel()}>{isArabic ? 'المدفوع (د.ك)' : 'Paid (KWD)'}</div></div>
         <div style={kpi('#f39c12')}><div style={kpiNum('#f39c12')}>{totalPending.toFixed(3)}</div><div style={kpiLabel()}>{isArabic ? 'المعلق (د.ك)' : 'Pending (KWD)'}</div></div>
         <div style={kpi('#3498db')}><div style={kpiNum('#3498db')}>{totalRevenue.toFixed(3)}</div><div style={kpiLabel()}>{isArabic ? 'الإجمالي (د.ك)' : 'Total (KWD)'}</div></div>
@@ -485,7 +494,7 @@ const Reports = () => {
         <div style={kpi('#e74c3c')}><div style={kpiNum('#e74c3c')}>{overdueInvoices}</div><div style={kpiLabel()}>{isArabic ? 'متأخرة' : 'Overdue'}</div></div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: twoCol, gap: '1rem' }}>
         {feeReport && feeReport.feesByMonth && (
           <div className="card" style={{ margin: 0 }}>
             <h3 className="card-title">{isArabic ? 'الأتعاب حسب الشهر' : 'Fees by Month'}</h3>
@@ -525,7 +534,7 @@ const Reports = () => {
   // ──────────────── INVOICES ────────────────
   const renderInvoices = () => (
     <div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: kpiColsWide, gap: '1rem', marginBottom: '1.5rem' }}>
         <div style={kpi('#3498db')}><div style={kpiNum('#3498db')}>{totalInvoices}</div><div style={kpiLabel()}>{isArabic ? 'إجمالي الفواتير' : 'Total Invoices'}</div></div>
         <div style={kpi('#2ecc71')}><div style={kpiNum('#2ecc71')}>{paidInvoices}</div><div style={kpiLabel()}>{isArabic ? 'مدفوعة' : 'Paid'}</div></div>
         <div style={kpi('#f39c12')}><div style={kpiNum('#f39c12')}>{partialInvoices}</div><div style={kpiLabel()}>{isArabic ? 'جزئية' : 'Partial'}</div></div>
@@ -536,7 +545,7 @@ const Reports = () => {
         <div style={kpi('#3498db')}><div style={kpiNum('#3498db')}>{totalRevenue.toFixed(3)}</div><div style={kpiLabel()}>{isArabic ? 'الإجمالي (د.ك)' : 'Revenue (KWD)'}</div></div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: twoCol, gap: '1rem', marginBottom: '1.5rem' }}>
         <div className="card" style={{ margin: 0 }}>
           <h3 className="card-title">{isArabic ? 'الفواتير حسب الموكل' : 'Invoices by Client'}</h3>
           <div style={{ overflowX: 'auto' }}>
@@ -646,7 +655,7 @@ const Reports = () => {
 
     return (
       <div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(170px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: kpiCols, gap: '1rem', marginBottom: '1.5rem' }}>
           <div style={kpi('#9b59b6')}><div style={kpiNum('#9b59b6')}>{data.clients.length}</div><div style={kpiLabel()}>{isArabic ? 'إجمالي' : 'Total'}</div></div>
           <div style={kpi('#2ecc71')}><div style={kpiNum('#2ecc71')}>{activeClients.length}</div><div style={kpiLabel()}>{isArabic ? 'نشطين' : 'Active'}</div></div>
           <div style={kpi('#3498db')}><div style={kpiNum('#3498db')}>{clientStats.filter(c => c.casesCount > 0).length}</div><div style={kpiLabel()}>{isArabic ? 'لديهم قضايا' : 'With Cases'}</div></div>
@@ -753,7 +762,7 @@ const Reports = () => {
         </div>
 
         {auditStats && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(170px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: kpiCols, gap: '1rem', marginBottom: '1.5rem' }}>
             <div style={kpi('#3498db')}>
               <div style={kpiNum('#3498db')}>{auditStats.recentCount || 0}</div>
               <div style={kpiLabel()}>{isArabic ? 'آخر 30 يوم' : 'Last 30 Days'}</div>
@@ -816,6 +825,14 @@ const Reports = () => {
 
   const renderContent = () => {
     if (loading) return <div className="loading">{isArabic ? 'جاري التحميل...' : 'Loading...'}</div>;
+    if (fetchError) return (
+      <div className="card" style={{ textAlign: 'center', padding: '2rem' }}>
+        <p style={{ color: '#dc2626', marginBottom: '1rem', fontWeight: 600 }}>{fetchError}</p>
+        <button className="btn btn-primary" onClick={fetchAllData}>
+          {isArabic ? 'إعادة المحاولة' : 'Retry'}
+        </button>
+      </div>
+    );
     switch (activeTab) {
       case 'cases': return renderCases();
       case 'sessions': return renderSessions();
@@ -850,7 +867,7 @@ const Reports = () => {
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(170px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: kpiCols, gap: '1rem', marginBottom: '1.5rem' }}>
           <div style={kpi('#3498db')}>
             <div style={kpiNum('#3498db')}>{agentCases.length}</div>
             <div style={kpiLabel()}>{isArabic ? 'القضايا المنسوبة' : 'Assigned Cases'}</div>

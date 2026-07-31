@@ -18,6 +18,7 @@ const CasesList = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [cases, setCases] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
   const [updatingCase, setUpdatingCase] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
   const [filters, setFilters] = useState({
@@ -46,6 +47,7 @@ const CasesList = () => {
 
   const fetchCases = async () => {
     try {
+      setFetchError(false);
       const params = {
         ...filters,
         page: pagination.page,
@@ -61,6 +63,7 @@ const CasesList = () => {
       setPagination(response.data.pagination);
     } catch (error) {
       toast.error(t.errorFetchingCase || 'خطأ في جلب القضايا');
+      setFetchError(true);
     } finally {
       setLoading(false);
     }
@@ -118,6 +121,17 @@ const CasesList = () => {
 
   if (loading) {
     return <div className="loading">{t.loading}</div>;
+  }
+
+  if (fetchError) {
+    return (
+      <div className="error-state" style={{ textAlign: 'center', padding: '3rem' }}>
+        <p style={{ color: '#e53e3e', marginBottom: '1rem' }}>{isArabic ? 'فشل تحميل البيانات' : 'Failed to load data'}</p>
+        <button className="btn btn-primary" onClick={() => { setFetchError(false); setLoading(true); fetchCases(); }}>
+          {isArabic ? 'إعادة المحاولة' : 'Retry'}
+        </button>
+      </div>
+    );
   }
 
   return (
@@ -222,7 +236,7 @@ const CasesList = () => {
                   {getStatusBadge(caseItem.status)}
                 </div>
                 <div className="case-card-fields">
-                  <div><span style={{ color: '#999' }}>{t.caseType}:</span> {t[caseItem.type]}</div>
+                  <div><span style={{ color: '#999' }}>{t.caseType}:</span> {t[caseItem.type] || caseItem.type}</div>
                   <div><span style={{ color: '#999' }}>{t.clientName}:</span> {caseItem.clientName || '-'}</div>
                   <div>
                     <FiCalendar /> <span style={{ color: '#999' }}>{t.nextHearing}:</span>{' '}
@@ -230,7 +244,7 @@ const CasesList = () => {
                       ? format(new Date(caseItem.nextHearingDate), 'dd/MM/yyyy', { locale: ar })
                       : (isArabic ? 'غير محدد' : 'Not set')}
                   </div>
-                  <div><span style={{ color: '#999' }}>{t.casePriority}:</span> {t[caseItem.priority]}</div>
+                  <div><span style={{ color: '#999' }}>{t.casePriority}:</span> {t[caseItem.priority] || caseItem.priority}</div>
                 </div>
               </div>
 
@@ -359,9 +373,9 @@ const CasesList = () => {
                 <tr key={caseItem.id}>
                   <td><Link to={`/dashboard/cases/${caseItem.id}`}>{caseItem.caseNumber || '-'}</Link></td>
                   <td><Link to={`/dashboard/cases/${caseItem.id}`}>{caseItem.title}</Link></td>
-                  <td>{t[caseItem.type]}</td>
+                  <td>{t[caseItem.type] || caseItem.type}</td>
                   <td>{getStatusBadge(caseItem.status)}</td>
-                  <td>{t[caseItem.priority]}</td>
+                  <td>{t[caseItem.priority] || caseItem.priority}</td>
                   <td>{caseItem.clientName || '-'}</td>
                   <td>
                     {caseItem.nextHearingDate 
