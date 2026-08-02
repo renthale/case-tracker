@@ -1,16 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
+import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
 import { FiEdit, FiArrowRight, FiPrinter, FiTrash2, FiCheckCircle } from 'react-icons/fi';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import toast from 'react-hot-toast';
+import FinancialStatusBadge from '../../components/FinancialStatusBadge';
 
 const InvoiceDetails = () => {
   const { id } = useParams();
   const { t, language } = useLanguage();
   const isArabic = language === 'ar';
+  const { user } = useAuth();
+  const canManageFinancials = ['admin', 'partner', 'legal_secretary'].includes(user?.role);
   const navigate = useNavigate();
   const [invoice, setInvoice] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -19,7 +23,7 @@ const InvoiceDetails = () => {
     amount: '',
     paymentDate: format(new Date(), 'yyyy-MM-dd'),
     paymentMethod: 'cash',
-    reference: '',
+    referenceNumber: '',
     notes: ''
   });
 
@@ -42,19 +46,7 @@ const InvoiceDetails = () => {
   };
 
   const getStatusBadge = (status) => {
-    const statusClasses = {
-      paid: 'badge-won',
-      partial: 'badge-pending',
-      pending: 'badge-pending',
-      overdue: 'badge-lost'
-    };
-    const statusLabels = {
-      paid: isArabic ? 'مدفوع' : 'Paid',
-      partial: isArabic ? 'مدفوع جزئياً' : 'Partially Paid',
-      pending: isArabic ? 'معلق' : 'Pending',
-      overdue: isArabic ? 'متأخر' : 'Overdue'
-    };
-    return <span className={`badge ${statusClasses[status] || ''}`}>{statusLabels[status] || t[status]}</span>;
+    return <FinancialStatusBadge status={status} />;
   };
 
   const formatAmount = (amount) => {
@@ -75,7 +67,7 @@ const InvoiceDetails = () => {
         amount: '',
         paymentDate: format(new Date(), 'yyyy-MM-dd'),
         paymentMethod: 'cash',
-        reference: '',
+        referenceNumber: '',
         notes: ''
       });
       fetchInvoice();
@@ -119,6 +111,14 @@ const InvoiceDetails = () => {
     );
   }
 
+  if (!canManageFinancials) {
+    return (
+      <div className="error-state" style={{ textAlign: 'center', padding: '3rem' }}>
+        <p>{isArabic ? 'غير متاح لصلاحياتك' : 'Not available for your role'}</p>
+      </div>
+    );
+  }
+
   if (!invoice) {
     return <div className="no-data">{isArabic ? 'الفاتورة غير موجودة' : 'Invoice not found'}</div>;
   }
@@ -158,7 +158,7 @@ const InvoiceDetails = () => {
             </div>
             <div className="detail-item">
               <label>{isArabic ? 'المبلغ' : 'Amount'}</label>
-              <span>{formatAmount(invoice.amount)}</span>
+              <span>{formatAmount(invoice.totalAmount)}</span>
             </div>
             <div className="detail-item">
               <label>{isArabic ? 'المبلغ المدفوع' : 'Paid Amount'}</label>
@@ -166,7 +166,7 @@ const InvoiceDetails = () => {
             </div>
             <div className="detail-item">
               <label>{isArabic ? 'المبلغ المتبقي' : 'Remaining Amount'}</label>
-              <span>{formatAmount(invoice.remainingAmount || invoice.amount)}</span>
+              <span>{formatAmount((parseFloat(invoice.totalAmount || 0) - parseFloat(invoice.paidAmount || 0)))}</span>
             </div>
             <div className="detail-item">
               <label>{isArabic ? 'تاريخ الإنشاء' : 'Created Date'}</label>
@@ -198,30 +198,30 @@ const InvoiceDetails = () => {
           <div className="details-grid">
             <div className="detail-item">
               <label>{isArabic ? 'الموكل' : 'Client'}</label>
-              <span>{invoice.clientName || '-'}</span>
+              <span>{invoice.client?.name || '-'}</span>
             </div>
             <div className="detail-item">
               <label>{isArabic ? 'القضية' : 'Case'}</label>
               <span>
                 {invoice.caseId ? (
-                  <Link to={`/dashboard/cases/${invoice.caseId}`}>{invoice.caseNumber || invoice.caseTitle || '-'}</Link>
+                  <Link to={`/dashboard/cases/${invoice.caseId}`}>{invoice.case?.caseNumber || invoice.case?.title || '-'}</Link>
                 ) : '-'}
               </span>
             </div>
           </div>
 
-          {invoice.status !== 'paid' && (
+          {invoice.status !== 'paid' && invoice.status !== 'cancelled' && (
             <div style={{ marginTop: '1.5rem' }}>
               <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>{isArabic ? 'تغيير الحالة' : 'Change Status'}</label>
               <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                {['paid', 'partial', 'pending', 'overdue'].map(s => (
+                {['draft', 'sent', 'cancelled'].map(s => (
                   <button
                     key={s}
                     className={`btn ${invoice.status === s ? 'btn-primary' : 'btn-secondary'}`}
                     onClick={() => handleStatusChange(s)}
                     disabled={invoice.status === s}
                   >
-                    <FiCheckCircle /> {s === 'paid' ? (isArabic ? 'مدفوع' : 'Paid') : s === 'partial' ? (isArabic ? 'مدفوع جزئياً' : 'Partial') : s === 'pending' ? (isArabic ? 'معلق' : 'Pending') : (isArabic ? 'متأخر' : 'Overdue')}
+                    <FiCheckCircle /> {s === 'draft' ? (isArabic ? 'مسودة' : 'Draft') : s === 'sent' ? (isArabic ? 'مرسلة' : 'Sent') : (isArabic ? 'ملغاة' : 'Cancelled')}
                   </button>
                 ))}
               </div>
@@ -273,11 +273,13 @@ const InvoiceDetails = () => {
                     <td>
                       {payment.paymentMethod === 'cash' ? (isArabic ? 'نقداً' : 'Cash')
                         : payment.paymentMethod === 'bank_transfer' ? (isArabic ? 'تحويل بنكي' : 'Bank Transfer')
-                        : payment.paymentMethod === 'cheque' ? (isArabic ? 'شيك' : 'Cheque')
+                        : payment.paymentMethod === 'check' || payment.paymentMethod === 'cheque' ? (isArabic ? 'شيك' : 'Cheque')
+                        : payment.paymentMethod === 'credit_card' ? (isArabic ? 'بطاقة ائتمان/خصم' : 'Credit/Debit Card')
+                        : payment.paymentMethod === 'knet' ? (isArabic ? 'كي نت' : 'KNET')
                         : payment.paymentMethod || '-'
                       }
                     </td>
-                    <td>{payment.reference || '-'}</td>
+                    <td>{payment.referenceNumber || '-'}</td>
                     <td>{payment.notes || '-'}</td>
                     <td>
                       <button
@@ -336,16 +338,18 @@ const InvoiceDetails = () => {
                 >
                   <option value="cash">{isArabic ? 'نقداً' : 'Cash'}</option>
                   <option value="bank_transfer">{isArabic ? 'تحويل بنكي' : 'Bank Transfer'}</option>
-                  <option value="cheque">{isArabic ? 'شيك' : 'Cheque'}</option>
+                  <option value="check">{isArabic ? 'شيك' : 'Cheque'}</option>
+                  <option value="credit_card">{isArabic ? 'بطاقة ائتمان/خصم' : 'Credit/Debit Card'}</option>
+                  <option value="knet">{isArabic ? 'كي نت' : 'KNET'}</option>
                 </select>
               </div>
               <div className="form-group">
-                <label>{isArabic ? 'المرجع' : 'Reference'}</label>
+                <label>{isArabic ? 'رقم المرجع' : 'Reference Number'}</label>
                 <input
                   type="text"
-                  name="reference"
+                  name="referenceNumber"
                   className="form-control"
-                  value={paymentForm.reference}
+                  value={paymentForm.referenceNumber}
                   onChange={handlePaymentChange}
                 />
               </div>

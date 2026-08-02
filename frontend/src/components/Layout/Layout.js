@@ -20,7 +20,9 @@ const Layout = () => {
     { path: '/dashboard/cases', icon: FiBriefcase, label: t.cases },
     { path: '/dashboard/clients', icon: FiUsers, label: t.clients },
     { path: '/dashboard/sessions', icon: FiCalendar, label: t.sessions },
-    { path: '/dashboard/invoices', icon: FiDollarSign, label: t.invoices },
+    ...(['admin', 'partner', 'legal_secretary'].includes(user?.role) ? [
+      { path: '/dashboard/invoices', icon: FiDollarSign, label: t.invoices }
+    ] : []),
     { path: '/dashboard/documents', icon: FiFileText, label: t.legalDocuments },
     { path: '/dashboard/transactions', icon: FiSend, label: t.transactions },
     { path: '/dashboard/court-agent', icon: FiMap, label: t.courtAgent },

@@ -2,16 +2,15 @@ require('dns').setDefaultResultOrder('ipv4first');
 require('dotenv').config();
 const { Sequelize } = require('sequelize');
 
+const sslOptions = process.env.DB_SSL === 'false'
+  ? undefined
+  : { require: true, rejectUnauthorized: false };
+
 const sequelize = process.env.DATABASE_URL
   ? new Sequelize(process.env.DATABASE_URL, {
       dialect: 'postgres',
       logging: false,
-      dialectOptions: {
-        ssl: {
-          require: true,
-          rejectUnauthorized: false
-        }
-      },
+      dialectOptions: sslOptions ? { ssl: sslOptions } : {},
       pool: {
         max: 5,
         min: 0,
@@ -28,12 +27,7 @@ const sequelize = process.env.DATABASE_URL
         port: process.env.DB_PORT,
         dialect: 'postgres',
         logging: false,
-        dialectOptions: {
-          ssl: {
-            require: true,
-            rejectUnauthorized: false
-          }
-        },
+        dialectOptions: sslOptions ? { ssl: sslOptions } : {},
         pool: {
           max: 5,
           min: 0,

@@ -1,16 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
+import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
 import { FiPlus, FiSearch, FiEye, FiEdit, FiTrash2 } from 'react-icons/fi';
 import './InvoicesList.css';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import toast from 'react-hot-toast';
+import FinancialStatusBadge from '../../components/FinancialStatusBadge';
 
 const InvoicesList = () => {
   const { t, language } = useLanguage();
   const isArabic = language === 'ar';
+  const { user } = useAuth();
+  const canManageFinancials = ['admin', 'partner', 'legal_secretary'].includes(user?.role);
   const [searchParams, setSearchParams] = useSearchParams();
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -88,13 +92,7 @@ const InvoicesList = () => {
   };
 
   const getStatusBadge = (status) => {
-    const statusClasses = {
-      paid: 'badge-won',
-      partial: 'badge-pending',
-      pending: 'badge-pending',
-      overdue: 'badge-lost'
-    };
-    return <span className={`badge ${statusClasses[status] || ''}`}>{t[status] || t.overdue || status}</span>;
+    return <FinancialStatusBadge status={status} />;
   };
 
   const formatAmount = (amount) => {
@@ -113,6 +111,14 @@ const InvoicesList = () => {
         <button className="btn btn-primary" onClick={() => { setFetchError(false); setLoading(true); fetchInvoices(); }}>
           {isArabic ? 'إعادة المحاولة' : 'Retry'}
         </button>
+      </div>
+    );
+  }
+
+  if (!canManageFinancials) {
+    return (
+      <div className="error-state" style={{ textAlign: 'center', padding: '3rem' }}>
+        <p>{isArabic ? 'غير متاح لصلاحياتك' : 'Not available for your role'}</p>
       </div>
     );
   }
@@ -139,10 +145,12 @@ const InvoicesList = () => {
           onChange={handleFilterChange}
         >
           <option value="">{t.allStatuses}</option>
-          <option value="paid">{t.paid}</option>
-          <option value="partial">{t.partial}</option>
-          <option value="pending">{t.pending}</option>
-          <option value="overdue">{t.overdue}</option>
+          <option value="draft">{t.invoiceStatusDraft}</option>
+          <option value="sent">{t.invoiceStatusSent}</option>
+          <option value="partially_paid">{t.invoiceStatusPartiallyPaid}</option>
+          <option value="paid">{t.invoiceStatusPaid}</option>
+          <option value="overdue">{t.invoiceStatusOverdue}</option>
+          <option value="cancelled">{t.invoiceStatusCancelled}</option>
         </select>
 
         <select
@@ -182,10 +190,10 @@ const InvoicesList = () => {
                 {getStatusBadge(invoice.status)}
               </div>
 
-              <div className="inv-client">{invoice.clientName || '—'}</div>
+              <div className="inv-client">{invoice.client?.name || '—'}</div>
 
               <div className="inv-highlight">
-                <div className="inv-amount">{formatAmount(invoice.amount)}</div>
+                <div className="inv-amount">{formatAmount(invoice.totalAmount)}</div>
                 <div className="inv-due">
                   {invoice.dueDate
                     ? format(new Date(invoice.dueDate), 'dd/MM/yyyy', { locale: ar })
@@ -202,7 +210,7 @@ const InvoicesList = () => {
                   <span className="inv-lbl">{t.cases}</span>
                   <span className="inv-val">
                     {invoice.caseId ? (
-                      <Link to={`/dashboard/cases/${invoice.caseId}`}>{invoice.caseNumber || invoice.caseTitle || '—'}</Link>
+                      <Link to={`/dashboard/cases/${invoice.caseId}`}>{invoice.case?.caseNumber || invoice.case?.title || '—'}</Link>
                     ) : '—'}
                   </span>
                 </div>
@@ -246,12 +254,12 @@ const InvoicesList = () => {
                   <td><Link to={`/dashboard/invoices/${invoice.id}`}>{invoice.invoiceNumber || '-'}</Link></td>
                   <td>
                     {invoice.caseId ? (
-                      <Link to={`/dashboard/cases/${invoice.caseId}`}>{invoice.caseNumber || invoice.caseTitle || '-'}</Link>
+                      <Link to={`/dashboard/cases/${invoice.caseId}`}>{invoice.case?.caseNumber || invoice.case?.title || '-'}</Link>
                     ) : '-'}
                   </td>
-                  <td>{invoice.clientName || '-'}</td>
+                  <td>{invoice.client?.name || '-'}</td>
                   <td>{t[invoice.type] || invoice.type}</td>
-                  <td>{formatAmount(invoice.amount)}</td>
+                  <td>{formatAmount(invoice.totalAmount)}</td>
                   <td>{getStatusBadge(invoice.status)}</td>
                   <td>
                     {invoice.dueDate

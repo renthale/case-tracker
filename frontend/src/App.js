@@ -27,11 +27,16 @@ import ClientDetails from './pages/Clients/ClientDetails';
 import InvoicesList from './pages/Invoices/InvoicesList';
 import InvoiceForm from './pages/Invoices/InvoiceForm';
 import InvoiceDetails from './pages/Invoices/InvoiceDetails';
+import InvoiceBuilder from './pages/Invoices/InvoiceBuilder';
+import CasePaymentForm from './pages/Invoices/CasePaymentForm';
 import UsersList from './pages/Users/UsersList';
 import TimeTracking from './pages/TimeTracking/TimeTracking';
 import PortalUsers from './pages/PortalUsers/PortalUsers';
 import { PortalProvider, ProtectedPortal, PortalLayout } from './pages/Portal/ClientPortal';
 import PortalLogin from './pages/Portal/PortalLogin';
+import PortalInvite from './pages/Portal/PortalInvite';
+import PortalForgotPassword from './pages/Portal/PortalForgotPassword';
+import PortalResetPassword from './pages/Portal/PortalResetPassword';
 import PortalDashboard from './pages/Portal/PortalDashboard';
 import PortalCases from './pages/Portal/PortalCases';
 import PortalCaseDetails from './pages/Portal/PortalCaseDetails';
@@ -99,6 +104,9 @@ function App() {
             <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
 
             <Route path="/portal/login" element={<PortalProvider><PortalLogin /></PortalProvider>} />
+            <Route path="/portal/invite/:token" element={<PortalProvider><PortalInvite /></PortalProvider>} />
+            <Route path="/portal/forgot-password" element={<PortalProvider><PortalForgotPassword /></PortalProvider>} />
+            <Route path="/portal/reset-password/:token" element={<PortalProvider><PortalResetPassword /></PortalProvider>} />
             <Route path="/portal/cases/:id" element={<PortalProvider><ProtectedPortal><PortalLayout><PortalCaseDetails /></PortalLayout></ProtectedPortal></PortalProvider>} />
             <Route path="/portal/cases" element={<PortalProvider><ProtectedPortal><PortalLayout><PortalCases /></PortalLayout></ProtectedPortal></PortalProvider>} />
             <Route path="/portal/sessions" element={<PortalProvider><ProtectedPortal><PortalLayout><PortalSessions /></PortalLayout></ProtectedPortal></PortalProvider>} />
@@ -115,6 +123,8 @@ function App() {
               <Route path="cases/new" element={<CaseForm />} />
               <Route path="cases/:id" element={<CaseDetails />} />
               <Route path="cases/:id/edit" element={<CaseForm />} />
+              <Route path="cases/:id/invoices/new" element={<InvoiceBuilder />} />
+              <Route path="cases/:id/payments/new" element={<CasePaymentForm />} />
               <Route path="sessions" element={<SessionsList />} />
               <Route path="sessions/new" element={<SessionForm />} />
               <Route path="sessions/:id/edit" element={<SessionForm />} />

@@ -1,12 +1,21 @@
 const jwt = require('jsonwebtoken');
 const { ClientPortalUser, Client, Case, Session, Invoice, Payment, LegalDocument } = require('../models');
 const { Op } = require('sequelize');
+const { generateToken, hashToken, expiresAt } = require('../utils/tokenService');
+const { sendPortalInvitation, sendPortalPasswordReset, PORTAL_BASE } = require('../utils/emailService');
 
 const generatePortalToken = (id) => {
   return jwt.sign({ id, type: 'portal' }, process.env.JWT_SECRET || 'default-secret', {
     expiresIn: '7d'
   });
 };
+
+const PASSWORD_MIN_LENGTH = 8;
+const isStrongPassword = (password) =>
+  typeof password === 'string' &&
+  password.length >= PASSWORD_MIN_LENGTH &&
+  /[a-zA-Z]/.test(password) &&
+  /[0-9]/.test(password);
 
 exports.portalLogin = async (req, res) => {
   try {
@@ -23,6 +32,10 @@ exports.portalLogin = async (req, res) => {
 
     if (!portalUser) {
       return res.status(401).json({ error: 'بيانات الدخول غير صحيحة' });
+    }
+
+    if (!portalUser.password) {
+      return res.status(403).json({ error: 'يرجى تفعيل حسابك عبر رابط الدعوة المرسل إلى بريدك الإلكتروني' });
     }
 
     const isValid = await portalUser.comparePassword(password);
@@ -68,8 +81,12 @@ exports.portalAuth = async (req, res, next) => {
       include: [{ model: Client, as: 'client' }]
     });
 
-    if (!portalUser || !portalUser.isActive) {
+    if (!portalUser || !portalUser.isActive || !portalUser.password) {
       return res.status(401).json({ error: 'الحساب غير موجود أو معطل' });
+    }
+
+    if (!portalUser.token || portalUser.token !== token) {
+      return res.status(401).json({ error: 'انتهت الجلسة - يرجى تسجيل الدخول مرة أخرى' });
     }
 
     req.portalUser = portalUser;
@@ -104,6 +121,7 @@ exports.getMyCaseDetails = async (req, res) => {
           model: Invoice,
           as: 'invoices',
           attributes: ['id', 'invoiceNumber', 'totalAmount', 'paidAmount', 'status', 'dueDate'],
+          where: { status: { [Op.notIn]: ['draft', 'cancelled'] } },
           include: [{ model: Payment, as: 'payments', attributes: ['id', 'amount', 'paymentDate', 'paymentMethod', 'referenceNumber'] }]
         },
         { model: LegalDocument, as: 'legalDocuments', attributes: ['id', 'title', 'type', 'status', 'fileUrl', 'createdAt'] }
@@ -123,7 +141,7 @@ exports.getMyCaseDetails = async (req, res) => {
 exports.getMyInvoices = async (req, res) => {
   try {
     const invoices = await Invoice.findAll({
-      where: { clientId: req.client.id },
+      where: { clientId: req.client.id, status: { [Op.notIn]: ['draft', 'cancelled'] } },
       attributes: ['id', 'invoiceNumber', 'totalAmount', 'paidAmount', 'status', 'dueDate', 'issuedDate', 'createdAt'],
       include: [{ model: Payment, as: 'payments', attributes: ['id', 'amount', 'paymentDate', 'paymentMethod', 'referenceNumber'] }],
       order: [['createdAt', 'DESC']]
@@ -182,7 +200,7 @@ exports.getMyDocuments = async (req, res) => {
 exports.getMyPayments = async (req, res) => {
   try {
     const clientInvoices = await Invoice.findAll({
-      where: { clientId: req.client.id },
+      where: { clientId: req.client.id, status: { [Op.notIn]: ['draft', 'cancelled'] } },
       attributes: ['id']
     });
     const invoiceIds = clientInvoices.map(i => i.id);
@@ -217,5 +235,137 @@ exports.getMyProfile = async (req, res) => {
     res.json({ client: clientData });
   } catch (error) {
     res.status(500).json({ error: 'خطأ في جلب البيانات' });
+  }
+};
+
+exports.getInvitation = async (req, res) => {
+  try {
+    const portalUser = await ClientPortalUser.findOne({
+      where: { invitationToken: hashToken(req.params.token) },
+      include: [{ model: Client, as: 'client', attributes: ['id', 'name'] }]
+    });
+
+    if (!portalUser || !portalUser.hasValidInvitation()) {
+      return res.status(400).json({ error: 'رابط الدعوة غير صالح أو منتهي الصلاحية' });
+    }
+
+    res.json({ valid: true, email: portalUser.email, clientName: portalUser.client.name });
+  } catch (error) {
+    res.status(500).json({ error: 'خطأ في التحقق من الدعوة', details: error.message });
+  }
+};
+
+exports.acceptInvitation = async (req, res) => {
+  try {
+    const { password } = req.body;
+    if (!isStrongPassword(password)) {
+      return res.status(400).json({ error: `كلمة المرور يجب أن تكون ${PASSWORD_MIN_LENGTH} أحرف على الأقل وتحتوي على أحرف وأرقام` });
+    }
+
+    const portalUser = await ClientPortalUser.findOne({
+      where: { invitationToken: hashToken(req.params.token) }
+    });
+
+    if (!portalUser || !portalUser.hasValidInvitation()) {
+      return res.status(400).json({ error: 'رابط الدعوة غير صالح أو منتهي الصلاحية' });
+    }
+
+    await portalUser.update({
+      password,
+      invitationToken: null,
+      invitationTokenExpiry: null,
+      isActive: true
+    });
+
+    const token = generatePortalToken(portalUser.id);
+    await portalUser.update({ lastLogin: new Date(), token });
+
+    const client = await Client.findByPk(portalUser.clientId, { attributes: ['id', 'name', 'phone', 'email'] });
+    res.json({ message: 'تم تفعيل حسابك بنجاح', token, client });
+  } catch (error) {
+    res.status(500).json({ error: 'خطأ في تفعيل الحساب', details: error.message });
+  }
+};
+
+exports.requestPasswordReset = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ error: 'البريد الإلكتروني مطلوب' });
+    }
+
+    const portalUser = await ClientPortalUser.findOne({
+      where: { email },
+      include: [{ model: Client, as: 'client', attributes: ['id', 'name'] }]
+    });
+
+    if (portalUser && portalUser.isActive && portalUser.password) {
+      const rawToken = generateToken();
+      await portalUser.update({
+        passwordResetToken: hashToken(rawToken),
+        passwordResetTokenExpiry: expiresAt('passwordReset')
+      });
+      const resetUrl = `${PORTAL_BASE}/reset-password/${rawToken}`;
+      sendPortalPasswordReset(portalUser.client, email, resetUrl).catch(err => {
+        console.error('Failed to send password reset email:', err.message);
+      });
+    }
+
+    res.json({ message: 'إذا كان البريد الإلكتروني مسجلاً، فسيتم إرسال رابط إعادة تعيين كلمة المرور' });
+  } catch (error) {
+    res.status(500).json({ error: 'خطأ في معالجة الطلب', details: error.message });
+  }
+};
+
+exports.completePasswordReset = async (req, res) => {
+  try {
+    const { password } = req.body;
+    if (!isStrongPassword(password)) {
+      return res.status(400).json({ error: `كلمة المرور يجب أن تكون ${PASSWORD_MIN_LENGTH} أحرف على الأقل وتحتوي على أحرف وأرقام` });
+    }
+
+    const portalUser = await ClientPortalUser.findOne({
+      where: { passwordResetToken: hashToken(req.params.token) }
+    });
+
+    if (!portalUser || !portalUser.passwordResetTokenExpiry || new Date(portalUser.passwordResetTokenExpiry) <= new Date()) {
+      return res.status(400).json({ error: 'رابط إعادة التعيين غير صالح أو منتهي الصلاحية' });
+    }
+
+    await portalUser.update({
+      password,
+      passwordResetToken: null,
+      passwordResetTokenExpiry: null,
+      token: null
+    });
+
+    res.json({ message: 'تم تغيير كلمة المرور بنجاح' });
+  } catch (error) {
+    res.status(500).json({ error: 'خطأ في إعادة التعيين', details: error.message });
+  }
+};
+
+exports.generateAdminResetLink = async (req, res) => {
+  try {
+    const portalUser = await ClientPortalUser.findByPk(req.params.id, {
+      include: [{ model: Client, as: 'client', attributes: ['id', 'name', 'email'] }]
+    });
+    if (!portalUser) return res.status(404).json({ error: 'المستخدم غير موجود' });
+    if (!portalUser.password) return res.status(400).json({ error: 'الحساب لم يفعل بعد - استخدم إعادة إرسال الدعوة' });
+
+    const rawToken = generateToken();
+    await portalUser.update({
+      passwordResetToken: hashToken(rawToken),
+      passwordResetTokenExpiry: expiresAt('passwordReset')
+    });
+    const resetUrl = `${PORTAL_BASE}/reset-password/${rawToken}`;
+
+    sendPortalPasswordReset(portalUser.client, portalUser.client.email || portalUser.email, resetUrl).catch(err => {
+      console.error('Failed to send password reset email:', err.message);
+    });
+
+    res.json({ message: 'تم إنشاء رابط إعادة التعيين', resetUrl });
+  } catch (error) {
+    res.status(500).json({ error: 'خطأ في إنشاء رابط إعادة التعيين', details: error.message });
   }
 };

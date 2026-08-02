@@ -4,6 +4,7 @@ const User = require('../models/User');
 const canManageCases = ['admin', 'partner', 'lawyer'];
 const canViewAllCases = ['admin', 'partner'];
 const canManageInvoices = ['admin', 'partner', 'legal_secretary'];
+const canManageFinancials = ['admin', 'partner', 'legal_secretary'];
 const canManageDocuments = ['admin', 'partner', 'lawyer', 'legal_consultant', 'trainee_lawyer', 'court_agent', 'legal_secretary'];
 const canViewCourtSessions = ['admin', 'partner', 'lawyer', 'court_agent', 'trainee_lawyer'];
 const canManageTransactions = ['admin', 'partner', 'transactions_agent'];
@@ -47,6 +48,7 @@ module.exports = {
   canManageCases,
   canViewAllCases,
   canManageInvoices,
+  canManageFinancials,
   canManageDocuments,
   canViewCourtSessions,
   canManageTransactions,

@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { body } = require('express-validator');
 const clientController = require('../controllers/clientController');
-const { auth } = require('../middleware/auth');
+const { auth, authorize, canManageFinancials } = require('../middleware/auth');
 
 router.use(auth);
 
@@ -17,11 +17,13 @@ router.post('/', [
 
 router.get('/:id', clientController.getClientById);
 
+router.get('/:id/financial-summary', authorize(...canManageFinancials), clientController.getClientFinancialSummary);
+
 router.put('/:id', [
   body('name').optional().trim().notEmpty(),
   body('email').optional().isEmail()
 ], clientController.updateClient);
 
-router.delete('/:id', clientController.deleteClient);
+router.delete('/:id', authorize('admin', 'partner'), clientController.deleteClient);
 
 module.exports = router;

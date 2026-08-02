@@ -23,6 +23,7 @@ const Reports = () => {
   const { language, t } = useLanguage();
   const { user } = useAuth();
   const isArabic = language === 'ar';
+  const canManageFinancials = ['admin', 'partner', 'legal_secretary'].includes(user?.role);
   const [activeTab, setActiveTab] = useState('overview');
   const [dateRange, setDateRange] = useState({ from: '', to: '' });
   const [loading, setLoading] = useState(true);
@@ -58,28 +59,32 @@ const Reports = () => {
     try {
       setLoading(true);
       setFetchError(null);
-      const [casesRes, sessionsRes, invoicesRes, clientsRes] = await Promise.all([
+      const requests = [
         api.get('/cases?limit=500'),
         api.get('/sessions?limit=500'),
-        api.get('/invoices?limit=500'),
         api.get('/clients?limit=500'),
-      ]);
+      ];
+      const invoicesPromise = canManageFinancials ? api.get('/invoices?limit=500') : null;
+
+      const [casesRes, sessionsRes, clientsRes, invoicesRes] = await Promise.all([...requests, invoicesPromise]);
       setData({
         cases: casesRes.data.cases || [],
         sessions: sessionsRes.data.sessions || [],
-        invoices: invoicesRes.data.invoices || [],
+        invoices: invoicesRes?.data?.invoices || [],
         clients: clientsRes.data.clients || [],
       });
-      try {
-        const feeRes = await api.get('/invoices/fees-report');
-        setFeeReport(feeRes.data);
-      } catch (e) {
-        console.error('Fee report error:', e);
+      if (canManageFinancials) {
+        try {
+          const feeRes = await api.get('/invoices/fees-report');
+          setFeeReport(feeRes.data);
+        } catch (e) {
+          console.error('Fee report error:', e);
+        }
       }
       setFetchError(null);
     } catch (error) {
       console.error('Error:', error);
-      setFetchError(error.message || isArabic ? 'فشل تحميل البيانات' : 'Failed to load data');
+      setFetchError(isArabic ? 'فشل تحميل البيانات' : 'Failed to load data');
     } finally {
       setLoading(false);
     }
@@ -156,9 +161,9 @@ const Reports = () => {
   const totalRevenue = filteredInvoices.reduce((s, i) => s + parseFloat(i.totalAmount || 0), 0);
   const totalInvoices = filteredInvoices.length;
   const paidInvoices = filteredInvoices.filter(i => i.status === 'paid').length;
-  const pendingInvoices = filteredInvoices.filter(i => i.status === 'pending').length;
+  const pendingInvoices = filteredInvoices.filter(i => i.status === 'sent').length;
   const overdueInvoices = filteredInvoices.filter(i => i.status === 'overdue').length;
-  const partialInvoices = filteredInvoices.filter(i => i.status === 'partial').length;
+  const partialInvoices = filteredInvoices.filter(i => i.status === 'partially_paid').length;
   const upcomingSessions = filteredSessions.filter(s => s.status === 'scheduled');
   const completedSessions = filteredSessions.filter(s => s.status === 'completed');
   const postponedSessions = filteredSessions.filter(s => s.status === 'postponed');
@@ -249,14 +254,18 @@ const Reports = () => {
           <div style={kpiNum('#f39c12')}>{filteredSessions.length}</div>
           <div style={kpiLabel()}>{isArabic ? 'الجلسات' : 'Sessions'}</div>
         </div>
-        <div style={kpi('#2ecc71')}>
-          <div style={kpiNum('#2ecc71')}>{totalPaid.toFixed(3)}</div>
-          <div style={kpiLabel()}>{isArabic ? 'المدفوع (د.ك)' : 'Paid (KWD)'}</div>
-        </div>
-        <div style={kpi('#e74c3c')}>
-          <div style={kpiNum('#e74c3c')}>{totalPending.toFixed(3)}</div>
-          <div style={kpiLabel()}>{isArabic ? 'المعلق (د.ك)' : 'Pending (KWD)'}</div>
-        </div>
+        {canManageFinancials && (
+          <div style={kpi('#2ecc71')}>
+            <div style={kpiNum('#2ecc71')}>{totalPaid.toFixed(3)}</div>
+            <div style={kpiLabel()}>{isArabic ? 'المدفوع (د.ك)' : 'Paid (KWD)'}</div>
+          </div>
+        )}
+        {canManageFinancials && (
+          <div style={kpi('#e74c3c')}>
+            <div style={kpiNum('#e74c3c')}>{totalPending.toFixed(3)}</div>
+            <div style={kpiLabel()}>{isArabic ? 'المعلق (د.ك)' : 'Pending (KWD)'}</div>
+          </div>
+        )}
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: reportCols, gap: '1rem' }}>
@@ -275,6 +284,7 @@ const Reports = () => {
             ))}
         </div>
 
+        {canManageFinancials && (
         <div className="card" style={{ margin: 0 }}>
           <h3 className="card-title">{isArabic ? 'الفواتير حسب الحالة' : 'Invoices by Status'}</h3>
           {[
@@ -292,6 +302,7 @@ const Reports = () => {
             </div>
           ))}
         </div>
+        )}
 
         <div className="card" style={{ margin: 0 }}>
           <h3 className="card-title">{isArabic ? 'ملخص الجلسات' : 'Sessions Summary'}</h3>
@@ -630,7 +641,7 @@ const Reports = () => {
                   <td>{inv.type}</td>
                   <td>{parseFloat(inv.totalAmount || 0).toFixed(3)} {isArabic ? 'د.ك' : 'KWD'}</td>
                   <td>{parseFloat(inv.paidAmount || 0).toFixed(3)} {isArabic ? 'د.ك' : 'KWD'}</td>
-                  <td><span className={`badge badge-${inv.status === 'paid' ? 'won' : inv.status === 'partial' ? 'pending' : inv.status === 'overdue' ? 'lost' : 'active'}`}>{inv.status}</span></td>
+                  <td><span className={`badge badge-${inv.status === 'paid' ? 'won' : inv.status === 'partially_paid' ? 'pending' : inv.status === 'overdue' ? 'lost' : 'active'}`}>{inv.status}</span></td>
                   <td>{inv.dueDate ? new Date(inv.dueDate).toLocaleDateString('ar-KW') : '-'}</td>
                 </tr>
               ))}
@@ -836,8 +847,8 @@ const Reports = () => {
     switch (activeTab) {
       case 'cases': return renderCases();
       case 'sessions': return renderSessions();
-      case 'financial': return renderFinancial();
-      case 'invoices': return renderInvoices();
+      case 'financial': return canManageFinancials ? renderFinancial() : null;
+      case 'invoices': return canManageFinancials ? renderInvoices() : null;
       case 'clients': return renderClients();
       case 'courtAgent': return renderCourtAgent();
       case 'auditLog': return renderAuditLog();
@@ -999,7 +1010,7 @@ const Reports = () => {
         </div>
 
         <div className="report-tabs" style={{ display: 'flex', gap: '0.5rem', flexWrap: 'nowrap', overflowX: 'auto', paddingBottom: '0.5rem', marginBottom: '1.5rem', WebkitOverflowScrolling: 'touch' }}>
-          {reportTabs.map(tab => (
+          {reportTabs.filter(tab => canManageFinancials || (tab.key !== 'financial' && tab.key !== 'invoices')).map(tab => (
             <button key={tab.key}
               className={'btn ' + (activeTab === tab.key ? 'btn-primary' : 'btn-secondary')}
               onClick={() => setActiveTab(tab.key)} style={{ fontSize: '0.9rem', whiteSpace: 'nowrap', flexShrink: 0 }}>

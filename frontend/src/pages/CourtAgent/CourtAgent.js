@@ -464,7 +464,7 @@ const CourtAgent = () => {
                           style={{ fontSize: '0.85rem', marginBottom: '0.5rem' }}
                         />
                       </div>
-                      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'stretch' : 'center' }}>
+                      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'stretch' : 'center' }}>
                         <button className="btn btn-primary btn-sm"
                           onClick={() => handleStatusUpdate(session.id, 'completed')}
                           disabled={updatingId === session.id}>
@@ -499,7 +499,7 @@ const CourtAgent = () => {
                   )}
 
                   {session.status !== 'scheduled' && (
-                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'stretch' : 'center' }}>
+                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'stretch' : 'center' }}>
                       <Link to={'/dashboard/sessions/' + session.id + '/edit'} className="btn btn-secondary btn-sm">
                         {isArabic ? 'تعديل' : 'Edit'}
                       </Link>

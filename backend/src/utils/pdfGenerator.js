@@ -14,9 +14,9 @@ const generateInvoicePDF = async (invoice, client, caseRecord) => {
     doc.on('error', reject);
 
     // Header
-    doc.fontSize(20).text(' faktura', { align: 'center' });
+    doc.fontSize(20).text('Law Office - Kuwait', { align: 'center' });
     doc.moveDown(0.5);
-    doc.fontSize(12).text('Law Firm Case Management System', { align: 'center' });
+    doc.fontSize(12).text('Case Management System', { align: 'center' });
     doc.moveDown(1);
 
     // Invoice details
@@ -51,30 +51,39 @@ const generateInvoicePDF = async (invoice, client, caseRecord) => {
       doc.moveDown();
     }
 
-    // Line items (simplified)
+    // Line items
     doc.fontSize(12).text('Description', { underline: true });
     doc.moveDown(0.5);
 
     doc.fontSize(11);
-    if (invoice.description) {
+    const lines = invoice.lines && invoice.lines.length > 0 ? invoice.lines : null;
+
+    if (lines) {
+      lines.forEach(line => {
+        const qty = line.quantity ? `x${line.quantity} ` : '';
+        doc.text(`${line.description}  ${qty}${line.amount || 0} KWD`);
+      });
+    } else if (invoice.description) {
       doc.text(invoice.description);
     }
     doc.moveDown();
 
     // Totals
+    const fmt3 = (v) => (Math.round((parseFloat(v) || 0) * 1000) / 1000).toFixed(3);
+    const subtotal = (parseFloat(invoice.totalAmount) || 0) - (parseFloat(invoice.taxAmount) || 0) + (parseFloat(invoice.discount) || 0);
     doc.fontSize(12).text('Amount Summary:', { underline: true });
     doc.fontSize(11);
-    doc.text(`Subtotal: ${invoice.totalAmount || 0} KWD`);
+    doc.text(`Subtotal: ${fmt3(subtotal)} KWD`);
     if (invoice.discount > 0) {
-      doc.text(`Discount: -${invoice.discount} KWD`);
+      doc.text(`Discount: -${fmt3(invoice.discount)} KWD`);
     }
     if (invoice.taxAmount > 0) {
-      doc.text(`Tax: ${invoice.taxAmount} KWD`);
+      doc.text(`Tax: ${fmt3(invoice.taxAmount)} KWD`);
     }
     doc.moveDown(0.5);
-    doc.fontSize(13).text(`Total Amount: ${invoice.totalAmount || 0} KWD`, { bold: true });
-    doc.text(`Paid Amount: ${invoice.paidAmount || 0} KWD`);
-    doc.text(`Balance Due: ${(invoice.totalAmount || 0) - (invoice.paidAmount || 0)} KWD`);
+    doc.fontSize(13).text(`Total Amount: ${fmt3(invoice.totalAmount)} KWD`, { bold: true });
+    doc.text(`Paid Amount: ${fmt3(invoice.paidAmount)} KWD`);
+    doc.text(`Balance Due: ${fmt3((invoice.totalAmount || 0) - (invoice.paidAmount || 0))} KWD`);
     doc.moveDown();
 
     // Payment status

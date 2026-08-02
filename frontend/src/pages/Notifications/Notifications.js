@@ -104,7 +104,7 @@ const Notifications = () => {
   return (
     <div className={`notifications-page ${isMobile ? 'notifications-page-mobile' : ''}`}>
       <div className="card-header">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexDirection: isMobile ? 'column' : 'row', gap: '0.5rem', alignItems: isMobile ? 'flex-start' : 'center' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', flexDirection: isMobile ? 'column' : 'row', gap: '0.5rem', alignItems: isMobile ? 'flex-start' : 'center' }}>
           <h2 className="card-title">
             <FiBell /> {t.notifications}
             {unreadCount > 0 && (

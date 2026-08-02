@@ -2,31 +2,31 @@ const express = require('express');
 const router = express.Router();
 const { body } = require('express-validator');
 const invoiceController = require('../controllers/invoiceController');
-const { auth, authorize } = require('../middleware/auth');
+const { auth, authorize, canManageFinancials } = require('../middleware/auth');
 const { Invoice, Client, Case } = require('../models');
 const { generateInvoicePDF } = require('../utils/pdfGenerator');
 
 router.use(auth);
 
-router.get('/stats', invoiceController.getInvoiceStats);
-router.get('/overdue', invoiceController.checkOverdueInvoices);
-router.get('/fees-report', invoiceController.getFeeReport);
+router.get('/stats', authorize(...canManageFinancials), invoiceController.getInvoiceStats);
+router.get('/overdue', authorize(...canManageFinancials), invoiceController.checkOverdueInvoices);
+router.get('/fees-report', authorize(...canManageFinancials), invoiceController.getFeeReport);
 
-router.get('/', invoiceController.getInvoices);
+router.get('/', authorize(...canManageFinancials), invoiceController.getInvoices);
 
-router.post('/', authorize('admin', 'partner', 'legal_secretary'), [
-  body('clientId').isInt().withMessage('معرف العميل مطلوب'),
-  body('totalAmount').isFloat({ min: 0 }).withMessage('المبلغ الإجمالي مطلوب')
+router.post('/', authorize(...canManageFinancials), [
+  body('clientId').isInt().withMessage('معرف العميل مطلوب')
 ], invoiceController.createInvoice);
 
-router.get('/:id', invoiceController.getInvoiceById);
+router.get('/:id', authorize(...canManageFinancials), invoiceController.getInvoiceById);
 
-router.get('/:id/pdf', async (req, res) => {
+router.get('/:id/pdf', authorize(...canManageFinancials), async (req, res) => {
   try {
     const invoice = await Invoice.findByPk(req.params.id, {
       include: [
         { model: Client, as: 'client' },
-        { model: Case, as: 'case' }
+        { model: Case, as: 'case' },
+        { model: require('../models/InvoiceLine'), as: 'lines' }
       ]
     });
 

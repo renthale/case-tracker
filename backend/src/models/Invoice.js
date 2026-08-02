@@ -26,8 +26,11 @@ const Invoice = sequelize.define('Invoice', {
     defaultValue: 'case_fees'
   },
   status: {
-    type: DataTypes.ENUM('pending', 'paid', 'overdue', 'cancelled'),
-    defaultValue: 'pending'
+    type: DataTypes.STRING(20),
+    defaultValue: 'draft',
+    validate: {
+      isIn: [['draft', 'sent', 'partially_paid', 'paid', 'overdue', 'cancelled']]
+    }
   },
   totalAmount: {
     type: DataTypes.DECIMAL(10, 3),

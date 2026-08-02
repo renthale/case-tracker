@@ -704,6 +704,49 @@
   margin-top: 0.35rem;
 }
 
+.portal-forgot-link {
+  display: inline-block;
+  font-size: 0.85rem;
+  color: #3182ce;
+  margin-bottom: 0.85rem;
+  text-decoration: none;
+}
+
+.portal-forgot-link:hover {
+  text-decoration: underline;
+}
+
+.portal-input-icon {
+  position: absolute;
+  inset-inline-start: 0.9rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #a0aec0;
+}
+
+.password-input-wrap .portal-form-control {
+  padding-inline-start: 2.6rem;
+}
+
+.portal-auth-message {
+  text-align: center;
+  padding: 1.5rem 0;
+  color: #c53030;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.portal-auth-message.success {
+  color: #2f855a;
+}
+
+.portal-auth-message p {
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
 /* ============ LOGIN PAGE ============ */
 .portal-login {
   min-height: 100vh;

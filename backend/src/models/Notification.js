@@ -30,7 +30,7 @@ const Notification = sequelize.define('Notification', {
     }
   },
   type: {
-    type: DataTypes.ENUM('case_update', 'session_reminder', 'session_scheduled', 'deadline', 'general'),
+    type: DataTypes.ENUM('case_update', 'session_reminder', 'session_scheduled', 'deadline', 'payment_reminder', 'general'),
     allowNull: false
   },
   title: {

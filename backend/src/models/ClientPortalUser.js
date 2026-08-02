@@ -22,7 +22,7 @@ const ClientPortalUser = sequelize.define('ClientPortalUser', {
   },
   password: {
     type: DataTypes.STRING(255),
-    allowNull: false
+    allowNull: true
   },
   isActive: {
     type: DataTypes.BOOLEAN,
@@ -33,6 +33,21 @@ const ClientPortalUser = sequelize.define('ClientPortalUser', {
   },
   token: {
     type: DataTypes.STRING(500)
+  },
+  invitationToken: {
+    type: DataTypes.STRING(500)
+  },
+  invitationTokenExpiry: {
+    type: DataTypes.DATE
+  },
+  invitationSentAt: {
+    type: DataTypes.DATE
+  },
+  passwordResetToken: {
+    type: DataTypes.STRING(500)
+  },
+  passwordResetTokenExpiry: {
+    type: DataTypes.DATE
   }
 }, {
   timestamps: true,
@@ -51,7 +66,17 @@ const ClientPortalUser = sequelize.define('ClientPortalUser', {
 });
 
 ClientPortalUser.prototype.comparePassword = async function (candidatePassword) {
+  if (!this.password) return false;
   return bcrypt.compare(candidatePassword, this.password);
+};
+
+ClientPortalUser.prototype.hasValidInvitation = function () {
+  return Boolean(
+    this.invitationToken &&
+    this.invitationTokenExpiry &&
+    new Date(this.invitationTokenExpiry) > new Date() &&
+    !this.password
+  );
 };
 
 module.exports = ClientPortalUser;

@@ -12,7 +12,7 @@ const PaymentForm = ({ invoiceId, onSuccess }) => {
     amount: '',
     paymentDate: format(new Date(), 'yyyy-MM-dd'),
     paymentMethod: 'cash',
-    reference: '',
+    referenceNumber: '',
     notes: ''
   });
 
@@ -36,7 +36,7 @@ const PaymentForm = ({ invoiceId, onSuccess }) => {
         amount: '',
         paymentDate: format(new Date(), 'yyyy-MM-dd'),
         paymentMethod: 'cash',
-        reference: '',
+        referenceNumber: '',
         notes: ''
       });
       if (onSuccess) onSuccess();
@@ -85,16 +85,18 @@ const PaymentForm = ({ invoiceId, onSuccess }) => {
           >
             <option value="cash">{isArabic ? 'نقداً' : 'Cash'}</option>
             <option value="bank_transfer">{isArabic ? 'تحويل بنكي' : 'Bank Transfer'}</option>
-            <option value="cheque">{isArabic ? 'شيك' : 'Cheque'}</option>
+            <option value="check">{isArabic ? 'شيك' : 'Cheque'}</option>
+            <option value="credit_card">{isArabic ? 'بطاقة ائتمان/خصم' : 'Credit/Debit Card'}</option>
+            <option value="knet">{isArabic ? 'كي نت' : 'KNET'}</option>
           </select>
         </div>
         <div className="form-group">
-          <label>{isArabic ? 'المرجع' : 'Reference'}</label>
+          <label>{isArabic ? 'رقم المرجع' : 'Reference Number'}</label>
           <input
             type="text"
-            name="reference"
+            name="referenceNumber"
             className="form-control"
-            value={formData.reference}
+            value={formData.referenceNumber}
             onChange={handleChange}
           />
         </div>

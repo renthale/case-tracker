@@ -226,7 +226,7 @@ const TimeTracking = () => {
       )}
 
       <div className="card" style={{ marginBottom: '1rem' }}>
-        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'stretch' : 'center' }}>
+        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'stretch' : 'center' }}>
           <FiFilter style={{ color: '#666' }} />
           <select className="form-control" style={{ maxWidth: isMobile ? 'none' : 200, width: isMobile ? '100%' : 'auto' }} value={filters.caseId} onChange={e => setFilters({ ...filters, caseId: e.target.value })}>
             <option value="">{isArabic ? 'جميع القضايا' : 'All Cases'}</option>

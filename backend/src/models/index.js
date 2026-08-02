@@ -10,6 +10,9 @@ const Transaction = require('./Transaction');
 const AuditLog = require('./AuditLog');
 const TimeEntry = require('./TimeEntry');
 const ClientPortalUser = require('./ClientPortalUser');
+const FinancialEntry = require('./FinancialEntry');
+const CaseFeeAgreement = require('./CaseFeeAgreement');
+const InvoiceLine = require('./InvoiceLine');
 
 // Case belongs to User (assigned lawyer)
 Case.belongsTo(User, { as: 'assignedLawyer', foreignKey: 'assignedLawyerId' });
@@ -53,6 +56,34 @@ Case.hasMany(Invoice, { as: 'invoices', foreignKey: 'caseId' });
 // Payment belongs to Invoice
 Payment.belongsTo(Invoice, { as: 'invoice', foreignKey: 'invoiceId' });
 Invoice.hasMany(Payment, { as: 'payments', foreignKey: 'invoiceId' });
+
+// Payment belongs to Case (optional, for case-level payments)
+Payment.belongsTo(Case, { as: 'case', foreignKey: 'caseId' });
+Case.hasMany(Payment, { as: 'payments', foreignKey: 'caseId' });
+
+// Payment belongs to Client
+Payment.belongsTo(Client, { as: 'client', foreignKey: 'clientId' });
+Client.hasMany(Payment, { as: 'payments', foreignKey: 'clientId' });
+
+// InvoiceLine belongs to Invoice
+InvoiceLine.belongsTo(Invoice, { as: 'invoice', foreignKey: 'invoiceId' });
+Invoice.hasMany(InvoiceLine, { as: 'lines', foreignKey: 'invoiceId' });
+
+// CaseFeeAgreement belongs to Case (one-to-one)
+CaseFeeAgreement.belongsTo(Case, { as: 'case', foreignKey: 'caseId' });
+Case.hasOne(CaseFeeAgreement, { as: 'feeAgreement', foreignKey: 'caseId' });
+
+// FinancialEntry belongs to Case
+FinancialEntry.belongsTo(Case, { as: 'case', foreignKey: 'caseId' });
+Case.hasMany(FinancialEntry, { as: 'financialEntries', foreignKey: 'caseId' });
+
+// FinancialEntry belongs to Session (optional)
+FinancialEntry.belongsTo(Session, { as: 'session', foreignKey: 'sessionId' });
+Session.hasMany(FinancialEntry, { as: 'financialEntries', foreignKey: 'sessionId' });
+
+// FinancialEntry belongs to Client
+FinancialEntry.belongsTo(Client, { as: 'client', foreignKey: 'clientId' });
+Client.hasMany(FinancialEntry, { as: 'financialEntries', foreignKey: 'clientId' });
 
 // LegalDocument belongs to Case
 LegalDocument.belongsTo(Case, { as: 'case', foreignKey: 'caseId' });
@@ -106,5 +137,8 @@ module.exports = {
   Transaction,
   AuditLog,
   TimeEntry,
-  ClientPortalUser
+  ClientPortalUser,
+  FinancialEntry,
+  CaseFeeAgreement,
+  InvoiceLine
 };

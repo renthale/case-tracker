@@ -2,7 +2,8 @@ const express = require('express');
 const router = express.Router();
 const { body } = require('express-validator');
 const caseController = require('../controllers/caseController');
-const { auth, authorize } = require('../middleware/auth');
+const financialController = require('../controllers/financialController');
+const { auth, authorize, canManageFinancials } = require('../middleware/auth');
 const { auditLog, captureOldValues } = require('../middleware/auditLog');
 const { Case } = require('../models');
 const { calculateCourtFees } = require('../utils/courtFeeCalculator');
@@ -27,6 +28,12 @@ router.post('/', authorize('admin', 'partner', 'lawyer'), auditLog('Case'), [
 
 router.get('/', caseController.getCases);
 router.get('/:id', caseController.getCaseById);
+router.get('/:id/timeline', caseController.getCaseTimeline);
+
+router.get('/:id/financials', authorize(...canManageFinancials), financialController.getCaseFinancials);
+router.get('/:id/unbilled-items', authorize(...canManageFinancials), financialController.getUnbilledItems);
+router.get('/:id/fee-agreement', authorize(...canManageFinancials), financialController.getFeeAgreement);
+router.put('/:id/fee-agreement', authorize(...canManageFinancials), financialController.upsertFeeAgreement);
 
 router.put('/:id', captureOldValues(Case), auditLog('Case'), [
   body('title').optional().trim().notEmpty(),

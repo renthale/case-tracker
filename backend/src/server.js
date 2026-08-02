@@ -6,6 +6,8 @@ const fs = require('fs');
 const sequelize = require('./config/database');
 const errorHandler = require('./middleware/errorHandler');
 const runMigrations = require('./migrations/add-missing-columns');
+const runPortalMigrations = require('./migrations/portal-invitations');
+const runFinancialMigrations = require('./migrations/case-financials');
 
 const authRoutes = require('./routes/authRoutes');
 const caseRoutes = require('./routes/caseRoutes');
@@ -14,6 +16,7 @@ const notificationRoutes = require('./routes/notificationRoutes');
 const clientRoutes = require('./routes/clientRoutes');
 const invoiceRoutes = require('./routes/invoiceRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
+const financialRoutes = require('./routes/financialRoutes');
 const legalDocumentRoutes = require('./routes/legalDocumentRoutes');
 const transactionRoutes = require('./routes/transactionRoutes');
 const auditRoutes = require('./routes/auditRoutes');
@@ -49,6 +52,7 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/clients', clientRoutes);
 app.use('/api/invoices', invoiceRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use('/api/financial-entries', financialRoutes);
 app.use('/api/documents', legalDocumentRoutes);
 app.use('/api/legal-documents', legalDocumentRoutes);
 app.use('/api/transactions', transactionRoutes);
@@ -107,41 +111,51 @@ const startServer = async () => {
     }
 
     await runMigrations();
+    await runPortalMigrations();
+
+    if (process.env.APPLY_FINANCIAL_MIGRATIONS === 'true') {
+      await runFinancialMigrations();
+    } else {
+      console.log('⏭️ Financials migration SKIPPED (set APPLY_FINANCIAL_MIGRATIONS=true to apply)');
+    }
     console.log('✅ Migrations completed');
 
-    // Auto-seed client portal users — reset and recreate with correct client mappings
+    // Seed client portal users — idempotent (create missing only, never destroy existing accounts)
     try {
       const { ClientPortalUser, Client } = require('./models');
-      const portalCount = await ClientPortalUser.count();
 
-      // Delete old portal users and recreate
-      if (portalCount > 0) {
-        console.log('🔄 Resetting portal users...');
-        await ClientPortalUser.destroy({ where: {} });
+      if (process.env.SEED_PORTAL_USERS === 'false') {
+        console.log('⏭️ Portal user seeding skipped (SEED_PORTAL_USERS=false)');
+      } else {
+        console.log('🔧 Seeding missing client portal users...');
+        const clientMappings = [
+          { search: 'عبدالله يوسف', email: 'abdullah@client.kw' },
+          { search: 'محمد عبدالرحمن', email: 'mohammed@client.kw' },
+          { search: 'سمير جعفر', email: 'samir@client.kw' },
+          { search: 'يوسف فيصل', email: 'yousef@client.kw' },
+          { search: 'فاطمة ناصر', email: 'fatima@client.kw' },
+          { search: 'أحمد خالد الفهد', email: 'ahmed@client.kw' },
+          { search: 'نورة سعيد', email: 'noura@client.kw' },
+          { search: 'ريم فهد', email: 'reem@client.kw' },
+          { search: 'منال حسن', email: 'manal@client.kw' },
+          { search: 'حنان عبدالله', email: 'hanan@client.kw' },
+        ];
+
+        for (const mapping of clientMappings) {
+          const client = await Client.findOne({ where: { name: { [require('sequelize').Op.like]: `%${mapping.search}%` } } });
+          if (!client) { console.log(`  ⚠️ Client not found: ${mapping.search}`); continue; }
+          const existing = await ClientPortalUser.findOne({ where: { clientId: client.id } });
+          if (existing) { console.log(`  ⏭️ ${mapping.email} already exists → ${client.name}`); continue; }
+          await ClientPortalUser.create({
+            clientId: client.id,
+            email: mapping.email,
+            password: 'Client@123',
+            isActive: true
+          });
+          console.log(`  ✅ ${mapping.email} → ${client.name} (ID: ${client.id})`);
+        }
+        console.log('✅ Client portal users seeded');
       }
-
-      // Dynamically find clients by name and map portal accounts
-      console.log('🔧 Seeding client portal users...');
-      const clientMappings = [
-        { search: 'عبدالله يوسف', email: 'abdullah@client.kw' },
-        { search: 'محمد عبدالرحمن', email: 'mohammed@client.kw' },
-        { search: 'سمير جعفر', email: 'samir@client.kw' },
-        { search: 'يوسف فيصل', email: 'yousef@client.kw' },
-        { search: 'فاطمة ناصر', email: 'fatima@client.kw' },
-        { search: 'أحمد خالد الفهد', email: 'ahmed@client.kw' },
-        { search: 'نورة سعيد', email: 'noura@client.kw' },
-        { search: 'ريم فهد', email: 'reem@client.kw' },
-        { search: 'منال حسن', email: 'manal@client.kw' },
-        { search: 'حنان عبدالله', email: 'hanan@client.kw' },
-      ];
-
-      for (const mapping of clientMappings) {
-        const client = await Client.findOne({ where: { name: { [require('sequelize').Op.like]: `%${mapping.search}%` } } });
-        if (!client) { console.log(`  ⚠️ Client not found: ${mapping.search}`); continue; }
-        await ClientPortalUser.create({ clientId: client.id, email: mapping.email, password: 'Client@123', isActive: true });
-        console.log(`  ✅ ${mapping.email} → ${client.name} (ID: ${client.id})`);
-      }
-      console.log('✅ Client portal users seeded');
     } catch (seedError) {
       console.warn('⚠️ Portal seed skipped:', seedError.message);
     }

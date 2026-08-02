@@ -9,8 +9,15 @@ const Payment = sequelize.define('Payment', {
   },
   invoiceId: {
     type: DataTypes.INTEGER,
-    allowNull: false,
     references: { model: 'Invoices', key: 'id' }
+  },
+  caseId: {
+    type: DataTypes.INTEGER,
+    references: { model: 'Cases', key: 'id' }
+  },
+  clientId: {
+    type: DataTypes.INTEGER,
+    references: { model: 'Clients', key: 'id' }
   },
   amount: {
     type: DataTypes.DECIMAL(10, 3),
@@ -22,7 +29,7 @@ const Payment = sequelize.define('Payment', {
     defaultValue: DataTypes.NOW
   },
   paymentMethod: {
-    type: DataTypes.ENUM('cash', 'bank_transfer', 'check', 'credit_card', 'other'),
+    type: DataTypes.ENUM('cash', 'bank_transfer', 'check', 'credit_card', 'knet', 'other'),
     defaultValue: 'cash'
   },
   referenceNumber: {

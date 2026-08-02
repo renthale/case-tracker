@@ -6,7 +6,8 @@ import toast from 'react-hot-toast';
 
 const ClientForm = () => {
   const { id } = useParams();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isArabic = language === 'ar';
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
@@ -25,8 +26,9 @@ const ClientForm = () => {
   });
   const [createPortalAccount, setCreatePortalAccount] = useState(false);
   const [sendCredentials, setSendCredentials] = useState(false);
-  const [hasPortalAccount, setHasPortalAccount] = useState(false);
+  const [portalUser, setPortalUser] = useState(null);
   const [resending, setResending] = useState(false);
+  const [resetting, setResetting] = useState(false);
 
   useEffect(() => {
     const mql = window.matchMedia('(max-width: 768px)');
@@ -61,7 +63,7 @@ const ClientForm = () => {
         notes: client.notes || ''
       });
       if (client.portalUser) {
-        setHasPortalAccount(true);
+        setPortalUser(client.portalUser);
       }
     } catch (error) {
       toast.error(t.errorFetchingClient || 'خطأ في جلب بيانات العميل');
@@ -106,11 +108,18 @@ const ClientForm = () => {
         }
         const response = await api.post('/clients', payload);
         const portalInfo = response.data.portalAccount;
-        if (portalInfo && !sendCredentials) {
+        if (portalInfo && portalInfo.invitationLink) {
           toast.success(
-            `تم إنشاء العميل وحساب البوابة\nالبريد: ${portalInfo.email}\nكلمة المرور: ${portalInfo.tempPassword}`,
-            { duration: 10000 }
+            (t) => (
+              <div>
+                <div style={{ marginBottom: '0.35rem' }}>{isArabic ? 'تم إنشاء العميل وإرسال دعوة تفعيل الحساب. رابط الدعوة (استخدام واحد):' : 'Client created. Invitation link (single use):'}</div>
+                <code className="invite-link-box" style={{ display: 'block', wordBreak: 'break-all', background: '#edf2f7', padding: '0.5rem', borderRadius: '4px', fontSize: '0.8rem' }}>{portalInfo.invitationLink}</code>
+              </div>
+            ),
+            { duration: 20000 }
           );
+        } else if (portalInfo) {
+          toast.success(isArabic ? 'تم إنشاء العميل وإرسال دعوة التفعيل عبر البريد الإلكتروني' : 'Client created. Invitation sent by email');
         } else {
           toast.success(t.clientCreated || 'تم إنشاء العميل بنجاح');
         }
@@ -259,7 +268,7 @@ const ClientForm = () => {
           <div className="card" style={{ marginTop: isMobile ? '0.75rem' : '1rem' }}>
             <h3 className="card-title">Portal Account / حساب بوابة العميل</h3>
             <p style={{ color: '#666', fontSize: '0.85rem', marginBottom: '1rem' }}>
-              Create a client portal account so the client can track their cases and invoices online.
+              Create a client portal account so the client can track their cases and invoices online. The client will receive a secure one-time activation link.
             </p>
             <div className="form-group">
               <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
@@ -272,7 +281,7 @@ const ClientForm = () => {
                   }}
                   style={{ width: '18px', height: '18px' }}
                 />
-                <span>Create portal account for this client</span>
+                <span>{isArabic ? 'إنشاء حساب بوابة لهذا العميل' : 'Create portal account for this client'}</span>
               </label>
             </div>
             {createPortalAccount && formData.email && (
@@ -284,46 +293,126 @@ const ClientForm = () => {
                     onChange={(e) => setSendCredentials(e.target.checked)}
                     style={{ width: '18px', height: '18px' }}
                   />
-                  <span>Send login credentials to client via email</span>
+                  <span>{isArabic ? 'إرسال رابط التفعيل إلى البريد الإلكتروني' : 'Send activation link to client email'}</span>
                 </label>
               </div>
             )}
             {createPortalAccount && !formData.email && (
               <p style={{ color: '#e53e3e', fontSize: '0.85rem' }}>
-                Please enter the client's email address to create a portal account.
+                {isArabic ? 'يرجى إدخال البريد الإلكتروني للعميل لإنشاء حساب البوابة' : 'Please enter the client email to create a portal account'}
               </p>
             )}
           </div>
         )}
 
-        {id && hasPortalAccount && (
+        {id && portalUser && (
           <div className="card" style={{ marginTop: isMobile ? '0.75rem' : '1rem' }}>
             <h3 className="card-title">Portal Account / حساب بوابة العميل</h3>
-            <p style={{ color: '#666', fontSize: '0.85rem', marginBottom: '1rem' }}>
-              This client has a portal account. Resend credentials via email.
-            </p>
-            <button
-              type="button"
-              className="btn btn-primary"
-              disabled={resending}
-              onClick={async () => {
-                if (!formData.email) {
-                  toast.error('Client has no email address');
-                  return;
-                }
-                setResending(true);
-                try {
-                  const res = await api.post(`/portal/admin/resend-credentials/${id}`);
-                  toast.success(res.data.message || 'Credentials sent to ' + formData.email);
-                } catch (error) {
-                  toast.error(error.response?.data?.error || 'Failed to send credentials');
-                } finally {
-                  setResending(false);
-                }
-              }}
-            >
-              {resending ? 'Sending...' : 'Resend Portal Credentials to Client'}
-            </button>
+            <div className="details-grid">
+              <div className="detail-item">
+                <label>{t.email}</label>
+                <span>{portalUser.email || '-'}</span>
+              </div>
+              <div className="detail-item">
+                <label>{t.accountStatus}</label>
+                <span className={`badge ${portalUser.status === 'active' ? 'badge-active' : portalUser.status === 'disabled' ? 'badge-closed' : 'badge-pending'}`}>
+                  {portalUser.status === 'active'
+                    ? (isArabic ? 'نشط' : 'Active')
+                    : portalUser.status === 'disabled'
+                      ? (isArabic ? 'معطل' : 'Disabled')
+                      : (isArabic ? 'بانتظار التفعيل' : 'Invitation pending')}
+                </span>
+              </div>
+            </div>
+
+            <div className="actions" style={{ flexWrap: 'wrap', marginTop: '0.75rem' }}>
+              {portalUser.status === 'invited' && (
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  disabled={resending}
+                  onClick={async () => {
+                    if (!portalUser.email) {
+                      toast.error('Client has no portal email');
+                      return;
+                    }
+                    setResending(true);
+                    try {
+                      const res = await api.post(`/portal/admin/resend-invitation/${id}`);
+                      if (res.data.invitationLink) {
+                        toast.success(
+                          (t) => (
+                            <div>
+                              <div style={{ marginBottom: '0.35rem' }}>{isArabic ? 'تم إعادة إرسال الدعوة. رابط الدعوة (استخدام واحد):' : 'Invitation resent. Link (single use):'}</div>
+                              <code className="invite-link-box" style={{ display: 'block', wordBreak: 'break-all', background: '#edf2f7', padding: '0.5rem', borderRadius: '4px', fontSize: '0.8rem' }}>{res.data.invitationLink}</code>
+                            </div>
+                          ),
+                          { duration: 20000 }
+                        );
+                      } else {
+                        toast.success(res.data.message || 'Invitation sent to client email');
+                      }
+                    } catch (error) {
+                      toast.error(error.response?.data?.error || 'Failed to resend invitation');
+                    } finally {
+                      setResending(false);
+                    }
+                  }}
+                >
+                  {resending ? 'Sending...' : (isArabic ? 'إعادة إرسال دعوة التفعيل' : 'Resend Activation Invitation')}
+                </button>
+              )}
+
+              {portalUser.status !== 'invited' && (
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  disabled={resetting}
+                  onClick={async () => {
+                    setResetting(true);
+                    try {
+                      const res = await api.post(`/portal/admin/${portalUser.id}/generate-reset-link`);
+                      toast.success(
+                        (t) => (
+                          <div>
+                            <div style={{ marginBottom: '0.35rem' }}>{isArabic ? 'رابط إعادة تعيين كلمة المرور (استخدام واحد):' : 'Password reset link (single use):'}</div>
+                            <code className="invite-link-box" style={{ display: 'block', wordBreak: 'break-all', background: '#edf2f7', padding: '0.5rem', borderRadius: '4px', fontSize: '0.8rem' }}>{res.data.resetUrl}</code>
+                          </div>
+                        ),
+                        { duration: 20000 }
+                      );
+                    } catch (error) {
+                      toast.error(error.response?.data?.error || 'Failed to generate reset link');
+                    } finally {
+                      setResetting(false);
+                    }
+                  }}
+                >
+                  {resetting ? 'Generating...' : (isArabic ? 'إنشاء رابط إعادة تعيين كلمة المرور' : 'Generate Password Reset Link')}
+                </button>
+              )}
+
+              {portalUser.status !== 'invited' && (
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={async () => {
+                    try {
+                      const res = await api.put(`/portal/admin/${portalUser.id}/toggle`);
+                      toast.success(res.data.message);
+                      const updated = await api.get(`/clients/${id}`);
+                      setPortalUser(updated.data.client.portalUser);
+                    } catch (error) {
+                      toast.error(error.response?.data?.error || 'Failed to update account');
+                    }
+                  }}
+                >
+                  {portalUser.status === 'disabled'
+                    ? (isArabic ? 'تفعيل الحساب' : 'Enable Account')
+                    : (isArabic ? 'تعطيل الحساب' : 'Disable Account')}
+                </button>
+              )}
+            </div>
           </div>
         )}
 

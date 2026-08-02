@@ -1,18 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
+import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
 import { FiEdit, FiArrowRight, FiPlus } from 'react-icons/fi';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import toast from 'react-hot-toast';
+import FinancialStatusBadge from '../../components/FinancialStatusBadge';
+
+const CAN_MANAGE_FINANCIALS = ['admin', 'partner', 'legal_secretary'];
 
 const ClientDetails = () => {
   const { id } = useParams();
   const { t, language } = useLanguage();
   const isArabic = language === 'ar';
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const canManageFinancials = user && CAN_MANAGE_FINANCIALS.includes(user.role);
   const [client, setClient] = useState(null);
+  const [financials, setFinancials] = useState(null);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState(false);
 
@@ -24,8 +31,13 @@ const ClientDetails = () => {
     setFetchError(false);
     setLoading(true);
     try {
-      const response = await api.get(`/clients/${id}`);
-      setClient(response.data.client);
+      const requests = [api.get(`/clients/${id}`)];
+      if (canManageFinancials) {
+        requests.push(api.get(`/clients/${id}/financial-summary`));
+      }
+      const [clientRes, financialRes] = await Promise.all(requests);
+      setClient(clientRes.data.client);
+      if (financialRes) setFinancials(financialRes.data);
     } catch (error) {
       toast.error(t.errorFetchingClient || (isArabic ? 'خطأ في جلب بيانات العميل' : 'Error fetching client'));
       setFetchError(true);
@@ -48,13 +60,7 @@ const ClientDetails = () => {
   };
 
   const getInvoiceStatusBadge = (status) => {
-    const statusClasses = {
-      pending: 'badge-pending',
-      paid: 'badge-won',
-      overdue: 'badge-lost',
-      cancelled: 'badge-closed'
-    };
-    return <span className={`badge ${statusClasses[status] || ''}`}>{t[status]}</span>;
+    return <FinancialStatusBadge status={status} />;
   };
 
   if (loading) {
@@ -148,6 +154,91 @@ const ClientDetails = () => {
         </div>
       </div>
 
+      {client.portalUser && (
+        <div className="card">
+          <div className="card-header">
+            <h3 className="card-title">Portal Account / حساب بوابة العميل</h3>
+          </div>
+          <div className="details-grid">
+            <div className="detail-item">
+              <label>{t.email || (isArabic ? 'البريد الإلكتروني' : 'Email')}</label>
+              <span>{client.portalUser.email || '-'}</span>
+            </div>
+            <div className="detail-item">
+              <label>{t.accountStatus || (isArabic ? 'حالة الحساب' : 'Account Status')}</label>
+              <span className={`badge ${
+                client.portalUser.status === 'active' ? 'badge-active'
+                : client.portalUser.status === 'disabled' ? 'badge-closed'
+                : 'badge-pending'
+              }`}>
+                {client.portalUser.status === 'active'
+                  ? (isArabic ? 'نشط' : 'Active')
+                  : client.portalUser.status === 'disabled'
+                    ? (isArabic ? 'معطل' : 'Disabled')
+                    : (isArabic ? 'بانتظار التفعيل' : 'Invitation pending')}
+              </span>
+            </div>
+            {client.portalUser.invitationSentAt && (
+              <div className="detail-item">
+                <label>{isArabic ? 'تاريخ آخر دعوة' : 'Last invitation sent'}</label>
+                <span>{format(new Date(client.portalUser.invitationSentAt), 'dd/MM/yyyy HH:mm', { locale: ar })}</span>
+              </div>
+            )}
+          </div>
+          <div className="actions" style={{ flexWrap: 'wrap', marginTop: '0.75rem' }}>
+            {client.portalUser.status === 'invited' && (
+              <button
+                className="btn btn-primary"
+                onClick={async () => {
+                  try {
+                    const res = await api.post(`/portal/admin/resend-invitation/${id}`);
+                    toast.success(res.data.invitationLink ? (isArabic ? 'تم إعادة إرسال الدعوة' : 'Invitation resent') : res.data.message);
+                    fetchClientDetails();
+                  } catch (error) {
+                    toast.error(error.response?.data?.error || (isArabic ? 'فشل إعادة الإرسال' : 'Failed to resend'));
+                  }
+                }}
+              >
+                {isArabic ? 'إعادة إرسال دعوة التفعيل' : 'Resend Activation Invitation'}
+              </button>
+            )}
+            {client.portalUser.status !== 'invited' && (
+              <>
+                <button
+                  className="btn btn-secondary"
+                  onClick={async () => {
+                    try {
+                      const res = await api.post(`/portal/admin/${client.portalUser.id}/generate-reset-link`);
+                      toast.success(res.data.resetUrl || res.data.message, { duration: 20000 });
+                    } catch (error) {
+                      toast.error(error.response?.data?.error || (isArabic ? 'فشل إنشاء الرابط' : 'Failed to generate link'));
+                    }
+                  }}
+                >
+                  {isArabic ? 'رابط إعادة تعيين كلمة المرور' : 'Password Reset Link'}
+                </button>
+                <button
+                  className="btn btn-secondary"
+                  onClick={async () => {
+                    try {
+                      const res = await api.put(`/portal/admin/${client.portalUser.id}/toggle`);
+                      toast.success(res.data.message);
+                      fetchClientDetails();
+                    } catch (error) {
+                      toast.error(error.response?.data?.error || (isArabic ? 'فشل التحديث' : 'Failed to update'));
+                    }
+                  }}
+                >
+                  {client.portalUser.status === 'disabled'
+                    ? (isArabic ? 'تفعيل الحساب' : 'Enable Account')
+                    : (isArabic ? 'تعطيل الحساب' : 'Disable Account')}
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
       {client.notes && (
         <div className="card">
           <h3 className="card-title">{t.notes || (isArabic ? 'ملاحظات' : 'Notes')}</h3>
@@ -197,7 +288,66 @@ const ClientDetails = () => {
         )}
       </div>
 
-      {client.invoices?.length > 0 && (
+      {canManageFinancials && financials && (
+        <div className="card">
+          <h3 className="card-title">{isArabic ? 'الملخص المالي للعميل' : 'Client Financial Summary'}</h3>
+          <div className="stats-grid" style={{ marginBottom: '1rem' }}>
+            <div className="stat-card">
+              <span className="stat-label">{isArabic ? 'إجمالي الفواتير' : 'Total Invoiced'}</span>
+              <span className="stat-value">{financials.summary.totalInvoiced.toFixed(3)} {t.currency || (isArabic ? 'د.ك' : 'KWD')}</span>
+            </div>
+            <div className="stat-card">
+              <span className="stat-label">{isArabic ? 'إجمالي المدفوع' : 'Total Paid'}</span>
+              <span className="stat-value">{financials.summary.totalPaid.toFixed(3)} {t.currency || (isArabic ? 'د.ك' : 'KWD')}</span>
+            </div>
+            <div className="stat-card">
+              <span className="stat-label">{isArabic ? 'المستحق' : 'Outstanding'}</span>
+              <span className="stat-value" style={{ color: financials.summary.outstanding > 0 ? '#e53e3e' : undefined }}>{financials.summary.outstanding.toFixed(3)} {t.currency || (isArabic ? 'د.ك' : 'KWD')}</span>
+            </div>
+            <div className="stat-card">
+              <span className="stat-label">{isArabic ? 'غير مفوتر (قابل للفوترة)' : 'Unbilled Billable'}</span>
+              <span className="stat-value">{financials.summary.unbilledBillable.toFixed(3)} {t.currency || (isArabic ? 'د.ك' : 'KWD')}</span>
+            </div>
+          </div>
+
+          {financials.caseBreakdown?.length > 0 && (
+            <div className="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>{t.caseNumber || (isArabic ? 'رقم القضية' : 'Case No.')}</th>
+                    <th>{isArabic ? 'العنوان' : 'Title'}</th>
+                    <th>{isArabic ? 'فوترة' : 'Invoiced'}</th>
+                    <th>{isArabic ? 'مدفوع' : 'Paid'}</th>
+                    <th>{isArabic ? 'مستحق' : 'Outstanding'}</th>
+                    <th>{isArabic ? 'غير مفوتر' : 'Unbilled'}</th>
+                    <th>{isArabic ? 'إجراء' : 'Action'}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {financials.caseBreakdown.map(c => (
+                    <tr key={c.caseId}>
+                      <td><Link to={`/dashboard/cases/${c.caseId}`}>{c.caseNumber || '-'}</Link></td>
+                      <td>{c.title}</td>
+                      <td>{c.invoiced.toFixed(3)}</td>
+                      <td>{c.paid.toFixed(3)}</td>
+                      <td style={{ color: c.outstanding > 0 ? '#e53e3e' : undefined }}>{c.outstanding.toFixed(3)}</td>
+                      <td>{c.unbilledBillable.toFixed(3)}</td>
+                      <td>
+                        <Link to={`/dashboard/cases/${c.caseId}`} className="btn btn-secondary">
+                          {isArabic ? 'فتح' : 'Open'}
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+
+      {canManageFinancials && client.invoices?.length > 0 && (
         <div className="card">
           <h3 className="card-title">{t.invoices || (isArabic ? 'الفواتير' : 'Invoices')}</h3>
           <div className="table-container">

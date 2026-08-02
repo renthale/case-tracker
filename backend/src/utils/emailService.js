@@ -6,7 +6,7 @@ let transporter = null;
 const createTransporter = (port) => {
   const host = process.env.SMTP_HOST || 'mail.webtoze.com';
   const user = process.env.SMTP_USER || 'support@webtoze.com';
-  const pass = process.env.SMTP_PASS || 'Alaa$$0$...';
+  const pass = process.env.SMTP_PASS;
 
   return nodemailer.createTransport({
     host,
@@ -22,6 +22,11 @@ const createTransporter = (port) => {
 
 const initTransporter = () => {
   if (transporter) return transporter;
+
+  if (!process.env.SMTP_PASS) {
+    console.log('📧 SMTP not configured (SMTP_PASS missing); emails will be skipped');
+    return null;
+  }
 
   const port = parseInt(process.env.SMTP_PORT || '465');
   transporter = createTransporter(port);
@@ -135,23 +140,41 @@ const sendCaseUpdate = async (user, caseRecord, oldStatus, newStatus) => {
   });
 };
 
-const sendPortalCredentials = async (client, email, password) => {
-  const portalUrl = process.env.PORTAL_URL || 'https://case-tracker-production-25db.up.railway.app/portal/login';
+const PORTAL_BASE = process.env.PORTAL_URL || 'https://case-tracker-production-25db.up.railway.app/#/portal';
+
+const sendPortalInvitation = async (client, email, inviteToken, inviteUrl) => {
   return sendEmail({
     to: email,
-    subject: 'تفاصيل حسابك في بوابة العميل - Client Portal Access',
+    subject: 'دعوة لتفعيل حسابك في بوابة العميل - Client Portal Invitation',
     html: `
       <div dir="rtl" style="font-family: Arial, sans-serif; line-height: 1.6;">
         <h2 style="color: #1a365d;">مرحباً ${client.name}</h2>
-        <p>تم إنشاء حسابك في بوابة العميل. يمكنك الآن الوصول لحالاتك وفواتيرك عبر الرابط التالي:</p>
-        <div style="background: #f7fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
-          <p><strong>البريد الإلكتروني:</strong> ${email}</p>
-          <p><strong>كلمة المرور:</strong> ${password}</p>
-        </div>
-        <p style="margin-bottom: 10px;">
-          <a href="${portalUrl}" style="display: inline-block; background: #1a365d; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">دخول بوابة العميل</a>
+        <p>تم إنشاء حساب لك في بوابة العميل. اضغط على الرابط التالي لتفعيل حسابك واختيار كلمة المرور:</p>
+        <p style="margin: 20px 0;">
+          <a href="${inviteUrl}" style="display: inline-block; background: #1a365d; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">تفعيل الحساب واختيار كلمة المرور</a>
         </p>
-        <p style="color: #e53e3e; font-size: 0.9rem;">يرجى تغيير كلمة المرور بعد أول تسجيل دخول.</p>
+        <p style="background: #f7fafc; padding: 12px; border-radius: 8px;">
+          <strong>بريد الدخول:</strong> ${email}
+        </p>
+        <p style="color: #718096; font-size: 0.85rem;">هذا الرابط صالح لمدة 48 ساعة ويمكن استخدامه مرة واحدة فقط.</p>
+      </div>
+    `
+  });
+};
+
+const sendPortalPasswordReset = async (client, email, resetUrl) => {
+  return sendEmail({
+    to: email,
+    subject: 'إعادة تعيين كلمة المرور - بوابة العميل',
+    html: `
+      <div dir="rtl" style="font-family: Arial, sans-serif; line-height: 1.6;">
+        <h2 style="color: #1a365d;">إعادة تعيين كلمة المرور</h2>
+        <p>مرحباً ${client.name}،</p>
+        <p>وصلنا طلب لإعادة تعيين كلمة مرور حسابك في بوابة العميل. اضغط على الرابط التالي خلال ساعة واحدة:</p>
+        <p style="margin: 20px 0;">
+          <a href="${resetUrl}" style="display: inline-block; background: #1a365d; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">إعادة تعيين كلمة المرور</a>
+        </p>
+        <p style="color: #718096; font-size: 0.85rem;">إذا لم تطلب إعادة التعيين، يمكنك تجاهل هذا البريد.</p>
       </div>
     `
   });
@@ -162,5 +185,7 @@ module.exports = {
   sendSessionReminder,
   sendInvoiceCreated,
   sendCaseUpdate,
-  sendPortalCredentials
+  sendPortalInvitation,
+  sendPortalPasswordReset,
+  PORTAL_BASE
 };

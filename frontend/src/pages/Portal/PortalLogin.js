@@ -137,6 +137,10 @@ const PortalLogin = () => {
             )}
           </div>
 
+          <Link to="/portal/forgot-password" className="portal-forgot-link">
+            {t.forgotPasswordTitle}
+          </Link>
+
           <button type="submit" className="btn btn-primary" disabled={loading}>
             {loading ? t.loggingIn : t.login}
           </button>

@@ -962,6 +962,113 @@ tr:hover {
   margin-right: 1rem;
 }
 
+/* ============ CASE TIMELINE ============ */
+.case-timeline {
+  padding: 0.5rem 0;
+}
+
+.timeline-date-group {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #1a365d;
+  margin: 1.2rem 0 0.6rem;
+  padding-inline-start: 0.4rem;
+  border-inline-start: 3px solid #2c5282;
+}
+
+.timeline-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.4rem 0;
+}
+
+.timeline-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  color: white;
+  font-size: 1rem;
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+}
+
+.timeline-marker-case_created { background: #2c5282; }
+.timeline-marker-case_updated { background: #805ad5; }
+.timeline-marker-session { background: #3182ce; }
+.timeline-marker-document { background: #718096; }
+.timeline-marker-notification { background: #38a169; }
+.timeline-marker-financial { background: #d69e2e; }
+.timeline-marker-payment { background: #38a169; }
+
+.timeline-content {
+  flex: 1;
+  background: #f7fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0.6rem 0.9rem;
+}
+
+.timeline-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.timeline-head strong {
+  font-size: 0.9rem;
+  color: #1a365d;
+}
+
+.timeline-time {
+  font-size: 0.75rem;
+  color: #718096;
+  white-space: nowrap;
+}
+
+.timeline-detail {
+  margin-top: 0.35rem;
+  font-size: 0.85rem;
+  color: #4a5568;
+}
+
+.timeline-detail p {
+  margin: 0.2rem 0;
+}
+
+.timeline-badge {
+  display: inline-block;
+  background: #edf2f7;
+  border-radius: 4px;
+  padding: 0.1rem 0.5rem;
+  font-size: 0.75rem;
+  color: #2d3748;
+  margin-inline-end: 0.4rem;
+}
+
+.timeline-arrow {
+  margin: 0 0.25rem;
+  color: #718096;
+}
+
+.timeline-by {
+  margin-top: 0.35rem;
+  font-size: 0.75rem;
+  color: #718096;
+}
+
+@media (max-width: 768px) {
+  .timeline-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.15rem;
+  }
+}
+
 /* ============ PRINT ============ */
 .no-print {
   display: block;
@@ -1366,4 +1473,91 @@ tr:hover {
 /* ============ GLOBAL HELPER CLASSES ============ */
 .grid-mobile-stack {
   grid-template-columns: 1fr !important;
+}
+
+/* ============ CASE DETAILS TABS ============ */
+.case-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: #f7fafc;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+/* ============ MODAL (FinancialEntryForm) ============ */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(26, 32, 44, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modal {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 640px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 1.5rem;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.modal-header h3 {
+  margin: 0;
+}
+
+.modal-close {
+  background: transparent;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #4a5568;
+}
+
+/* ============ SESSION EXPENSES STRIP ============ */
+.session-expenses-strip {
+  padding: 0.75rem 1rem;
+  background: #f7fafc;
+  border-radius: 8px;
+}
+
+.session-expenses-strip ul {
+  margin: 0.5rem 0;
+  padding-inline-start: 1.25rem;
+}
+
+.session-expenses-strip li {
+  margin-bottom: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .case-tabs {
+    position: static;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+  }
+  .case-tabs .filter-tab {
+    white-space: nowrap;
+  }
+  .financial-modal {
+    max-height: 85vh;
+  }
 }
