@@ -1,3 +1,21 @@
+/* ============ REPORTS — desktop stable tables ============ */
+@media (min-width: 769px) {
+  .print-page .data-table {
+    min-width: 900px;
+  }
+
+  .print-page .data-table th,
+  .print-page .data-table td {
+    white-space: nowrap;
+    vertical-align: middle;
+    padding: 0.6rem 0.75rem;
+  }
+
+  .print-page .data-table th {
+    padding: 0.75rem;
+  }
+}
+
 @media (max-width: 768px) {
   .print-page {
     width: 100%;

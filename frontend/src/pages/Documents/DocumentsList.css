@@ -1,3 +1,92 @@
+/* ============ DOCUMENTS LIST — desktop stable table ============ */
+@media (min-width: 769px) {
+  .documents-list .table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .documents-list .documents-table {
+    min-width: 900px;
+  }
+
+  .documents-list .documents-table th,
+  .documents-list .documents-table td {
+    white-space: nowrap;
+    vertical-align: middle;
+    padding: 0.6rem 0.75rem;
+  }
+
+  .documents-list .documents-table th {
+    padding: 0.75rem;
+  }
+
+  .documents-list .documents-table th:nth-child(1),
+  .documents-list .documents-table td:nth-child(1) {
+    max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .documents-list .documents-table td:nth-child(1) a {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .documents-list .documents-table th:nth-child(3),
+  .documents-list .documents-table td:nth-child(3) {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .documents-list .documents-table td:nth-child(3) a {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .documents-list .documents-table th:nth-child(5),
+  .documents-list .documents-table td:nth-child(5) {
+    max-width: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .documents-list .documents-table th:nth-child(7),
+  .documents-list .documents-table td:nth-child(7) {
+    width: 130px;
+  }
+
+  .documents-list .documents-table .actions {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.35rem;
+    align-items: center;
+  }
+
+  .documents-list .documents-table .actions .btn {
+    min-width: 34px;
+    min-height: 34px;
+    padding: 0.35rem 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    font-size: 0.9rem;
+    border-radius: 6px;
+    flex-shrink: 0;
+  }
+
+  .documents-list .documents-table .actions .btn svg {
+    flex-shrink: 0;
+  }
+}
+
 @media (max-width: 768px) {
   .documents-list .card-header {
     margin-bottom: 0.5rem;

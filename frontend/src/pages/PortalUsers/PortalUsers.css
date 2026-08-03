@@ -1,3 +1,81 @@
+/* ============ PORTAL USERS — desktop stable table ============ */
+@media (min-width: 769px) {
+  .table-container .portal-users-table {
+    min-width: 950px;
+  }
+
+  .portal-users-table th,
+  .portal-users-table td {
+    white-space: nowrap;
+    vertical-align: middle;
+    padding: 0.6rem 0.75rem;
+  }
+
+  .portal-users-table th {
+    padding: 0.75rem;
+  }
+
+  .portal-users-table th:nth-child(1),
+  .portal-users-table td:nth-child(1) {
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .portal-users-table th:nth-child(2),
+  .portal-users-table td:nth-child(2) {
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .portal-users-table th:nth-child(3),
+  .portal-users-table td:nth-child(3) {
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .portal-users-table th:nth-child(5),
+  .portal-users-table td:nth-child(5) {
+    width: 110px;
+  }
+
+  .portal-users-table th:nth-child(6),
+  .portal-users-table td:nth-child(6) {
+    width: 130px;
+  }
+
+  .portal-users-table th:nth-child(7),
+  .portal-users-table td:nth-child(7) {
+    width: 140px;
+  }
+
+  .portal-users-table .actions {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.35rem;
+    align-items: center;
+  }
+
+  .portal-users-table .actions .btn {
+    min-width: 34px;
+    min-height: 34px;
+    padding: 0.35rem 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    font-size: 0.9rem;
+    border-radius: 6px;
+    flex-shrink: 0;
+  }
+
+  .portal-users-table .actions .btn svg {
+    flex-shrink: 0;
+  }
+}
+
 @media (max-width: 768px) {
   .page-container .card-header { flex-wrap: wrap; gap: 0.5rem; }
   .page-container .card-title { font-size: 1rem; }

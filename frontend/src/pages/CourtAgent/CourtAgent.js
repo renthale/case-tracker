@@ -329,7 +329,8 @@ const CourtAgent = () => {
                 <div style={{ fontSize: '0.8rem', color: '#666' }}>{isArabic ? 'ملغاة' : 'Cancelled'}</div>
               </div>
             </div>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+            <div className="court-agent-table-wrap" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+            <table className="court-agent-table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem', minWidth: 640 }}>
               <thead>
                 <tr style={{ background: '#f5f5f5' }}>
                   <th style={{ padding: 8, textAlign: 'right' }}>#</th>
@@ -344,7 +345,7 @@ const CourtAgent = () => {
                 {dailyReport.sessions.map((s, i) => (
                   <tr key={s.id} style={{ borderBottom: '1px solid #eee' }}>
                     <td style={{ padding: 8 }}>{i + 1}</td>
-                    <td style={{ padding: 8 }}>{s.caseTitle}</td>
+                    <td style={{ padding: 8, maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.caseTitle}</td>
                     <td style={{ padding: 8 }}>{s.caseNumber}</td>
                     <td style={{ padding: 8 }}>{s.time || '-'}</td>
                     <td style={{ padding: 8 }}>
@@ -356,11 +357,12 @@ const CourtAgent = () => {
                          (isArabic ? 'مجدولة' : 'Scheduled')}
                       </span>
                     </td>
-                    <td style={{ padding: 8 }}>{s.outcome || '-'}</td>
+                    <td style={{ padding: 8, maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.outcome || '-'}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
+            </div>
           </div>
         </div>
       )}

@@ -293,7 +293,7 @@ const TimeTracking = () => {
           </div>
         ) : (
         <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
-          <table className="data-table" style={{ width: '100%', minWidth: isMobile ? '700px' : 'auto' }}>
+          <table className="data-table time-tracking-table" style={{ width: '100%' }}>
             <thead>
               <tr>
                 <th>{isArabic ? 'التاريخ' : 'Date'}</th>

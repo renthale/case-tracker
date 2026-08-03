@@ -272,7 +272,7 @@ const TransactionsList = () => {
       ) : (
       <div className="card" style={{ margin: 0 }}>
         <div style={{ overflowX: 'auto' }}>
-          <table className="data-table no-card" style={{ width: '100%' }}>
+          <table className="data-table no-card transactions-table" style={{ width: '100%' }}>
             <thead>
               <tr>
                 <th>#</th>

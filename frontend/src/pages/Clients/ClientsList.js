@@ -177,7 +177,7 @@ const ClientsList = () => {
         </div>
       ) : (
       <div className="table-container">
-        <table className="no-card">
+        <table className="no-card clients-table">
           <thead>
             <tr>
               <th>{t.clientName}</th>

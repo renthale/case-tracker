@@ -266,7 +266,7 @@ const UsersList = () => {
         </div>
       ) : (
       <div className="table-container">
-        <table className="data-table">
+        <table className="data-table users-table">
           <thead>
             <tr>
               <th>{isArabic ? 'الاسم' : 'Name'}</th>

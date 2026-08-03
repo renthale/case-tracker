@@ -1,3 +1,84 @@
+/* ============ CLIENTS LIST — desktop stable table ============ */
+@media (min-width: 769px) {
+  .clients-list .table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .clients-list .clients-table {
+    min-width: 900px;
+  }
+
+  .clients-list .clients-table th,
+  .clients-list .clients-table td {
+    white-space: nowrap;
+    vertical-align: middle;
+    padding: 0.6rem 0.75rem;
+  }
+
+  .clients-list .clients-table th {
+    padding: 0.75rem;
+  }
+
+  .clients-list .clients-table th:nth-child(1),
+  .clients-list .clients-table td:nth-child(1) {
+    max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .clients-list .clients-table td:nth-child(1) a {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .clients-list .clients-table th:nth-child(2),
+  .clients-list .clients-table td:nth-child(2) {
+    max-width: 130px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .clients-list .clients-table th:nth-child(4),
+  .clients-list .clients-table td:nth-child(4) {
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .clients-list .clients-table th:nth-child(7),
+  .clients-list .clients-table td:nth-child(7) {
+    width: 130px;
+  }
+
+  .clients-list .clients-table .actions {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.35rem;
+    align-items: center;
+  }
+
+  .clients-list .clients-table .actions .btn {
+    min-width: 34px;
+    min-height: 34px;
+    padding: 0.35rem 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    font-size: 0.9rem;
+    border-radius: 6px;
+    flex-shrink: 0;
+  }
+
+  .clients-list .clients-table .actions .btn svg {
+    flex-shrink: 0;
+  }
+}
+
 /* ============ CLIENTS LIST — mobile premium cards ============ */
 @media (max-width: 768px) {
   .clients-list .card-header {

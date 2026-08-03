@@ -225,7 +225,7 @@ const DocumentsList = () => {
         </div>
       ) : (
       <div className="table-container">
-        <table className="no-card">
+        <table className="no-card documents-table">
           <thead>
             <tr>
               <th>{t.title}</th>

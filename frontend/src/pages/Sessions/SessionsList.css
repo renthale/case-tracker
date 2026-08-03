@@ -1,3 +1,87 @@
+/* ============ SESSIONS LIST — desktop stable table ============ */
+@media (min-width: 769px) {
+  .sessions-list .table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .sessions-list .sessions-table {
+    min-width: 1000px;
+  }
+
+  .sessions-list .sessions-table th,
+  .sessions-list .sessions-table td {
+    white-space: nowrap;
+    vertical-align: middle;
+    padding: 0.6rem 0.75rem;
+  }
+
+  .sessions-list .sessions-table th {
+    padding: 0.75rem;
+  }
+
+  .sessions-list .sessions-table th:nth-child(1),
+  .sessions-list .sessions-table td:nth-child(1) {
+    width: 110px;
+  }
+
+  .sessions-list .sessions-table th:nth-child(2),
+  .sessions-list .sessions-table td:nth-child(2) {
+    width: 120px;
+  }
+
+  .sessions-list .sessions-table th:nth-child(3),
+  .sessions-list .sessions-table td:nth-child(3) {
+    max-width: 260px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .sessions-list .sessions-table td:nth-child(3) a {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .sessions-list .sessions-table th:nth-child(7),
+  .sessions-list .sessions-table td:nth-child(7) {
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .sessions-list .sessions-table th:nth-child(9),
+  .sessions-list .sessions-table td:nth-child(9) {
+    width: 100px;
+  }
+
+  .sessions-list .sessions-table .actions {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.35rem;
+    align-items: center;
+  }
+
+  .sessions-list .sessions-table .actions .btn {
+    min-width: 34px;
+    min-height: 34px;
+    padding: 0.35rem 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    font-size: 0.9rem;
+    border-radius: 6px;
+    flex-shrink: 0;
+  }
+
+  .sessions-list .sessions-table .actions .btn svg {
+    flex-shrink: 0;
+  }
+}
+
 /* ============ SESSIONS LIST — mobile premium cards ============ */
 @media (max-width: 768px) {
   .sessions-list .card-header {

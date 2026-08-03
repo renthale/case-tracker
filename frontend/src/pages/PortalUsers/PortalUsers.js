@@ -244,7 +244,7 @@ const PortalUsers = () => {
         </div>
       ) : (
       <div className="table-container">
-        <table>
+        <table className="portal-users-table">
           <thead>
             <tr>
               <th>{L('Client Name', 'اسم العميل')}</th>

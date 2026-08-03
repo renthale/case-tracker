@@ -1,3 +1,70 @@
+/* ============ TIME TRACKING — desktop stable table ============ */
+@media (min-width: 769px) {
+  .time-tracking-table {
+    min-width: 1000px;
+  }
+
+  .time-tracking-table th,
+  .time-tracking-table td {
+    white-space: nowrap;
+    vertical-align: middle;
+    padding: 0.6rem 0.75rem;
+  }
+
+  .time-tracking-table th {
+    padding: 0.75rem;
+  }
+
+  .time-tracking-table th:nth-child(2),
+  .time-tracking-table td:nth-child(2) {
+    width: 110px;
+  }
+
+  .time-tracking-table th:nth-child(3),
+  .time-tracking-table td:nth-child(3) {
+    width: 110px;
+  }
+
+  .time-tracking-table th:nth-child(4),
+  .time-tracking-table td:nth-child(4) {
+    width: 60px;
+  }
+
+  .time-tracking-table th:nth-child(5),
+  .time-tracking-table td:nth-child(5) {
+    max-width: 240px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .time-tracking-table th:nth-child(7),
+  .time-tracking-table td:nth-child(7) {
+    width: 90px;
+  }
+
+  .time-tracking-table th:nth-child(8),
+  .time-tracking-table td:nth-child(8) {
+    width: 110px;
+  }
+
+  .time-tracking-table th:nth-child(9),
+  .time-tracking-table td:nth-child(9) {
+    width: 70px;
+  }
+
+  .time-tracking-table td:nth-child(9) .btn {
+    min-width: 30px;
+    min-height: 30px;
+    padding: 0.3rem 0.45rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    border-radius: 6px;
+    flex-shrink: 0;
+  }
+}
+
 @media (max-width: 768px) {
   .page-container .page-header { flex-wrap: wrap; gap: 0.5rem; }
   .page-container .page-header h1 { font-size: 1.1rem; }

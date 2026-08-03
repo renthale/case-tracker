@@ -234,7 +234,7 @@ const InvoicesList = () => {
         </div>
       ) : (
       <div className="table-container">
-        <table className="no-card">
+        <table className="no-card invoices-table">
           <thead>
             <tr>
               <th>{t.invoiceNumber}</th>

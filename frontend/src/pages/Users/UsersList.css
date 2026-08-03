@@ -1,3 +1,75 @@
+/* ============ USERS LIST — desktop stable table ============ */
+@media (min-width: 769px) {
+  .users-table {
+    min-width: 900px;
+  }
+
+  .users-table th,
+  .users-table td {
+    white-space: nowrap;
+    vertical-align: middle;
+    padding: 0.6rem 0.75rem;
+  }
+
+  .users-table th {
+    padding: 0.75rem;
+  }
+
+  .users-table th:nth-child(1),
+  .users-table td:nth-child(1) {
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .users-table th:nth-child(2),
+  .users-table td:nth-child(2) {
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .users-table th:nth-child(3),
+  .users-table td:nth-child(3) {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .users-table th:nth-child(5),
+  .users-table td:nth-child(5) {
+    width: 110px;
+  }
+
+  .users-table th:nth-child(7),
+  .users-table td:nth-child(7) {
+    width: 130px;
+  }
+
+  .users-table td:nth-child(7) > div {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.25rem;
+    align-items: center;
+  }
+
+  .users-table .btn-icon {
+    min-width: 34px;
+    min-height: 34px;
+    padding: 0.35rem 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    border-radius: 6px;
+    flex-shrink: 0;
+  }
+
+  .users-table .btn-icon svg {
+    flex-shrink: 0;
+  }
+}
+
 @media (max-width: 768px) {
   .page-container .filters-bar { flex-direction: column; }
   .page-container .filters-bar .form-control { max-width: none !important; width: 100%; }

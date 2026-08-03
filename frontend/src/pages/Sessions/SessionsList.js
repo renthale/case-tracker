@@ -197,7 +197,7 @@ const SessionsList = () => {
         </div>
       ) : (
       <div className="table-container">
-        <table className="no-card">
+        <table className="no-card sessions-table">
           <thead>
             <tr>
               <th>{t.sessionNumber}</th>

@@ -1,3 +1,87 @@
+/* ============ TRANSACTIONS LIST — desktop stable table ============ */
+@media (min-width: 769px) {
+  .transactions-table {
+    min-width: 1100px;
+  }
+
+  .transactions-table th,
+  .transactions-table td {
+    white-space: nowrap;
+    vertical-align: middle;
+    padding: 0.6rem 0.75rem;
+  }
+
+  .transactions-table th {
+    padding: 0.75rem;
+  }
+
+  .transactions-table th:nth-child(1),
+  .transactions-table td:nth-child(1) {
+    width: 40px;
+  }
+
+  .transactions-table th:nth-child(2),
+  .transactions-table td:nth-child(2) {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .transactions-table th:nth-child(3),
+  .transactions-table td:nth-child(3) {
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .transactions-table th:nth-child(5),
+  .transactions-table td:nth-child(5) {
+    width: 110px;
+  }
+
+  .transactions-table th:nth-child(6),
+  .transactions-table td:nth-child(6) {
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .transactions-table th:nth-child(8),
+  .transactions-table td:nth-child(8),
+  .transactions-table th:nth-child(9),
+  .transactions-table td:nth-child(9) {
+    width: 110px;
+  }
+
+  .transactions-table th:nth-child(10),
+  .transactions-table td:nth-child(10) {
+    width: 100px;
+  }
+
+  .transactions-table .actions {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.3rem;
+    align-items: center;
+  }
+
+  .transactions-table .actions .btn {
+    min-width: 30px;
+    min-height: 30px;
+    padding: 0.3rem 0.45rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    border-radius: 6px;
+    flex-shrink: 0;
+  }
+
+  .transactions-table .actions .btn svg {
+    flex-shrink: 0;
+  }
+}
+
 @media (max-width: 768px) {
   .page-container .page-header {
     flex-wrap: wrap; gap: 0.5rem;
