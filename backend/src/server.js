@@ -102,12 +102,11 @@ const startServer = async () => {
     console.log('✅ Database connected successfully');
 
     try {
-      await sequelize.sync({ alter: true });
-      console.log('✅ Database synced (alter)');
-    } catch (alterError) {
-      console.warn('⚠️ Alter sync failed, trying basic sync:', alterError.message);
       await sequelize.sync();
-      console.log('✅ Database synced (basic)');
+      console.log('✅ Database synced');
+    } catch (syncError) {
+      console.warn('⚠️ Database sync failed:', syncError.message);
+      throw syncError;
     }
 
     await runMigrations();

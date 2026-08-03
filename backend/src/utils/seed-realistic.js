@@ -33,7 +33,7 @@ const run = async () => {
       { username: 'saleh_tx', email: 'saleh@firm.kw', password: 'Tx@123', fullName: 'صالح عبدالرحمن الخالد', role: 'transactions_agent', phone: '99221100', language: 'ar' },
       { username: 'fatima_secretary', email: 'fatima@firm.kw', password: 'Sec@123', fullName: 'فاطمة محمد الحربي', role: 'legal_secretary', phone: '99110099', language: 'ar' },
       { username: 'khaled_trainee', email: 'khaled@firm.kw', password: 'Train@123', fullName: 'خالد سعد الدوسري', role: 'trainee_lawyer', phone: '99009988', language: 'ar' },
-    ]);
+    ], { individualHooks: true });
     console.log(`Created ${users.length} users`);
 
     const lawyer1 = users[0]; // alaa
