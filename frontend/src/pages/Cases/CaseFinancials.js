@@ -114,6 +114,12 @@ const CaseFinancials = ({ caseId, sessions, onChange }) => {
         </div>
       </div>
 
+      <div style={{ marginBottom: '1rem', padding: '0.75rem 1rem', background: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: '8px', fontSize: '0.85rem', color: '#0369a1', lineHeight: 1.6 }}>
+        {isArabic
+          ? 'سجّل الأتعاب والمصروفات هنا. يمكن اختيار البنود القابلة للفوترة لاحقًا عند إنشاء الفاتورة.'
+          : 'Record fees and expenses here. Billable items can later be selected when creating an invoice.'}
+      </div>
+
       {financials && (
         <div className="stats-grid">
           {summaryCards.map((card, i) => (

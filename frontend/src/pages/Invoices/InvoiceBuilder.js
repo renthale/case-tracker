@@ -6,6 +6,12 @@ import toast from 'react-hot-toast';
 import { FiPlus, FiTrash2 } from 'react-icons/fi';
 import { CATEGORIES } from '../Cases/FinancialEntryForm';
 
+const UNBILLED_GROUPS = [
+  { key: 'professional_fee', labelAr: 'أتعاب مهنية غير مفوترة', labelEn: 'Unbilled Professional Fees' },
+  { key: 'case_expense', labelAr: 'مصروفات قضية غير مفوترة', labelEn: 'Unbilled Case Expenses' },
+  { key: 'session_expense', labelAr: 'مصروفات جلسات غير مفوترة', labelEn: 'Unbilled Session Expenses' }
+];
+
 const InvoiceBuilder = () => {
   const { id } = useParams();
   const { t, language } = useLanguage();
@@ -157,39 +163,50 @@ const InvoiceBuilder = () => {
       <form onSubmit={(e) => e.preventDefault()}>
         <div className="grid grid-2">
           <div className="card">
-            <h3 className="card-title">{isArabic ? 'البنود غير المفوتورة' : 'Unbilled Billable Items'}</h3>
             <p style={{ fontSize: '0.85rem', color: '#718096' }}>
               {caseData ? `${caseData.caseNumber || ''} - ${caseData.title}` : ''}
             </p>
 
             {unbilled.length > 0 ? (
-              <div className="table-container">
-                <table>
-                  <thead>
-                    <tr>
-                      <th></th>
-                      <th>{isArabic ? 'الفئة' : 'Category'}</th>
-                      <th>{isArabic ? 'الوصف' : 'Description'}</th>
-                      <th>{isArabic ? 'المبلغ' : 'Amount'}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {unbilled.map(entry => (
-                      <tr key={entry.id} style={{ cursor: 'pointer' }} onClick={() => toggleItem(entry)}>
-                        <td><input type="checkbox" checked={!!selected[entry.id]} onChange={() => toggleItem(entry)} onClick={(e) => e.stopPropagation()} /></td>
-                        <td>{getCategoryLabel(entry.type, entry.category)}</td>
-                        <td>{entry.description || '-'}</td>
-                        <td>{parseFloat(entry.amount).toFixed(3)} د.ك</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              UNBILLED_GROUPS.map(group => {
+                const items = unbilled.filter(entry => entry.type === group.key);
+                return (
+                  <div key={group.key} style={{ marginTop: '1rem' }}>
+                    <h3 className="card-title">{isArabic ? group.labelAr : group.labelEn}</h3>
+                    {items.length > 0 ? (
+                      <div className="table-container">
+                        <table>
+                          <thead>
+                            <tr>
+                              <th></th>
+                              <th>{isArabic ? 'الفئة' : 'Category'}</th>
+                              <th>{isArabic ? 'الوصف' : 'Description'}</th>
+                              <th>{isArabic ? 'المبلغ' : 'Amount'}</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {items.map(entry => (
+                              <tr key={entry.id} style={{ cursor: 'pointer' }} onClick={() => toggleItem(entry)}>
+                                <td><input type="checkbox" checked={!!selected[entry.id]} onChange={() => toggleItem(entry)} onClick={(e) => e.stopPropagation()} /></td>
+                                <td>{getCategoryLabel(entry.type, entry.category)}</td>
+                                <td>{entry.description || '-'}</td>
+                                <td>{parseFloat(entry.amount).toFixed(3)} د.ك</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    ) : (
+                      <p className="no-data">{isArabic ? 'لا توجد بنود في هذه المجموعة' : 'No items in this group'}</p>
+                    )}
+                  </div>
+                );
+              })
             ) : (
               <p className="no-data">{isArabic ? 'لا توجد بنود غير مفوتورة' : 'No unbilled billable items'}</p>
             )}
 
-            <h3 className="card-title" style={{ marginTop: '1rem' }}>{isArabic ? 'بنود يدوية' : 'Manual Lines'}</h3>
+            <h3 className="card-title" style={{ marginTop: '1rem' }}>{isArabic ? 'بنود فاتورة يدوية' : 'Manual Invoice Lines'}</h3>
             {manualLines.map(line => (
               <div key={line.id} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
                 <input
@@ -220,11 +237,11 @@ const InvoiceBuilder = () => {
             <div className="form-group">
               <label>{isArabic ? 'نوع الفاتورة' : 'Invoice Type'}</label>
               <select name="type" className="form-control" value={formData.type} onChange={handleChange}>
-                <option value="case_fees">{isArabic ? 'أتعاب القضية' : 'Case Fees'}</option>
-                <option value="consultation">{isArabic ? 'استشارة' : 'Consultation'}</option>
-                <option value="court_fees">{isArabic ? 'رسوم المحكمة' : 'Court Fees'}</option>
-                <option value="document_fees">{isArabic ? 'رسوم مستندات' : 'Document Fees'}</option>
-                <option value="other">{isArabic ? 'أخرى' : 'Other'}</option>
+                <option value="consultation">{t.consultation}</option>
+                <option value="case_fees">{t.case_fees}</option>
+                <option value="court_fees">{t.court_fees}</option>
+                <option value="document_fees">{t.document_fees}</option>
+                <option value="other">{t.other}</option>
               </select>
             </div>
 

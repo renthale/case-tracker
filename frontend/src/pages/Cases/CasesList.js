@@ -355,7 +355,7 @@ const CasesList = () => {
         </div>
       )) : (
       <div className="table-container">
-        <table className="no-card">
+        <table className="no-card cases-table">
           <thead>
             <tr>
               <th>{t.caseNumber}</th>

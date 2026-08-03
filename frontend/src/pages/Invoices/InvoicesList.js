@@ -160,11 +160,11 @@ const InvoicesList = () => {
           onChange={handleFilterChange}
         >
           <option value="">{t.allTypes}</option>
-          <option value="consultation">{t.consultationFee}</option>
-          <option value="case_fees">{t.litigationFee}</option>
-          <option value="court_fees">{t.sessionFee}</option>
-          <option value="document_fees">{t.documentFee}</option>
-          <option value="other">{t.otherFee}</option>
+          <option value="consultation">{t.consultation}</option>
+          <option value="case_fees">{t.case_fees}</option>
+          <option value="court_fees">{t.court_fees}</option>
+          <option value="document_fees">{t.document_fees}</option>
+          <option value="other">{t.other}</option>
         </select>
 
         <div className="search-input" style={{ position: 'relative' }}>
