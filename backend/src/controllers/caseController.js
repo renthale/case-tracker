@@ -1,5 +1,5 @@
 const { Case, Session, User, Notification, Client, Invoice, LegalDocument, FinancialEntry, CaseFeeAgreement, Payment, Transaction, AuditLog } = require('../models');
-const { Op } = require('sequelize');
+const { Op, fn, col, literal } = require('sequelize');
 const { canManageFinancials } = require('../middleware/auth');
 
 exports.createCase = async (req, res) => {
@@ -323,10 +323,17 @@ exports.getCaseTimeline = async (req, res) => {
         });
       }
 
-      const payments = await Payment.findAll({
-        where: { caseId: caseRecord.id },
-        order: [['paymentDate', 'ASC']]
-      });
+      // Payments are linked to invoices (Payments.caseId does not exist yet on
+      // the legacy schema; the opt-in financial migration is not applied).
+      const caseInvoices = await Invoice.findAll({ where: { caseId: caseRecord.id }, attributes: ['id'] });
+      const caseInvoiceIds = caseInvoices.map((inv) => inv.id);
+      const payments = caseInvoiceIds.length
+        ? await Payment.findAll({
+            where: { invoiceId: { [Op.in]: caseInvoiceIds } },
+            attributes: ['id', 'invoiceId', 'amount', 'paymentDate', 'paymentMethod', 'referenceNumber', 'notes', 'createdAt', 'updatedAt'],
+            order: [['paymentDate', 'ASC']]
+          })
+        : [];
       for (const p of payments) {
         events.push({
           type: 'payment',
@@ -360,15 +367,24 @@ exports.getCaseStats = async (req, res) => {
     const wonCases = await Case.count({ where: { status: 'won' } });
     const lostCases = await Case.count({ where: { status: 'lost' } });
     const appealCases = await Case.count({ where: { status: 'appeal' } });
+    const settledCases = await Case.count({ where: { status: 'settled' } });
 
     const casesByType = await Case.findAll({
-      attributes: ['type', [require('sequelize').fn('COUNT', '*'), 'count']],
-      group: ['type']
+      attributes: ['type', [fn('COUNT', '*'), 'count']],
+      group: ['type'],
+      raw: true
+    });
+
+    const casesByStatus = await Case.findAll({
+      attributes: ['status', [fn('COUNT', '*'), 'count']],
+      group: ['status'],
+      raw: true
     });
 
     const casesByPriority = await Case.findAll({
-      attributes: ['priority', [require('sequelize').fn('COUNT', '*'), 'count']],
-      group: ['priority']
+      attributes: ['priority', [fn('COUNT', '*'), 'count']],
+      group: ['priority'],
+      raw: true
     });
 
     const upcomingSessions = await Session.findAll({
@@ -381,7 +397,13 @@ exports.getCaseStats = async (req, res) => {
       limit: 5
     });
 
-    const isFinancialUser = canManageFinancials.includes(req.user.role);
+    const sessionsSummary = {
+      total: await Session.count(),
+      scheduled: await Session.count({ where: { status: 'scheduled' } }),
+      completed: await Session.count({ where: { status: 'completed' } }),
+      postponed: await Session.count({ where: { status: 'postponed' } }),
+      cancelled: await Session.count({ where: { status: 'cancelled' } })
+    };
 
     const response = {
       stats: {
@@ -391,24 +413,66 @@ exports.getCaseStats = async (req, res) => {
         closed: closedCases,
         won: wonCases,
         lost: lostCases,
-        appeal: appealCases
+        appeal: appealCases,
+        settled: settledCases
       },
       casesByType,
+      casesByStatus,
       casesByPriority,
-      upcomingSessions
+      upcomingSessions,
+      sessionsSummary
     };
 
+    const isFinancialUser = canManageFinancials.includes(req.user.role);
+
     if (isFinancialUser) {
-      const totalInvoicePending = await Invoice.sum('totalAmount', { where: { status: { [Op.in]: ['sent', 'partially_paid'] } } }) || 0;
-      const totalInvoicePaid = await Invoice.sum('paidAmount', { where: { status: { [Op.notIn]: ['draft', 'cancelled'] } } }) || 0;
-      response.invoiceStats = {
-        totalPending: parseFloat(totalInvoicePending),
-        totalPaid: parseFloat(totalInvoicePaid)
-      };
+      // Invoice stats must tolerate the live legacy Invoice.status ENUM
+      // ('pending' | 'paid' | 'overdue' | 'cancelled'). The opt-in financial
+      // migration that widens status to VARCHAR(20) is NOT applied, so only
+      // legacy enum values may be referenced in WHERE clauses here.
+      try {
+        const totalInvoiced = await Invoice.sum('totalAmount', { where: { status: { [Op.notIn]: ['cancelled'] } } }) || 0;
+        const totalPaid = await Invoice.sum('paidAmount', { where: { status: { [Op.notIn]: ['cancelled'] } } }) || 0;
+        const outstanding = await Invoice.sum('totalAmount', { where: { status: { [Op.in]: ['pending', 'overdue'] } } }) || 0;
+
+        const invoiceCounts = await Invoice.findAll({
+          attributes: ['status', [fn('COUNT', '*'), 'count']],
+          group: ['status'],
+          raw: true
+        });
+
+        const monthCol = literal("TO_CHAR(\"issuedDate\", 'YYYY-MM')");
+        const monthlyRows = await Invoice.findAll({
+          attributes: [
+            [monthCol, 'month'],
+            [fn('COALESCE', fn('SUM', col('totalAmount')), 0), 'invoiced'],
+            [fn('COALESCE', fn('SUM', col('paidAmount')), 0), 'paid']
+          ],
+          where: { issuedDate: { [Op.ne]: null } },
+          group: [monthCol],
+          order: [[monthCol, 'ASC']],
+          raw: true
+        });
+
+        response.invoiceStats = {
+          totalInvoiced: parseFloat(totalInvoiced),
+          totalPaid: parseFloat(totalPaid),
+          outstanding: parseFloat(outstanding),
+          counts: invoiceCounts
+        };
+        response.monthlyStats = monthlyRows.map((r) => ({
+          month: r.month,
+          invoiced: parseFloat(r.invoiced),
+          paid: parseFloat(r.paid)
+        }));
+      } catch (invoiceError) {
+        console.error('Dashboard stats: invoice stats failed, skipping:', invoiceError.message);
+      }
     }
 
     res.json(response);
   } catch (error) {
-    res.status(500).json({ error: 'خطأ في جلب الإحصائيات' });
+    console.error('Get case stats error:', error.message);
+    res.status(500).json({ error: 'خطأ في جلب الإحصائيات', details: error.message });
   }
 };

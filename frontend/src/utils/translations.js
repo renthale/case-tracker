@@ -16,6 +16,9 @@ export const ar = {
   no: 'لا',
   viewAll: 'عرض الكل',
   noUpcomingSessions: 'لا توجد جلسات قادمة',
+  retry: 'إعادة المحاولة',
+  errorFetchingData: 'خطأ في جلب البيانات',
+  noDataForCharts: 'لا توجد بيانات لعرضها',
   errorFetchingCase: 'خطأ في جلب بيانات القضية',
   errorSavingCase: 'خطأ في حفظ القضية',
   errorFetchingSession: 'خطأ في بيانات الجلسة',
@@ -158,7 +161,6 @@ export const ar = {
   noNotifications: 'لا توجد إشعارات',
   caseUpdate: 'تحديث القضية',
   sessionReminder: 'تذكير بالجلسة',
-  sessionScheduled: 'تم جدولة جلسة',
   deadline: 'موعد نهائي',
 
   // Reports
@@ -784,6 +786,9 @@ export const en = {
   no: 'No',
   viewAll: 'View All',
   noUpcomingSessions: 'No upcoming sessions',
+  retry: 'Retry',
+  errorFetchingData: 'Error fetching data',
+  noDataForCharts: 'No data available',
   errorFetchingCase: 'Error fetching case details',
   errorSavingCase: 'Error saving case',
   errorFetchingSession: 'Error fetching session',
@@ -926,7 +931,6 @@ export const en = {
   noNotifications: 'No notifications',
   caseUpdate: 'Case Update',
   sessionReminder: 'Session Reminder',
-  sessionScheduled: 'Session Scheduled',
   deadline: 'Deadline',
 
   // Reports

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
@@ -15,6 +15,8 @@ import FinancialStatusBadge from '../../components/FinancialStatusBadge';
 import CaseTimeline from './CaseTimeline';
 
 const FINANCIAL_ROLES = ['admin', 'partner', 'legal_secretary'];
+
+const TAB_KEYS = ['overview', 'details', 'sessions', 'financials', 'invoices', 'documents', 'transactions', 'timeline', 'notes'];
 
 const getStatusBadge = (status, t) => {
   const statusClasses = {
@@ -36,7 +38,11 @@ const CaseDetails = () => {
   const [caseData, setCaseData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState(false);
-  const [activeTab, setActiveTab] = useState('overview');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState(() => {
+    const tab = searchParams.get('tab');
+    return tab && TAB_KEYS.includes(tab) ? tab : 'overview';
+  });
   const [expandedSession, setExpandedSession] = useState(null);
   const [showSessionForm, setShowSessionForm] = useState(false);
   const [sessionFormSession, setSessionFormSession] = useState('');
@@ -46,6 +52,18 @@ const CaseDetails = () => {
   useEffect(() => {
     fetchCaseDetails();
   }, [id]);
+
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab && TAB_KEYS.includes(tab) && tab !== activeTab) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
+
+  const handleTabChange = (key) => {
+    setActiveTab(key);
+    setSearchParams({ tab: key }, { replace: true });
+  };
 
   const fetchCaseDetails = async () => {
     setFetchError(false);
@@ -477,13 +495,13 @@ const CaseDetails = () => {
 
       <div className="case-tabs filter-tabs">
         {tabs.map(tab => (
-          <button key={tab.key} className={`filter-tab ${activeTab === tab.key ? 'active' : ''}`} onClick={() => setActiveTab(tab.key)}>
+          <button key={tab.key} className={`filter-tab ${activeTab === tab.key ? 'active' : ''}`} onClick={() => handleTabChange(tab.key)}>
             {tab.label}
           </button>
         ))}
       </div>
 
-      {activeTab === 'overview' && <CaseOverview caseData={caseData} onNavigate={setActiveTab} />}
+      {activeTab === 'overview' && <CaseOverview caseData={caseData} onNavigate={handleTabChange} />}
       {activeTab === 'details' && renderDetails()}
       {activeTab === 'sessions' && renderSessions()}
       {activeTab === 'financials' && canManageFinancials && (

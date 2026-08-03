@@ -68,7 +68,7 @@ const SessionForm = () => {
       });
     } catch (error) {
       toast.error(t.errorFetchingSession);
-      navigate(caseId ? `/cases/${caseId}` : '/sessions');
+      navigate(caseId ? `/dashboard/cases/${caseId}?tab=sessions` : '/sessions');
     } finally {
       setFetching(false);
     }
@@ -105,7 +105,7 @@ const SessionForm = () => {
         await api.post(`/sessions/case/${cleanedData.caseId}`, cleanedData);
         toast.success(t.sessionCreated);
       }
-      navigate(caseId ? `/cases/${caseId}` : '/sessions');
+      navigate(caseId ? `/dashboard/cases/${caseId}?tab=sessions` : '/sessions');
     } catch (error) {
       toast.error(error.response?.data?.details || error.response?.data?.error || t.errorSavingSession);
     } finally {
@@ -238,7 +238,7 @@ const SessionForm = () => {
             <button type="submit" className="btn btn-primary" disabled={loading}>
               {loading ? t.loading : t.save}
             </button>
-            <button type="button" className="btn btn-secondary" onClick={() => navigate(caseId ? `/cases/${caseId}` : '/sessions')}>
+            <button type="button" className="btn btn-secondary" onClick={() => navigate(caseId ? `/dashboard/cases/${caseId}?tab=sessions` : '/sessions')}>
               {t.cancel}
             </button>
           </div>
