@@ -372,12 +372,12 @@ const CasesList = () => {
             {cases.length > 0 ? (
               cases.map((caseItem) => (
                 <tr key={caseItem.id}>
-                  <td><Link to={`/dashboard/cases/${caseItem.id}`}>{caseItem.caseNumber || '-'}</Link></td>
-                  <td><Link to={`/dashboard/cases/${caseItem.id}`}>{caseItem.title}</Link></td>
+                  <td><Link to={`/dashboard/cases/${caseItem.id}`} title={caseItem.caseNumber || '-'}>{caseItem.caseNumber || '-'}</Link></td>
+                  <td><Link to={`/dashboard/cases/${caseItem.id}`} title={caseItem.title}>{caseItem.title}</Link></td>
                   <td>{t[caseItem.type] || caseItem.type}</td>
                   <td>{getStatusBadge(caseItem.status)}</td>
                   <td>{t[caseItem.priority] || caseItem.priority}</td>
-                  <td>{caseItem.clientName || '-'}</td>
+                  <td title={caseItem.clientName || '-'}>{caseItem.clientName || '-'}</td>
                   <td>
                     {caseItem.nextHearingDate 
                       ? format(new Date(caseItem.nextHearingDate), 'dd/MM/yyyy', { locale: ar })

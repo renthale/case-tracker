@@ -261,9 +261,9 @@ const PortalUsers = () => {
               const badge = statusBadge(pu);
               return (
                 <tr key={pu.id}>
-                  <td><strong>{pu.client?.name || 'N/A'}</strong></td>
-                  <td>{pu.client?.email || '-'}</td>
-                  <td>{pu.email}</td>
+                  <td title={pu.client?.name || 'N/A'}><strong>{pu.client?.name || 'N/A'}</strong></td>
+                  <td title={pu.client?.email || '-'}>{pu.client?.email || '-'}</td>
+                  <td title={pu.email}>{pu.email}</td>
                   <td>
                     <span style={{
                       padding: '2px 8px', borderRadius: '4px', fontSize: '0.8rem', fontWeight: '600',

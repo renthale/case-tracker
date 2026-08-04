@@ -1,61 +1,83 @@
-/* ============ TRANSACTIONS LIST — desktop stable table ============ */
+/* ============ TRANSACTIONS LIST — desktop fit-to-width table ============ */
 @media (min-width: 769px) {
   .transactions-table {
-    min-width: 1100px;
+    width: 100%;
+    min-width: 860px;
+    table-layout: fixed;
   }
 
-  .transactions-table th,
-  .transactions-table td {
-    white-space: nowrap;
+  .transactions-table.data-table th,
+  .transactions-table.data-table td {
     vertical-align: middle;
-    padding: 0.6rem 0.75rem;
+    padding: 0.5rem 0.45rem;
+    overflow: hidden;
   }
 
-  .transactions-table th {
-    padding: 0.75rem;
+  .transactions-table.data-table td {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .transactions-table.data-table th {
+    white-space: normal;
   }
 
   .transactions-table th:nth-child(1),
   .transactions-table td:nth-child(1) {
-    width: 40px;
+    width: 4%;
   }
 
   .transactions-table th:nth-child(2),
   .transactions-table td:nth-child(2) {
-    max-width: 200px;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    width: 14%;
   }
 
   .transactions-table th:nth-child(3),
   .transactions-table td:nth-child(3) {
-    max-width: 180px;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    width: 13%;
+  }
+
+  .transactions-table th:nth-child(4),
+  .transactions-table td:nth-child(4) {
+    width: 11%;
   }
 
   .transactions-table th:nth-child(5),
   .transactions-table td:nth-child(5) {
-    width: 110px;
+    width: 9%;
   }
 
   .transactions-table th:nth-child(6),
   .transactions-table td:nth-child(6) {
-    max-width: 160px;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    width: 11%;
+  }
+
+  .transactions-table th:nth-child(7),
+  .transactions-table td:nth-child(7) {
+    width: 10%;
   }
 
   .transactions-table th:nth-child(8),
-  .transactions-table td:nth-child(8),
+  .transactions-table td:nth-child(8) {
+    width: 9%;
+  }
+
   .transactions-table th:nth-child(9),
   .transactions-table td:nth-child(9) {
-    width: 110px;
+    width: 9%;
   }
 
   .transactions-table th:nth-child(10),
   .transactions-table td:nth-child(10) {
-    width: 100px;
+    width: 10%;
+  }
+
+  .transactions-table td:nth-child(5) a {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .transactions-table .actions {
@@ -66,9 +88,9 @@
   }
 
   .transactions-table .actions .btn {
-    min-width: 30px;
-    min-height: 30px;
-    padding: 0.3rem 0.45rem;
+    width: 32px;
+    height: 32px;
+    padding: 0;
     display: inline-flex;
     align-items: center;
     justify-content: center;

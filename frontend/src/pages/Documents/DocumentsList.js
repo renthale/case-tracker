@@ -241,15 +241,15 @@ const DocumentsList = () => {
             {documents.length > 0 ? (
               documents.map((doc) => (
                 <tr key={doc.id}>
-                  <td><Link to={`/dashboard/documents/${doc.id}`}>{doc.title}</Link></td>
+                  <td><Link to={`/dashboard/documents/${doc.id}`} title={doc.title}>{doc.title}</Link></td>
                   <td>{t[doc.type] || doc.type}</td>
                   <td>
                     {doc.case ? (
-                      <Link to={`/dashboard/cases/${doc.case.id}`}>{doc.case.title}</Link>
+                      <Link to={`/dashboard/cases/${doc.case.id}`} title={doc.case.title}>{doc.case.title}</Link>
                     ) : '-'}
                   </td>
                   <td>{getStatusBadge(doc.status)}</td>
-                  <td>{doc.uploader?.fullName || '-'}</td>
+                  <td title={doc.uploader?.fullName || '-'}>{doc.uploader?.fullName || '-'}</td>
                   <td>
                     {doc.createdAt
                       ? format(new Date(doc.createdAt), 'dd/MM/yyyy', { locale: ar })

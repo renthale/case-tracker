@@ -216,7 +216,7 @@
   align-items: center;
 }
 
-/* ============ DESKTOP CASES TABLE — stable layout ============ */
+/* ============ DESKTOP CASES TABLE — fit-to-width layout ============ */
 @media (min-width: 769px) {
   .cases-list .table-container {
     overflow-x: auto;
@@ -224,32 +224,68 @@
   }
 
   .cases-list .cases-table {
-    min-width: 1000px;
+    width: 100%;
+    min-width: 940px;
+    table-layout: fixed;
   }
 
   .cases-list .cases-table th,
   .cases-list .cases-table td {
-    white-space: nowrap;
     vertical-align: middle;
-    padding: 0.6rem 0.75rem;
+    padding: 0.5rem 0.45rem;
+    overflow: hidden;
+  }
+
+  .cases-list .cases-table td {
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
 
   .cases-list .cases-table th {
-    padding: 0.75rem;
+    white-space: normal;
   }
 
   .cases-list .cases-table th:nth-child(1),
   .cases-list .cases-table td:nth-child(1) {
-    width: 130px;
+    width: 13%;
   }
 
   .cases-list .cases-table th:nth-child(2),
   .cases-list .cases-table td:nth-child(2) {
-    max-width: 280px;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    width: 24%;
   }
 
+  .cases-list .cases-table th:nth-child(3),
+  .cases-list .cases-table td:nth-child(3) {
+    width: 9%;
+  }
+
+  .cases-list .cases-table th:nth-child(4),
+  .cases-list .cases-table td:nth-child(4) {
+    width: 10%;
+  }
+
+  .cases-list .cases-table th:nth-child(5),
+  .cases-list .cases-table td:nth-child(5) {
+    width: 8%;
+  }
+
+  .cases-list .cases-table th:nth-child(6),
+  .cases-list .cases-table td:nth-child(6) {
+    width: 8%;
+  }
+
+  .cases-list .cases-table th:nth-child(7),
+  .cases-list .cases-table td:nth-child(7) {
+    width: 7%;
+  }
+
+  .cases-list .cases-table th:nth-child(8),
+  .cases-list .cases-table td:nth-child(8) {
+    width: 21%;
+  }
+
+  .cases-list .cases-table td:nth-child(1) a,
   .cases-list .cases-table td:nth-child(2) a {
     display: block;
     max-width: 100%;
@@ -258,49 +294,21 @@
     white-space: nowrap;
   }
 
-  .cases-list .cases-table th:nth-child(3),
-  .cases-list .cases-table td:nth-child(3) {
-    width: 130px;
-  }
-
-  .cases-list .cases-table th:nth-child(4),
-  .cases-list .cases-table td:nth-child(4) {
-    width: 110px;
-  }
-
-  .cases-list .cases-table th:nth-child(5),
-  .cases-list .cases-table td:nth-child(5) {
-    width: 100px;
-  }
-
-  .cases-list .cases-table th:nth-child(6),
-  .cases-list .cases-table td:nth-child(6) {
-    max-width: 200px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .cases-list .cases-table th:nth-child(7),
-  .cases-list .cases-table td:nth-child(7) {
-    width: 115px;
-  }
-
   .cases-list .cases-table .actions {
     display: flex;
     flex-wrap: nowrap;
-    gap: 0.35rem;
+    gap: 0.3rem;
     align-items: center;
   }
 
   .cases-list .cases-table .actions .btn {
-    min-width: 34px;
-    min-height: 34px;
-    padding: 0.35rem 0.5rem;
+    width: 32px;
+    height: 32px;
+    padding: 0;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     line-height: 1;
-    font-size: 0.9rem;
     border-radius: 6px;
     flex-shrink: 0;
   }

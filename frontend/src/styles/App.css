@@ -164,6 +164,7 @@ body {
 /* Main Content */
 .main-content {
   flex: 1;
+  min-width: 0;
   margin-right: 260px;
   display: flex;
   flex-direction: column;
@@ -1070,10 +1071,6 @@ tr:hover {
 }
 
 /* ============ PRINT ============ */
-.no-print {
-  display: block;
-}
-
 .print-header,
 .print-title {
   display: none !important;

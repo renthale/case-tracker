@@ -217,19 +217,19 @@ const SessionsList = () => {
                 <tr key={session.id}>
                   <td>{session.sessionNumber}</td>
                   <td>
-                    <Link to={`/dashboard/cases/${session.Case?.id}`}>
+                    <Link to={`/dashboard/cases/${session.Case?.id}`} title={session.Case?.caseNumber || '-'}>
                       {session.Case?.caseNumber || '-'}
                     </Link>
                   </td>
                   <td>
-                    <Link to={`/dashboard/cases/${session.Case?.id}`}>
+                    <Link to={`/dashboard/cases/${session.Case?.id}`} title={session.Case?.title || '-'}>
                       {session.Case?.title || '-'}
                     </Link>
                   </td>
                   <td>{t[session.sessionType] || session.sessionType}</td>
                   <td>{session.date ? format(new Date(session.date), 'dd/MM/yyyy', { locale: ar }) : '—'}</td>
                   <td>{session.time || '-'}</td>
-                  <td>{session.location || '-'}</td>
+                  <td title={session.location || '-'}>{session.location || '-'}</td>
                   <td>{getStatusBadge(session.status)}</td>
                   <td>
                     <div className="actions no-print">

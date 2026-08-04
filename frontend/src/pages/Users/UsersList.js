@@ -281,9 +281,9 @@ const UsersList = () => {
           <tbody>
             {filteredUsers.map(user => (
               <tr key={user.id} style={{ opacity: user.isActive ? 1 : 0.5 }}>
-                <td style={{ fontWeight: 'bold' }}>{user.fullName}</td>
-                <td>{user.username}</td>
-                <td>{user.email}</td>
+                <td style={{ fontWeight: 'bold' }} title={user.fullName}>{user.fullName}</td>
+                <td title={user.username}>{user.username}</td>
+                <td title={user.email}>{user.email}</td>
                 <td>
                   <span style={{
                     display: 'inline-block', padding: '2px 10px', borderRadius: 12,

@@ -1,49 +1,60 @@
-/* ============ USERS LIST — desktop stable table ============ */
+/* ============ USERS LIST — desktop fit-to-width table ============ */
 @media (min-width: 769px) {
   .users-table {
-    min-width: 900px;
+    width: 100%;
+    min-width: 820px;
+    table-layout: fixed;
   }
 
-  .users-table th,
-  .users-table td {
-    white-space: nowrap;
+  .users-table.data-table th,
+  .users-table.data-table td {
     vertical-align: middle;
-    padding: 0.6rem 0.75rem;
+    padding: 0.5rem 0.45rem;
+    overflow: hidden;
   }
 
-  .users-table th {
-    padding: 0.75rem;
+  .users-table.data-table td {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .users-table.data-table th {
+    white-space: normal;
   }
 
   .users-table th:nth-child(1),
   .users-table td:nth-child(1) {
-    max-width: 180px;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    width: 18%;
   }
 
   .users-table th:nth-child(2),
   .users-table td:nth-child(2) {
-    max-width: 120px;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    width: 12%;
   }
 
   .users-table th:nth-child(3),
   .users-table td:nth-child(3) {
-    max-width: 200px;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    width: 20%;
+  }
+
+  .users-table th:nth-child(4),
+  .users-table td:nth-child(4) {
+    width: 12%;
   }
 
   .users-table th:nth-child(5),
   .users-table td:nth-child(5) {
-    width: 110px;
+    width: 13%;
+  }
+
+  .users-table th:nth-child(6),
+  .users-table td:nth-child(6) {
+    width: 10%;
   }
 
   .users-table th:nth-child(7),
   .users-table td:nth-child(7) {
-    width: 130px;
+    width: 15%;
   }
 
   .users-table td:nth-child(7) > div {
@@ -54,9 +65,9 @@
   }
 
   .users-table .btn-icon {
-    min-width: 34px;
-    min-height: 34px;
-    padding: 0.35rem 0.5rem;
+    width: 32px;
+    height: 32px;
+    padding: 0;
     display: inline-flex;
     align-items: center;
     justify-content: center;

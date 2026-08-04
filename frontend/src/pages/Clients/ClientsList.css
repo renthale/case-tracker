@@ -1,4 +1,4 @@
-/* ============ CLIENTS LIST — desktop stable table ============ */
+/* ============ CLIENTS LIST — desktop fit-to-width table ============ */
 @media (min-width: 769px) {
   .clients-list .table-container {
     overflow-x: auto;
@@ -6,25 +6,60 @@
   }
 
   .clients-list .clients-table {
-    min-width: 900px;
+    width: 100%;
+    min-width: 820px;
+    table-layout: fixed;
   }
 
   .clients-list .clients-table th,
   .clients-list .clients-table td {
-    white-space: nowrap;
     vertical-align: middle;
-    padding: 0.6rem 0.75rem;
+    padding: 0.5rem 0.45rem;
+    overflow: hidden;
+  }
+
+  .clients-list .clients-table td {
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
 
   .clients-list .clients-table th {
-    padding: 0.75rem;
+    white-space: normal;
   }
 
   .clients-list .clients-table th:nth-child(1),
   .clients-list .clients-table td:nth-child(1) {
-    max-width: 220px;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    width: 24%;
+  }
+
+  .clients-list .clients-table th:nth-child(2),
+  .clients-list .clients-table td:nth-child(2) {
+    width: 12%;
+  }
+
+  .clients-list .clients-table th:nth-child(3),
+  .clients-list .clients-table td:nth-child(3) {
+    width: 11%;
+  }
+
+  .clients-list .clients-table th:nth-child(4),
+  .clients-list .clients-table td:nth-child(4) {
+    width: 21%;
+  }
+
+  .clients-list .clients-table th:nth-child(5),
+  .clients-list .clients-table td:nth-child(5) {
+    width: 7%;
+  }
+
+  .clients-list .clients-table th:nth-child(6),
+  .clients-list .clients-table td:nth-child(6) {
+    width: 10%;
+  }
+
+  .clients-list .clients-table th:nth-child(7),
+  .clients-list .clients-table td:nth-child(7) {
+    width: 15%;
   }
 
   .clients-list .clients-table td:nth-child(1) a {
@@ -35,41 +70,21 @@
     white-space: nowrap;
   }
 
-  .clients-list .clients-table th:nth-child(2),
-  .clients-list .clients-table td:nth-child(2) {
-    max-width: 130px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .clients-list .clients-table th:nth-child(4),
-  .clients-list .clients-table td:nth-child(4) {
-    max-width: 180px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .clients-list .clients-table th:nth-child(7),
-  .clients-list .clients-table td:nth-child(7) {
-    width: 130px;
-  }
-
   .clients-list .clients-table .actions {
     display: flex;
     flex-wrap: nowrap;
-    gap: 0.35rem;
+    gap: 0.3rem;
     align-items: center;
   }
 
   .clients-list .clients-table .actions .btn {
-    min-width: 34px;
-    min-height: 34px;
-    padding: 0.35rem 0.5rem;
+    width: 32px;
+    height: 32px;
+    padding: 0;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     line-height: 1;
-    font-size: 0.9rem;
     border-radius: 6px;
     flex-shrink: 0;
   }

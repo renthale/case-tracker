@@ -251,13 +251,13 @@ const InvoicesList = () => {
             {invoices.length > 0 ? (
               invoices.map((invoice) => (
                 <tr key={invoice.id}>
-                  <td><Link to={`/dashboard/invoices/${invoice.id}`}>{invoice.invoiceNumber || '-'}</Link></td>
+                  <td><Link to={`/dashboard/invoices/${invoice.id}`} title={invoice.invoiceNumber || '-'}>{invoice.invoiceNumber || '-'}</Link></td>
                   <td>
                     {invoice.caseId ? (
-                      <Link to={`/dashboard/cases/${invoice.caseId}`}>{invoice.case?.caseNumber || invoice.case?.title || '-'}</Link>
+                      <Link to={`/dashboard/cases/${invoice.caseId}`} title={invoice.case?.caseNumber || invoice.case?.title || '-'}>{invoice.case?.caseNumber || invoice.case?.title || '-'}</Link>
                     ) : '-'}
                   </td>
-                  <td>{invoice.client?.name || '-'}</td>
+                  <td title={invoice.client?.name || '-'}>{invoice.client?.name || '-'}</td>
                   <td>{t[invoice.type] || invoice.type}</td>
                   <td>{formatAmount(invoice.totalAmount)}</td>
                   <td>{getStatusBadge(invoice.status)}</td>

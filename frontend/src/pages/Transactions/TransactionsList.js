@@ -295,17 +295,17 @@ const TransactionsList = () => {
               ) : transactions.map((tx, idx) => (
                 <tr key={tx.id}>
                   <td style={{ color: '#999', fontSize: '0.85rem' }}>{(pagination.page - 1) * 20 + idx + 1}</td>
-                  <td style={{ fontWeight: 600 }}>{tx.title}</td>
-                  <td>{tx.governmentEntity}</td>
+                  <td style={{ fontWeight: 600 }} title={tx.title}>{tx.title}</td>
+                  <td title={tx.governmentEntity}>{tx.governmentEntity}</td>
                   <td>{getEntityLabel(tx.entityType)}</td>
                   <td>
                     {tx.case ? (
-                      <Link to={`/dashboard/cases/${tx.case.id}`} style={{ color: '#3182ce', fontWeight: 500 }}>
+                      <Link to={`/dashboard/cases/${tx.case.id}`} title={tx.case.caseNumber} style={{ color: '#3182ce', fontWeight: 500 }}>
                         {tx.case.caseNumber}
                       </Link>
                     ) : <span style={{ color: '#999' }}>-</span>}
                   </td>
-                  <td>{tx.client?.name || <span style={{ color: '#999' }}>-</span>}</td>
+                  <td title={tx.client?.name || '-'}>{tx.client?.name || <span style={{ color: '#999' }}>-</span>}</td>
                   <td>{getStatusBadge(tx.status)}</td>
                   <td>{tx.submissionDate || '-'}</td>
                   <td>

@@ -1,61 +1,76 @@
-/* ============ TIME TRACKING — desktop stable table ============ */
+/* ============ TIME TRACKING — desktop fit-to-width table ============ */
 @media (min-width: 769px) {
   .time-tracking-table {
-    min-width: 1000px;
+    width: 100%;
+    min-width: 700px;
+    table-layout: fixed;
   }
 
-  .time-tracking-table th,
-  .time-tracking-table td {
-    white-space: nowrap;
+  .time-tracking-table.data-table th,
+  .time-tracking-table.data-table td {
     vertical-align: middle;
-    padding: 0.6rem 0.75rem;
+    padding: 0.5rem 0.45rem;
+    overflow: hidden;
   }
 
-  .time-tracking-table th {
-    padding: 0.75rem;
+  .time-tracking-table.data-table td {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .time-tracking-table.data-table th {
+    white-space: normal;
+  }
+
+  .time-tracking-table th:nth-child(1),
+  .time-tracking-table td:nth-child(1) {
+    width: 9%;
   }
 
   .time-tracking-table th:nth-child(2),
   .time-tracking-table td:nth-child(2) {
-    width: 110px;
+    width: 9%;
   }
 
   .time-tracking-table th:nth-child(3),
   .time-tracking-table td:nth-child(3) {
-    width: 110px;
+    width: 11%;
   }
 
   .time-tracking-table th:nth-child(4),
   .time-tracking-table td:nth-child(4) {
-    width: 60px;
+    width: 6%;
   }
 
   .time-tracking-table th:nth-child(5),
   .time-tracking-table td:nth-child(5) {
-    max-width: 240px;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    width: 26%;
+  }
+
+  .time-tracking-table th:nth-child(6),
+  .time-tracking-table td:nth-child(6) {
+    width: 7%;
   }
 
   .time-tracking-table th:nth-child(7),
   .time-tracking-table td:nth-child(7) {
-    width: 90px;
+    width: 8%;
   }
 
   .time-tracking-table th:nth-child(8),
   .time-tracking-table td:nth-child(8) {
-    width: 110px;
+    width: 13%;
   }
 
   .time-tracking-table th:nth-child(9),
   .time-tracking-table td:nth-child(9) {
-    width: 70px;
+    width: 11%;
   }
 
   .time-tracking-table td:nth-child(9) .btn {
-    min-width: 30px;
-    min-height: 30px;
-    padding: 0.3rem 0.45rem;
+    width: 32px;
+    height: 32px;
+    padding: 0;
     display: inline-flex;
     align-items: center;
     justify-content: center;

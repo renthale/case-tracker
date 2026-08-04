@@ -318,7 +318,7 @@ const TimeTracking = () => {
                     </span>
                   </td>
                   <td style={{ fontWeight: 'bold' }}>{entry.hours}</td>
-                  <td style={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{entry.description}</td>
+                  <td title={entry.description}>{entry.description}</td>
                   <td>
                     <span style={{ color: entry.billable ? '#2ecc71' : '#e74c3c', fontWeight: 600 }}>
                       {entry.billable ? (isArabic ? 'نعم' : 'Yes') : (isArabic ? 'لا' : 'No')}

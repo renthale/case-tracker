@@ -1,4 +1,4 @@
-/* ============ INVOICES LIST — desktop stable table ============ */
+/* ============ INVOICES LIST — desktop fit-to-width table ============ */
 @media (min-width: 769px) {
   .invoices-list .table-container {
     overflow-x: auto;
@@ -6,32 +6,68 @@
   }
 
   .invoices-list .invoices-table {
-    min-width: 900px;
+    width: 100%;
+    min-width: 880px;
+    table-layout: fixed;
   }
 
   .invoices-list .invoices-table th,
   .invoices-list .invoices-table td {
-    white-space: nowrap;
     vertical-align: middle;
-    padding: 0.6rem 0.75rem;
+    padding: 0.5rem 0.45rem;
+    overflow: hidden;
+  }
+
+  .invoices-list .invoices-table td {
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
 
   .invoices-list .invoices-table th {
-    padding: 0.75rem;
+    white-space: normal;
   }
 
   .invoices-list .invoices-table th:nth-child(1),
   .invoices-list .invoices-table td:nth-child(1) {
-    width: 110px;
+    width: 13%;
   }
 
   .invoices-list .invoices-table th:nth-child(2),
   .invoices-list .invoices-table td:nth-child(2) {
-    max-width: 180px;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    width: 16%;
   }
 
+  .invoices-list .invoices-table th:nth-child(3),
+  .invoices-list .invoices-table td:nth-child(3) {
+    width: 15%;
+  }
+
+  .invoices-list .invoices-table th:nth-child(4),
+  .invoices-list .invoices-table td:nth-child(4) {
+    width: 10%;
+  }
+
+  .invoices-list .invoices-table th:nth-child(5),
+  .invoices-list .invoices-table td:nth-child(5) {
+    width: 10%;
+  }
+
+  .invoices-list .invoices-table th:nth-child(6),
+  .invoices-list .invoices-table td:nth-child(6) {
+    width: 11%;
+  }
+
+  .invoices-list .invoices-table th:nth-child(7),
+  .invoices-list .invoices-table td:nth-child(7) {
+    width: 11%;
+  }
+
+  .invoices-list .invoices-table th:nth-child(8),
+  .invoices-list .invoices-table td:nth-child(8) {
+    width: 14%;
+  }
+
+  .invoices-list .invoices-table td:nth-child(1) a,
   .invoices-list .invoices-table td:nth-child(2) a {
     display: block;
     max-width: 100%;
@@ -40,44 +76,21 @@
     white-space: nowrap;
   }
 
-  .invoices-list .invoices-table th:nth-child(3),
-  .invoices-list .invoices-table td:nth-child(3) {
-    max-width: 200px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .invoices-list .invoices-table th:nth-child(5),
-  .invoices-list .invoices-table td:nth-child(5) {
-    width: 100px;
-  }
-
-  .invoices-list .invoices-table th:nth-child(7),
-  .invoices-list .invoices-table td:nth-child(7) {
-    width: 110px;
-  }
-
-  .invoices-list .invoices-table th:nth-child(8),
-  .invoices-list .invoices-table td:nth-child(8) {
-    width: 130px;
-  }
-
   .invoices-list .invoices-table .actions {
     display: flex;
     flex-wrap: nowrap;
-    gap: 0.35rem;
+    gap: 0.3rem;
     align-items: center;
   }
 
   .invoices-list .invoices-table .actions .btn {
-    min-width: 34px;
-    min-height: 34px;
-    padding: 0.35rem 0.5rem;
+    width: 32px;
+    height: 32px;
+    padding: 0;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     line-height: 1;
-    font-size: 0.9rem;
     border-radius: 6px;
     flex-shrink: 0;
   }

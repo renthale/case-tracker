@@ -193,10 +193,10 @@ const ClientsList = () => {
             {clients.length > 0 ? (
               clients.map((client) => (
                 <tr key={client.id}>
-                  <td><Link to={`/dashboard/clients/${client.id}`}>{client.name}</Link></td>
-                  <td>{client.civilId || '-'}</td>
+                  <td><Link to={`/dashboard/clients/${client.id}`} title={client.name}>{client.name}</Link></td>
+                  <td title={client.civilId || '-'}>{client.civilId || '-'}</td>
                   <td>{client.phone || '-'}</td>
-                  <td>{client.email || '-'}</td>
+                  <td title={client.email || '-'}>{client.email || '-'}</td>
                   <td>{client.casesCount ?? client.cases?.length ?? 0}</td>
                   <td>
                     {client.createdAt

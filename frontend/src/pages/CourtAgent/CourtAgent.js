@@ -330,22 +330,22 @@ const CourtAgent = () => {
               </div>
             </div>
             <div className="court-agent-table-wrap" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
-            <table className="court-agent-table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem', minWidth: 640 }}>
+            <table className="court-agent-table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem', tableLayout: 'fixed' }}>
               <thead>
                 <tr style={{ background: '#f5f5f5' }}>
-                  <th style={{ padding: 8, textAlign: 'right' }}>#</th>
-                  <th style={{ padding: 8, textAlign: 'right' }}>{isArabic ? 'القضية' : 'Case'}</th>
-                  <th style={{ padding: 8, textAlign: 'right' }}>{isArabic ? 'رقم القضية' : 'Case No.'}</th>
-                  <th style={{ padding: 8, textAlign: 'right' }}>{isArabic ? 'الوقت' : 'Time'}</th>
-                  <th style={{ padding: 8, textAlign: 'right' }}>{isArabic ? 'الحالة' : 'Status'}</th>
-                  <th style={{ padding: 8, textAlign: 'right' }}>{isArabic ? 'النتيجة' : 'Outcome'}</th>
+                  <th style={{ padding: 8, textAlign: 'right', width: '5%' }}>#</th>
+                  <th style={{ padding: 8, textAlign: 'right', width: '30%' }}>{isArabic ? 'القضية' : 'Case'}</th>
+                  <th style={{ padding: 8, textAlign: 'right', width: '14%' }}>{isArabic ? 'رقم القضية' : 'Case No.'}</th>
+                  <th style={{ padding: 8, textAlign: 'right', width: '8%' }}>{isArabic ? 'الوقت' : 'Time'}</th>
+                  <th style={{ padding: 8, textAlign: 'right', width: '13%' }}>{isArabic ? 'الحالة' : 'Status'}</th>
+                  <th style={{ padding: 8, textAlign: 'right', width: '30%' }}>{isArabic ? 'النتيجة' : 'Outcome'}</th>
                 </tr>
               </thead>
               <tbody>
                 {dailyReport.sessions.map((s, i) => (
                   <tr key={s.id} style={{ borderBottom: '1px solid #eee' }}>
                     <td style={{ padding: 8 }}>{i + 1}</td>
-                    <td style={{ padding: 8, maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.caseTitle}</td>
+                    <td style={{ padding: 8, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={s.caseTitle}>{s.caseTitle}</td>
                     <td style={{ padding: 8 }}>{s.caseNumber}</td>
                     <td style={{ padding: 8 }}>{s.time || '-'}</td>
                     <td style={{ padding: 8 }}>
@@ -357,7 +357,7 @@ const CourtAgent = () => {
                          (isArabic ? 'مجدولة' : 'Scheduled')}
                       </span>
                     </td>
-                    <td style={{ padding: 8, maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.outcome || '-'}</td>
+                    <td style={{ padding: 8, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={s.outcome || '-'}>{s.outcome || '-'}</td>
                   </tr>
                 ))}
               </tbody>

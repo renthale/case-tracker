@@ -1,4 +1,4 @@
-/* ============ SESSIONS LIST — desktop stable table ============ */
+/* ============ SESSIONS LIST — desktop fit-to-width table ============ */
 @media (min-width: 769px) {
   .sessions-list .table-container {
     overflow-x: auto;
@@ -6,37 +6,73 @@
   }
 
   .sessions-list .sessions-table {
-    min-width: 1000px;
+    width: 100%;
+    min-width: 840px;
+    table-layout: fixed;
   }
 
   .sessions-list .sessions-table th,
   .sessions-list .sessions-table td {
-    white-space: nowrap;
     vertical-align: middle;
-    padding: 0.6rem 0.75rem;
+    padding: 0.5rem 0.45rem;
+    overflow: hidden;
+  }
+
+  .sessions-list .sessions-table td {
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
 
   .sessions-list .sessions-table th {
-    padding: 0.75rem;
+    white-space: normal;
   }
 
   .sessions-list .sessions-table th:nth-child(1),
   .sessions-list .sessions-table td:nth-child(1) {
-    width: 110px;
+    width: 7%;
   }
 
   .sessions-list .sessions-table th:nth-child(2),
   .sessions-list .sessions-table td:nth-child(2) {
-    width: 120px;
+    width: 10%;
   }
 
   .sessions-list .sessions-table th:nth-child(3),
   .sessions-list .sessions-table td:nth-child(3) {
-    max-width: 260px;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    width: 27%;
   }
 
+  .sessions-list .sessions-table th:nth-child(4),
+  .sessions-list .sessions-table td:nth-child(4) {
+    width: 9%;
+  }
+
+  .sessions-list .sessions-table th:nth-child(5),
+  .sessions-list .sessions-table td:nth-child(5) {
+    width: 9%;
+  }
+
+  .sessions-list .sessions-table th:nth-child(6),
+  .sessions-list .sessions-table td:nth-child(6) {
+    width: 6%;
+  }
+
+  .sessions-list .sessions-table th:nth-child(7),
+  .sessions-list .sessions-table td:nth-child(7) {
+    width: 12%;
+  }
+
+  .sessions-list .sessions-table th:nth-child(8),
+  .sessions-list .sessions-table td:nth-child(8) {
+    width: 10%;
+  }
+
+  .sessions-list .sessions-table th:nth-child(9),
+  .sessions-list .sessions-table td:nth-child(9) {
+    width: 10%;
+  }
+
+  .sessions-list .sessions-table td:nth-child(2) a,
   .sessions-list .sessions-table td:nth-child(3) a {
     display: block;
     max-width: 100%;
@@ -45,34 +81,21 @@
     white-space: nowrap;
   }
 
-  .sessions-list .sessions-table th:nth-child(7),
-  .sessions-list .sessions-table td:nth-child(7) {
-    max-width: 180px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .sessions-list .sessions-table th:nth-child(9),
-  .sessions-list .sessions-table td:nth-child(9) {
-    width: 100px;
-  }
-
   .sessions-list .sessions-table .actions {
     display: flex;
     flex-wrap: nowrap;
-    gap: 0.35rem;
+    gap: 0.3rem;
     align-items: center;
   }
 
   .sessions-list .sessions-table .actions .btn {
-    min-width: 34px;
-    min-height: 34px;
-    padding: 0.35rem 0.5rem;
+    width: 32px;
+    height: 32px;
+    padding: 0;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     line-height: 1;
-    font-size: 0.9rem;
     border-radius: 6px;
     flex-shrink: 0;
   }
