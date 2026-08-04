@@ -33,8 +33,8 @@ const PortalUsers = () => {
     try {
       setFetchError(false);
       const [usersRes, clientsRes] = await Promise.all([
-        api.get('/api/portal/admin/list'),
-        api.get('/api/portal/admin/available-clients')
+        api.get('/portal/admin/list'),
+        api.get('/portal/admin/available-clients')
       ]);
       setPortalUsers(usersRes.data.portalUsers || []);
       setAvailableClients(clientsRes.data.clients || []);
@@ -61,7 +61,7 @@ const PortalUsers = () => {
   const handleInvite = async (e) => {
     e.preventDefault();
     try {
-      const res = await api.post('/api/portal/admin/invite', form);
+      const res = await api.post('/portal/admin/invite', form);
       if (res.data.invitationLink) {
         showLinkToast(res.data.invitationLink, L('Invitation link (single use):', 'رابط الدعوة (استخدام واحد):'));
       } else {
@@ -78,7 +78,7 @@ const PortalUsers = () => {
   const handleResendInvitation = async (pu) => {
     setBusyId(pu.id);
     try {
-      const res = await api.post(`/api/portal/admin/resend-invitation/${pu.client?.id}`);
+      const res = await api.post(`/portal/admin/resend-invitation/${pu.client?.id}`);
       if (res.data.invitationLink) {
         showLinkToast(res.data.invitationLink, L('Invitation link (single use):', 'رابط الدعوة (استخدام واحد):'));
       } else {
@@ -95,7 +95,7 @@ const PortalUsers = () => {
   const handleResetLink = async (pu) => {
     setBusyId(pu.id);
     try {
-      const res = await api.post(`/api/portal/admin/${pu.id}/generate-reset-link`);
+      const res = await api.post(`/portal/admin/${pu.id}/generate-reset-link`);
       showLinkToast(res.data.resetUrl, L('Password reset link (single use):', 'رابط إعادة تعيين كلمة المرور (استخدام واحد):'));
     } catch (error) {
       toast.error(error.response?.data?.error || L('Failed to generate link', 'فشل إنشاء الرابط'));
@@ -106,7 +106,7 @@ const PortalUsers = () => {
 
   const handleToggle = async (id) => {
     try {
-      const res = await api.put(`/api/portal/admin/${id}/toggle`);
+      const res = await api.put(`/portal/admin/${id}/toggle`);
       toast.success(res.data.message);
       fetchData();
     } catch (error) {
@@ -117,7 +117,7 @@ const PortalUsers = () => {
   const handleDelete = async (id) => {
     if (!window.confirm(L('Delete this portal account?', 'حذف هذا الحساب؟'))) return;
     try {
-      await api.delete(`/api/portal/admin/${id}`);
+      await api.delete(`/portal/admin/${id}`);
       toast.success(L('Account deleted', 'تم حذف الحساب'));
       fetchData();
     } catch (error) {
